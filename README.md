@@ -18,6 +18,7 @@ Particle:
 mass
 position
 config: {
+	startVelocity: array [0, 0]
 }
 
 velocity

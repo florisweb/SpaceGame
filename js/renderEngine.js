@@ -3,24 +3,40 @@ function _RenderEngine() {
 		canvas: gameCanvas,
 	}
 	this.settings = new function() {
-		this.renderVectors = false;
+		this.renderVectors = true;
 	}
 
 	this.camera = new function() {
 		this.size = new Vector([800, 600]); // canvas
 
 		
-		this.zoom = 1; // percent of the world you can see
+		this.zoom = 2.4; // percent of the camsize you can see
 		this.position = new Vector([0, 0]); // in world
+
+		let followEntity = false;
+		this.follow = function(_entity) {
+			followEntity = _entity;
+		}
+
+		this.update = function() {
+			if (!followEntity) return;
+
+			let rScreen = this.getWorldProjectionSize().scale(-.5);
+			this.position = followEntity.position.copy().add(rScreen);
+		}
+
 
 		this.getWorldProjectionSize = function() {
 			return this.size.copy().scale(this.zoom);
 		}
 
-
 		this.worldPosToCanvasPos = function(_position) {
 			let rPos = this.position.difference(_position);
 			return rPos.scale(1 / this.zoom);
+		}
+		this.canvasPosToWorldPos = function(_position) {
+			let rPos = _position.scale(this.zoom);
+			return this.position.copy().add(rPos); 
 		}
 		
 		this.inView = function(_particle) {
@@ -50,6 +66,8 @@ function _RenderEngine() {
 
 	let lastUpdate = new Date();
 	this.update = function(_entities = []) {
+		this.camera.update();
+
 		this.clearCanvas();
 		this.drawWorldGrid();
 		this.drawWorldBorders();

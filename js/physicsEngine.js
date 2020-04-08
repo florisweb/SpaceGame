@@ -83,6 +83,8 @@ function Particle({position, mass, config = {}}) {
 	this.velocity = new Vector([0, 0]); // x-y-vector
 	this.config = config
 
+	if (this.config.startVelocity) this.velocity = new Vector(this.config.startVelocity);
+
 	PhysicsEngine.particles.push(this);
 }
 
@@ -109,7 +111,6 @@ function GravParticle({mass, position, radius, config = {}}) {
 		RenderEngine.drawVector(this.position.copy(), this.velocity.copy().scale(30), "#f00");
 		RenderEngine.drawVector(this.position.copy(), a.scale(3000), "#fa0");
 	}
-
 }
 
 
