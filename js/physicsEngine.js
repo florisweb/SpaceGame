@@ -82,9 +82,17 @@ function GravParticle({mass, position, radius}) {
 	this.radius = radius;
 
 	this.applyGravitation = function() {
-		let gravVector = PhysicsEngine.getTotalGravVector(this);
-		this.position.add(gravVector);
-		RenderEngine.drawVector(this.position.copy(), gravVector.scale(30));
+		let Fgrav = PhysicsEngine.getTotalGravVector(this);
+		let Fres = Fgrav.copy();
+
+		let a = Fres.scale(1 / this.mass);
+		this.velocity.add(a);
+
+		this.position.add(this.velocity);
+
+		RenderEngine.drawVector(this.position.copy(), Fgrav.scale(30), "#00f");
+		RenderEngine.drawVector(this.position.copy(), this.velocity.copy().scale(30), "#f00");
+		RenderEngine.drawVector(this.position.copy(), a.scale(3000), "#fa0");
 	}
 
 }

@@ -33,6 +33,8 @@ App.setup();
 for (let i = 0; i < 10; i++) {
 	let radius = Math.random() * 10 + 5;
 	let mass = 4/3 * Math.PI * Math.pow(radius, 3);
-	g = new GravParticle({position: [Math.random() * 800, Math.random() * 600], mass: mass, radius: radius});
+	g = new GravParticle({position: [Math.random() * 1600, Math.random() * 1200], mass: mass, radius: radius});
 	console.log(g.position.value);
 }
+
+g = new GravParticle({mass: 523599, position: [800, 600], radius: 50}); //SUN
