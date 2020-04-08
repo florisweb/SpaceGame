@@ -8,7 +8,7 @@ function _RenderEngine() {
 
 		
 		this.zoom = 1; // percent of the world you can see
-		this.position = new Vector([0, 0]); // in world
+		this.position = new Vector([-200, -200]); // in world
 
 		this.getWorldProjectionSize = function() {
 			return this.size.copy().scale(this.zoom);
@@ -34,6 +34,17 @@ function _RenderEngine() {
 			0,
 			2 * Math.PI
 		);
+	}
+
+
+	this.update = function(_entities = []) {
+		this.clearCanvas();
+		this.drawWorldGrid();
+
+		for (let i = 0; i < _entities.length; i++)
+		{
+			this.drawEntity(_entities[i]);
+		}
 	}
 
 
@@ -94,14 +105,32 @@ function _RenderEngine() {
 
 
 
+	this.drawEntity = function(_entity) {
+		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
+
+		ctx.strokeStyle = "red";
+		ctx.beginPath();
+		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius);
+		ctx.closePath();
+		ctx.stroke();
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	
-	this.update = function() {
-		this.clearCanvas();
-		this.drawWorldGrid();
-		requestAnimationFrame(function () {RenderEngine.update()});
-	}
 
 
 	

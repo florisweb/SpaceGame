@@ -26,5 +26,7 @@ function _app() {
 App.setup();
 
 
-g = new GravParticle({position: [1, 0], mass: 100, radius: 10});
-g = new GravParticle({position: [0, 1], mass: 100, radius: 10});
+g = new GravParticle({position: [50, -20], mass: 50, radius: 10});
+g = new GravParticle({position: [100, 150], mass: 200, radius: 20});
+g = new GravParticle({position: [300, 150], mass: 50, radius: 10});
+// g = new GravParticle({position: [500, 300], mass: 200, radius: 20});

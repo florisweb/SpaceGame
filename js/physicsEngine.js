@@ -2,7 +2,7 @@ function _PhysicsEngine() {
 	this.particles = [];
 
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 5);
+		this.G = 6.674 * Math.pow(10, -11 + 10);
 	}
 
 	this.formulas = new function() {
@@ -14,6 +14,15 @@ function _PhysicsEngine() {
 	this.world = new function() {
 		this.size = new Vector([800, 600]);
 
+	}
+
+
+
+	this.update = function() {
+		for (let p = 0; p < this.particles.length; p++)
+		{
+			this.particles[p].applyGravitation();
+		}
 	}
 
 
@@ -72,8 +81,8 @@ function GravParticle({mass, position, radius}) {
 	Particle.call(this, {position: position, mass: mass});
 	this.radius = radius;
 
-	this.update = function() {
-
+	this.applyGravitation = function() {
+		this.position.add(PhysicsEngine.getTotalGravVector(this));
 	}
 
 }
