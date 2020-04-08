@@ -2,9 +2,11 @@
 let PhysicsEngine;
 let RenderEngine;
 let InputHandler;
+let Animator;
 
 function _Game() {
   this.setup = function() {
+    Animator = new _Animator();
     PhysicsEngine = new _PhysicsEngine();
     RenderEngine 	= new _RenderEngine();
     InputHandler 	= new _InputHandler();
@@ -16,6 +18,7 @@ function _Game() {
   this.update = function() {
   	RenderEngine.update(PhysicsEngine.particles);
     PhysicsEngine.update();
+    Animator.update();
 
   	requestAnimationFrame(function () {Game.update()});
   }

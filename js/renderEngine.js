@@ -15,11 +15,15 @@ function _RenderEngine() {
 		let followEntity = false;
 		this.follow = function(_entity) {
 			followEntity = _entity;
+			if (!followEntity) return;
+			
+			let rScreen = this.getWorldProjectionSize().scale(-.5);
+			this.panTo(followEntity.position.copy().add(rScreen));
 		}
 
 		this.update = function() {
 			if (!followEntity) return;
-
+			if (panning) return;
 			let rScreen = this.getWorldProjectionSize().scale(-.5);
 			this.position = followEntity.position.copy().add(rScreen);
 		}
@@ -45,6 +49,37 @@ function _RenderEngine() {
 			if (dPos.value[0] > projSize.value[0] + _particle.radius || dPos.value[1] > projSize.value[1] + _particle.radius) return false;
 			return true;
 		}
+
+
+		this.zoomTo = function(_targetValue) {
+			Animator.animateValue({
+				start: this.zoom,
+				end: _targetValue,
+				frames: 100,
+				callback: function(_value) {
+					RenderEngine.camera.zoom = _value;
+				}
+			});
+		}
+
+
+		let panning = false;
+		this.panTo = function(_endCoords) {
+			panning = true;
+			let delta = this.position.difference(_endCoords);
+			let startPosition = this.position;
+			Animator.animateValue({
+				start: 0,
+				end: 1,
+				frames: 50,
+				callback: function(_value, _percentage) {
+					if (_value >= .9) panning = false;
+					let dpos = delta.copy().scale(_value);
+					RenderEngine.camera.position = startPosition.copy().add(dpos);
+				}
+			});
+		}
+
 	}
 
 

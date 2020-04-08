@@ -19,6 +19,7 @@
 			let antiCache = Math.round(Math.random() * 100000000);
 			$.getScript("js/extraFunctions.js?antiCache=" 			+ antiCache, function() {});
 			$.getScript("js/vector.js?antiCache=" 					+ antiCache, function() {});
+			$.getScript("js/animator.js?antiCache=" 				+ antiCache, function() {});
 			$.getScript("js/physicsEngine.js?antiCache=" 			+ antiCache, function() {});
 			$.getScript("js/renderEngine.js?antiCache="				+ antiCache, function() {});
 			$.getScript("js/inputHandler.js?antiCache=" 			+ antiCache, function() {});

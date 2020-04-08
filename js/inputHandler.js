@@ -15,7 +15,6 @@ function _InputHandler() {
 
 	this.settings = new function() {
 		this.dragSpeed = 1;
-
 	}
 	assignMouseDrager();
 
