@@ -2,6 +2,9 @@ function _RenderEngine() {
 	let HTML = {
 		canvas: gameCanvas,
 	}
+	this.settings = new function() {
+		this.renderVectors = true;
+	}
 
 	this.camera = new function() {
 		this.size = new Vector([800, 600]); // canvas
@@ -37,6 +40,7 @@ function _RenderEngine() {
 	}
 
 
+	let lastUpdate = new Date();
 	this.update = function(_entities = []) {
 		this.clearCanvas();
 		this.drawWorldGrid();
@@ -45,6 +49,10 @@ function _RenderEngine() {
 		{
 			this.drawEntity(_entities[i]);
 		}
+
+		let fps = 1 / ((new Date() - lastUpdate) / 1000);
+		this.drawStatistics(fps);
+		lastUpdate = new Date();
 	}
 
 
@@ -129,6 +137,16 @@ function _RenderEngine() {
 
 
 
+
+
+	this.drawStatistics = function(_fps) {
+		ctx.font = '16px calibri';
+		ctx.fillStyle = "#f00";
+		ctx.beginPath();
+		ctx.fillText("Fps: " + Math.round(_fps * 10) / 10, 5, 20);
+		ctx.closePath();
+		ctx.fill();
+	}
 
 
 
