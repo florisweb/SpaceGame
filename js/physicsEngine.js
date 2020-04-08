@@ -1,6 +1,25 @@
 function _PhysicsEngine() {
 	this.particles = [];
 
+	this.constants = new function() {
+		this.G = 6.674 * Math.pow(10, -11 + 5);
+	}
+
+	this.formulas = new function() {
+		this.gravitation = function(_massA, _massB, _radius) {
+			return PhysicsEngine.constants.G * (_massA * _massB) / (_radius * _radius);
+		}
+	}
+	
+	this.world = new function() {
+		this.size = new Vector([800, 600]);
+
+	}
+
+
+
+	
+
 	
 	this.getTotalGravVector = function(_particle) {
 		let curVector = new Vector([0, 0]);
@@ -31,16 +50,6 @@ function _PhysicsEngine() {
 	}
 
 
-	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 5);
-	}
-
-	this.formulas = new function() {
-		this.gravitation = function(_massA, _massB, _radius) {
-			return PhysicsEngine.constants.G * (_massA * _massB) / (_radius * _radius);
-		}
-
-	}
 }
 
 

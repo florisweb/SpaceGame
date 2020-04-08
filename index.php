@@ -7,10 +7,11 @@
 
 
 		<link rel="stylesheet" type="text/css" href="css/component.css?a=1">
-		<link rel="stylesheet" type="text/css" href="css/main.css?a=1">
+		<link rel="stylesheet" type="text/css" href="css/main.css?a=2">
 		<script type="text/javascript" src="/JS/jQuery.js"></script>
 	</head>	
 	<body>
+		<canvas id="gameCanvas" width="800" height="600"></canvas>
 		
 
 		<script>
@@ -20,6 +21,7 @@
 			$.getScript("js/vector.js?antiCache=" 					+ antiCache, function() {});
 			$.getScript("js/physicsEngine.js?antiCache=" 			+ antiCache, function() {});
 			$.getScript("js/renderEngine.js?antiCache="				+ antiCache, function() {});
+			$.getScript("js/inputHandler.js?antiCache=" 			+ antiCache, function() {});
 			$.getScript("js/game.js?antiCache="						+ antiCache, function() {});
 			$.getScript("js/app.js?antiCache="						+ antiCache, function() {});
 			

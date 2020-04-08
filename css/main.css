@@ -13,14 +13,19 @@ html {
        -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
+                               supported by Chrome and Opera */
 }
 
 
+#gameCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
 
-#DragHandler_dragObject {
-  position: fixed;
-}
+  width: 100%;
+  height: auto;
 
-#DragHandler_dragObject:not(.draging) {
+  background: #333;
+
+  border: 1px solid red;
 }
