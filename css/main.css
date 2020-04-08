@@ -23,6 +23,7 @@ html {
   top: 0;
 
   width: 100%;
+  max-width: calc(800/600 * 100vh);
   height: auto;
 
   background: #333;

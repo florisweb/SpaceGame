@@ -64,8 +64,6 @@ function _PhysicsEngine() {
 
 
 
-
-
 function Particle({position, mass}) {
 	this.id = newId();
 	this.mass = mass;
@@ -90,6 +88,7 @@ function GravParticle({mass, position, radius}) {
 
 		this.position.add(this.velocity);
 
+		if (!RenderEngine.settings.renderVectors) return;
 		RenderEngine.drawVector(this.position.copy(), Fgrav.scale(30), "#00f");
 		RenderEngine.drawVector(this.position.copy(), this.velocity.copy().scale(30), "#f00");
 		RenderEngine.drawVector(this.position.copy(), a.scale(3000), "#fa0");
