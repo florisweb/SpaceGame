@@ -93,7 +93,7 @@ function _RenderEngine() {
 
 
 	this.drawWorldGrid = function() {
-		const gridSize = 50 * Math.round(this.camera.zoom);
+		const gridSize = 50 * Math.ceil(this.camera.zoom);
 		ctx.strokeStyle = "#444";
 		
 		let cameraSize = this.camera.getWorldProjectionSize().value;
@@ -202,10 +202,11 @@ function _RenderEngine() {
 
 
 	this.drawStatistics = function(_fps) {
-		ctx.font = '16px calibri';
-		ctx.fillStyle = "#f00";
+		ctx.font = '14px arial';
+		ctx.fillStyle = "#eee";
 		ctx.beginPath();
 		ctx.fillText("Fps: " + Math.round(_fps * 10) / 10, 5, 20);
+		ctx.fillText("Particles: " + PhysicsEngine.particles.length, 5, 40);
 		ctx.closePath();
 		ctx.fill();
 	}
