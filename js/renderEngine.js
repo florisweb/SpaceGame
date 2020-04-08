@@ -8,7 +8,6 @@ function _RenderEngine() {
 
 	this.camera = new function() {
 		this.size = new Vector([800, 600]); // canvas
-
 		
 		this.zoom = 2.4; // percent of the camsize you can see
 		this.position = new Vector([0, 0]); // in world
@@ -46,7 +45,8 @@ function _RenderEngine() {
 			if (dPos.value[0] > projSize.value[0] + _particle.radius || dPos.value[1] > projSize.value[1] + _particle.radius) return false;
 			return true;
 		}
-	} 
+	}
+
 
 	
 	const ctx = HTML.canvas.getContext("2d");
