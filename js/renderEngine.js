@@ -23,13 +23,11 @@ function _RenderEngine() {
 			return rPos.scale(1 / this.zoom);
 		}
 		
-		const worldMarge = 20;
 		this.inView = function(_particle) {
-			let marge = worldMarge + _particle.radius;
 			let projSize = this.getWorldProjectionSize();
 			let dPos = this.position.difference(_particle.position);
-			if (dPos.value[0] < -marge || dPos.value[1] < -marge) return false;
-			if (dPos.value[0] > projSize.value[0] + marge || dPos.value[1] > projSize.value[1] + marge) return false;
+			if (dPos.value[0] < -_particle.radius || dPos.value[1] < -_particle.radius) return false;
+			if (dPos.value[0] > projSize.value[0] + _particle.radius || dPos.value[1] > projSize.value[1] + _particle.radius) return false;
 			return true;
 		}
 	} 
@@ -54,6 +52,7 @@ function _RenderEngine() {
 	this.update = function(_entities = []) {
 		this.clearCanvas();
 		this.drawWorldGrid();
+		this.drawWorldBorders();
 
 		for (let i = 0; i < _entities.length; i++)
 		{
@@ -70,14 +69,13 @@ function _RenderEngine() {
 
 
 
-
 	this.clearCanvas = function() {
 		ctx.clearRect(0, 0, HTML.canvas.width, HTML.canvas.height);
 	}
 
 
 	this.drawWorldGrid = function() {
-		const gridSize = 50;
+		const gridSize = 50 * Math.round(this.camera.zoom);
 		ctx.strokeStyle = "#444";
 		
 		let cameraSize = this.camera.getWorldProjectionSize().value;
@@ -119,6 +117,41 @@ function _RenderEngine() {
 			ctx.closePath();
 			ctx.stroke();
 		}
+	}
+	
+	this.drawWorldBorders = function() {
+		const borderThickness = 10000;
+		ctx.fillStyle = "rgba(0, 0, 0, .2)";
+		ctx.beginPath();
+
+		fillRect(
+			new Vector([-borderThickness, -borderThickness]),
+			new Vector([PhysicsEngine.world.size.value[0] + borderThickness, 0])
+		);
+
+		fillRect(
+			new Vector([-borderThickness, PhysicsEngine.world.size.value[1]]),
+			new Vector([PhysicsEngine.world.size.value[0] + borderThickness, PhysicsEngine.world.size.value[1] + borderThickness])
+		);
+
+		fillRect(
+			new Vector([-borderThickness, 0]),
+			new Vector([0, PhysicsEngine.world.size.value[1]])
+		);
+
+		fillRect(
+			new Vector([PhysicsEngine.world.size.value[0], 0]),
+			new Vector([PhysicsEngine.world.size.value[0] + borderThickness, PhysicsEngine.world.size.value[1]])
+		);
+
+		ctx.fill();
+	}
+
+	function fillRect(_coordA, _coordB) {
+		let canvasA = RenderEngine.camera.worldPosToCanvasPos(_coordA);
+		let canvasB = RenderEngine.camera.worldPosToCanvasPos(_coordB);
+		let size = canvasA.difference(canvasB);
+		ctx.fillRect(canvasA.value[0], canvasA.value[1], size.value[0], size.value[1]);
 	}
 
 

@@ -12,16 +12,13 @@ function _PhysicsEngine() {
 	}
 	
 	this.world = new function() {
-		this.size = new Vector([800, 600]);
+		this.size = new Vector([500, 500]);
 
-		const worldMarge = 20;
 		this.inWorld = function(_particle) {
-			let marge = worldMarge + _particle.radius;
-			if (_particle.position.value[0] < -marge || _particle.position.value[1] < -marge) return false;
-			if (_particle.position.value[0] > this.size.value[0] + marge || _particle.position.value[1] > this.size.value[1] + marge) return false;
+			if (_particle.position.value[0] < -_particle.radius || _particle.position.value[1] < -_particle.radius) return false;
+			if (_particle.position.value[0] > this.size.value[0] + _particle.radius || _particle.position.value[1] > this.size.value[1] + _particle.radius) return false;
 			return true;
 		}
-
 	}
 
 

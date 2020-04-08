@@ -13,6 +13,11 @@ function _InputHandler() {
 	this.mouseDown = false;
 	this.draging = false;
 
+	this.settings = new function() {
+		this.dragSpeed = 1;
+
+	}
+
 
 
 	HTML.canvas.addEventListener("mousedown", 
@@ -32,7 +37,8 @@ function _InputHandler() {
 	    	if (prevDragVector)
 	    	{
 	    		let deltaPos = new Vector([_event.screenX, _event.screenY]).difference(prevDragVector);
-	    		RenderEngine.camera.position.add(deltaPos);
+	    		let moveVector = deltaPos.scale(InputHandler.settings.dragSpeed * RenderEngine.camera.zoom);
+	    		RenderEngine.camera.position.add(moveVector);
 	    	}
 
 	    	prevDragVector = new Vector([_event.screenX, _event.screenY]);
