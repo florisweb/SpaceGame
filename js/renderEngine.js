@@ -22,6 +22,14 @@ function _RenderEngine() {
 			let rPos = this.position.difference(_position);
 			return rPos.scale(1 / this.zoom);
 		}
+
+		this.inView = function(_particle) {
+			let projSize = this.getWorldProjectionSize();
+			let dPos = this.position.difference(_particle.position);
+			if (dPos.value[0] < 0 || dPos.value[1] < 0) return false;
+			if (dPos.value[0] > projSize.value[0] || dPos.value[1] > projSize.value[1]) return false;
+			return true;
+		}
 	} 
 
 	
@@ -114,6 +122,7 @@ function _RenderEngine() {
 
 
 	this.drawEntity = function(_entity) {
+		if (!this.camera.inView(_entity)) return false;
 		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
 
 		ctx.strokeStyle = "red";
