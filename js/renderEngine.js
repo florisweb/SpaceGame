@@ -110,7 +110,7 @@ function _RenderEngine() {
 
 		ctx.strokeStyle = "red";
 		ctx.beginPath();
-		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius);
+		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius / this.camera.zoom);
 		ctx.closePath();
 		ctx.stroke();
 	}
