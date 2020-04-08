@@ -42,7 +42,7 @@ function _InputHandler() {
 
 	function stopDraging() {
 		InputHandler.draging = false;
-      	prevDrag = false;
+      	prevDragVector = false;
 	}
 
 }
