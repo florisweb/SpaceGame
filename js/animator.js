@@ -1,7 +1,5 @@
 function _Animator() {
-	let animations = [];
-	this.animations = animations;
-	
+	let animations = [];	
 
 	const sigmoidRange = 10;
 	this.givePercByFrames = function(_frame, _maxFrames) {

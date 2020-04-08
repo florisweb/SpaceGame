@@ -105,8 +105,9 @@ function _RenderEngine() {
 		this.camera.update();
 
 		this.clearCanvas();
+		this.drawWorldBackground();
 		this.drawWorldGrid();
-		this.drawWorldBorders();
+
 
 		for (let i = 0; i < _entities.length; i++)
 		{
@@ -173,29 +174,13 @@ function _RenderEngine() {
 		}
 	}
 	
-	this.drawWorldBorders = function() {
-		const borderThickness = 10000;
-		ctx.fillStyle = "rgba(0, 0, 0, .2)";
-		ctx.beginPath();
+	this.drawWorldBackground = function() {
+		ctx.fillStyle = "#333";
+		ctx.beginPath();	
 
 		fillRect(
-			new Vector([-borderThickness, -borderThickness]),
-			new Vector([PhysicsEngine.world.size.value[0] + borderThickness, 0])
-		);
-
-		fillRect(
-			new Vector([-borderThickness, PhysicsEngine.world.size.value[1]]),
-			new Vector([PhysicsEngine.world.size.value[0] + borderThickness, PhysicsEngine.world.size.value[1] + borderThickness])
-		);
-
-		fillRect(
-			new Vector([-borderThickness, 0]),
-			new Vector([0, PhysicsEngine.world.size.value[1]])
-		);
-
-		fillRect(
-			new Vector([PhysicsEngine.world.size.value[0], 0]),
-			new Vector([PhysicsEngine.world.size.value[0] + borderThickness, PhysicsEngine.world.size.value[1]])
+			new Vector([0, 0]),
+			new Vector([PhysicsEngine.world.size.value[0], PhysicsEngine.world.size.value[1]])
 		);
 
 		ctx.fill();
@@ -251,14 +236,6 @@ function _RenderEngine() {
 
 
 
-
-
-
-
-
-
-
-	
 
 
 	
