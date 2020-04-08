@@ -2,7 +2,7 @@ function _PhysicsEngine() {
 	this.particles = [];
 
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 10);
+		this.G = 6.674 * Math.pow(10, -11 + 6);
 	}
 
 	this.formulas = new function() {
@@ -82,7 +82,9 @@ function GravParticle({mass, position, radius}) {
 	this.radius = radius;
 
 	this.applyGravitation = function() {
-		this.position.add(PhysicsEngine.getTotalGravVector(this));
+		let gravVector = PhysicsEngine.getTotalGravVector(this);
+		this.position.add(gravVector);
+		RenderEngine.drawVector(this.position.copy(), gravVector.scale(30));
 	}
 
 }

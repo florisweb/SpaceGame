@@ -26,7 +26,13 @@ function _app() {
 App.setup();
 
 
-g = new GravParticle({position: [50, -20], mass: 50, radius: 10});
-g = new GravParticle({position: [100, 150], mass: 200, radius: 20});
-g = new GravParticle({position: [300, 150], mass: 50, radius: 10});
+// g = new GravParticle({position: [50, -20], mass: 50, radius: 10});
+// g = new GravParticle({position: [100, 150], mass: 200, radius: 20});
+// g = new GravParticle({position: [300, 150], mass: 50, radius: 10});
 // g = new GravParticle({position: [500, 300], mass: 200, radius: 20});
+for (let i = 0; i < 10; i++) {
+	let radius = Math.random() * 10 + 5;
+	let mass = 4/3 * Math.PI * Math.pow(radius, 3);
+	g = new GravParticle({position: [Math.random() * 800, Math.random() * 600], mass: mass, radius: radius});
+	console.log(g.position.value);
+}

@@ -8,7 +8,7 @@ function _RenderEngine() {
 
 		
 		this.zoom = 1; // percent of the world you can see
-		this.position = new Vector([-200, -200]); // in world
+		this.position = new Vector([0, 0]); // in world
 
 		this.getWorldProjectionSize = function() {
 			return this.size.copy().scale(this.zoom);
@@ -113,7 +113,18 @@ function _RenderEngine() {
 		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius);
 		ctx.closePath();
 		ctx.stroke();
+	}
 
+	this.drawVector = function(_startVector, _relativeVector, _color = "red") {
+		let canStart = this.camera.worldPosToCanvasPos(_startVector);
+		let canStop = this.camera.worldPosToCanvasPos(_startVector.add(_relativeVector));
+
+		ctx.strokeStyle = _color;
+		ctx.beginPath();
+		ctx.moveTo(canStart.value[0], canStart.value[1]);
+		ctx.lineTo(canStop.value[0], canStop.value[1]);
+		ctx.closePath();
+		ctx.stroke();
 	}
 
 

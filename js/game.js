@@ -13,11 +13,9 @@ function _Game() {
   }
 
   this.update = function() {
-  	PhysicsEngine.update();
   	RenderEngine.update(PhysicsEngine.particles);
-
+    PhysicsEngine.update();
 
   	requestAnimationFrame(function () {Game.update()});
   }
-	
 }
