@@ -66,12 +66,13 @@ function _RenderEngine() {
 		let panning = false;
 		this.panTo = function(_endCoords) {
 			panning = true;
+			const cameraSpeed = 20;
 			let delta = this.position.difference(_endCoords);
 			let startPosition = this.position;
 			Animator.animateValue({
 				start: 0,
 				end: 1,
-				frames: 50,
+				frames: delta.getLength() / cameraSpeed,
 				callback: function(_value, _percentage) {
 					if (_value >= .9) panning = false;
 					let dpos = delta.copy().scale(_value);
