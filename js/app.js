@@ -45,7 +45,9 @@ function createParticleSet(_position, _spread, _count = 20) {
 		new GravParticle({position: [
 			_position.value[0] + 2 * _spread - _spread * Math.random(), 
 			_position.value[1] + 2 * _spread - _spread * Math.random()
-		], mass: mass, radius: radius});
+		], mass: mass, radius: radius, config: {
+			exerciseGravity: false
+		}});
 	}
 }
 

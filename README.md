@@ -14,7 +14,23 @@ Planned features:
 
 
 Particle: 
-Mass: kg
-Radius: m
-x: m
-y: m
+
+mass
+position
+config: {
+}
+
+velocity
+id
+
+
+GravParticle extends Particle
+radius
+config: {
+	exerciseGravity: boolean [true]			Whether the particle has any gravitational effect on other particles
+}
+
+
+
+
+Default: []

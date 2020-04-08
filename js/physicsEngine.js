@@ -12,7 +12,7 @@ function _PhysicsEngine() {
 	}
 	
 	this.world = new function() {
-		this.size = new Vector([500, 500]);
+		this.size = new Vector([2000, 2000]);
 
 		this.inWorld = function(_particle) {
 			if (_particle.position.value[0] < -_particle.radius || _particle.position.value[1] < -_particle.radius) return false;
@@ -46,6 +46,7 @@ function _PhysicsEngine() {
 		for (let i = 0; i < this.particles.length; i++) 
 		{
 			let curParticle = this.particles[i];
+			if (!curParticle.config.exerciseGravity) continue;
 			if (curParticle.id == _particle.id) continue;
 			
 			curVector.add(
@@ -75,20 +76,24 @@ function _PhysicsEngine() {
 
 
 
-function Particle({position, mass}) {
+function Particle({position, mass, config = {}}) {
 	this.id = newId();
 	this.mass = mass;
 	this.position = new Vector(position);
 	this.velocity = new Vector([0, 0]); // x-y-vector
+	this.config = config
 
 	PhysicsEngine.particles.push(this);
 }
 
 
 
-function GravParticle({mass, position, radius}) {
-	Particle.call(this, {position: position, mass: mass});
+function GravParticle({mass, position, radius, config = {}}) {
+	if (config.exerciseGravity === undefined) config.exerciseGravity = true;
+	Particle.call(this, {position: position, mass: mass, config: config});
+	
 	this.radius = radius;
+
 
 	this.applyGravitation = function() {
 		let Fgrav = PhysicsEngine.getTotalGravVector(this);
