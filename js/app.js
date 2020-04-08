@@ -41,7 +41,7 @@ g = new GravParticle({mass: 50023599, position: [800, 600], radius: 50}); //SUN
 function createParticleSet(_position, _spread, _count = 20) {
 	for (let i = 0; i < _count; i++) {
 		let radius = Math.random() * 3 + 2;
-		let mass = -4/3 * Math.PI * Math.pow(radius, 3);
+		let mass = 4/3 * Math.PI * Math.pow(radius, 3);
 		new GravParticle({position: [
 			_position.value[0] + 2 * _spread - _spread * Math.random(), 
 			_position.value[1] + 2 * _spread - _spread * Math.random()

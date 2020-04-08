@@ -27,9 +27,14 @@ function _PhysicsEngine() {
 
 
 	this.update = function() {
-		for (let p = 0; p < this.particles.length; p++)
+		for (let p = this.particles.length -1; p >= 0; p--)
 		{
-			if (!this.world.inWorld(this.particles[p])) continue;
+			if (!this.world.inWorld(this.particles[p])) 
+			{
+				this.particles.splice(p, 1);
+				continue;
+			}
+			
 			this.particles[p].applyGravitation();
 		}
 	}

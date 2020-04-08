@@ -3,7 +3,7 @@ function _RenderEngine() {
 		canvas: gameCanvas,
 	}
 	this.settings = new function() {
-		this.renderVectors = true;
+		this.renderVectors = false;
 	}
 
 	this.camera = new function() {
@@ -22,12 +22,14 @@ function _RenderEngine() {
 			let rPos = this.position.difference(_position);
 			return rPos.scale(1 / this.zoom);
 		}
-
+		
+		const worldMarge = 20;
 		this.inView = function(_particle) {
+			let marge = worldMarge + _particle.radius;
 			let projSize = this.getWorldProjectionSize();
 			let dPos = this.position.difference(_particle.position);
-			if (dPos.value[0] < 0 || dPos.value[1] < 0) return false;
-			if (dPos.value[0] > projSize.value[0] || dPos.value[1] > projSize.value[1]) return false;
+			if (dPos.value[0] < -marge || dPos.value[1] < -marge) return false;
+			if (dPos.value[0] > projSize.value[0] + marge || dPos.value[1] > projSize.value[1] + marge) return false;
 			return true;
 		}
 	} 
