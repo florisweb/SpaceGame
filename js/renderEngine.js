@@ -128,23 +128,20 @@ function _RenderEngine() {
 		ctx.clearRect(0, 0, HTML.canvas.width, HTML.canvas.height);
 	}
 
-
 	this.drawWorldGrid = function() {
 		const gridSize = 50 * Math.ceil(this.camera.zoom);
 		ctx.strokeStyle = "#444";
 		
-		let cameraSize = this.camera.getWorldProjectionSize().value;
 		
-		for (let wx = this.camera.position.value[0]; wx <= cameraSize[0] + this.camera.position.value[0]; wx += gridSize)
+		for (let dx = gridSize; dx < PhysicsEngine.world.size.value[0]; dx += gridSize)
 		{
-			let dx = wx - this.camera.position.value[0] % gridSize;
 			let canvasPosA = this.camera.worldPosToCanvasPos(new Vector([
 				dx, 
-				this.camera.position.value[1]
+				0
 			]));
 			let canvasPosB = this.camera.worldPosToCanvasPos(new Vector([
 				dx, 
-				cameraSize[1] + this.camera.position.value[1]
+				PhysicsEngine.world.size.value[1]
 			]));
 
 			ctx.beginPath();
@@ -154,15 +151,14 @@ function _RenderEngine() {
 			ctx.stroke();
 		}
 
-		for (let wy = this.camera.position.value[1]; wy <= cameraSize[1] + this.camera.position.value[1]; wy += gridSize)
+		for (let dy = gridSize; dy < PhysicsEngine.world.size.value[1]; dy += gridSize)
 		{
-			let dy = wy - this.camera.position.value[1] % gridSize;
 			let canvasPosA = this.camera.worldPosToCanvasPos(new Vector([
-				this.camera.position.value[0], 
+				0,
 				dy
 			]));
 			let canvasPosB = this.camera.worldPosToCanvasPos(new Vector([
-				cameraSize[0] + this.camera.position.value[0], 
+				PhysicsEngine.world.size.value[0],
 				dy
 			]));
 
