@@ -37,7 +37,7 @@ PhysicsEngine.addParticle(mercury);
 
 {
 let earthGroup = new GravGroup();
-let earth = new GravParticle({mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}}); //earth
+let earth = new SpinParticle({mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}}); //earth
 
 earthGroup.addParticle(earth);
 

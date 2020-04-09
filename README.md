@@ -1,4 +1,4 @@
-
+Default: []
 
 
 Version 1.0
@@ -13,29 +13,31 @@ Planned features:
 
 
 
-Particle: 
-
-mass
-position
-config: {
-	startVelocity: array [0, 0]
-}
-
-velocity
-id
+- Particle: 
+	id
+	mass
+	position
+	velocity
+	config: {
+		startVelocity: array [0, 0]
+	}
 
 
-GravParticle extends Particle
-radius
-config: {
-	exerciseGravity: boolean [true]			Whether the particle has any gravitational effect on other particles
-	isGravGroupParticle: boolean [false]	Whether the particle is in a gravgroup
-	isGravGroup: boolean [false]
-}
+- GravParticle extends Particle
+	radius
+	config: {
+		exerciseGravity: boolean [true]			Whether the particle has any gravitational effect on other particles
+		isGravGroupParticle: boolean [false]	Whether the particle is in a gravgroup
+		isGravGroup: boolean [false]
+	}
 
 
 
-Default: []
+- SpinParticle extends GravParticle
+	angle: 					float [-Math.PI, Math.PI]
+	angularVelocity: 		float
+
+
 
 
 
@@ -67,4 +69,26 @@ Note: if the particle-array stays the same and the particles only interect with 
 
 
 
+
+
+
+
+Vector
+
+f: 	setAngle(angle, radius)
+p: 	angle [-Math.PI, Math.PI]		* See Angle
+	radius optional [1]
+
+
+
+
+
+
+Angle
+
+		
+	
+			 0
+	-.5 PI		.5 PI
+	  	   -PI/PI
 

@@ -154,11 +154,44 @@ function GravParticle({mass, position, radius, config = {}}) {
 
 	this.drawVectors = function(_Fgrav, _a) {
 		if (!RenderEngine.settings.renderVectors) return;
-		RenderEngine.drawVector(this.position.copy(), _Fgrav.scale(30), "#00f");
+		RenderEngine.drawVector(this.position.copy(), _Fgrav.scale(3), "#00f");
 		RenderEngine.drawVector(this.position.copy(), this.velocity.copy().scale(30), "#f00");
-		RenderEngine.drawVector(this.position.copy(), _a.scale(3000), "#fa0");
+		RenderEngine.drawVector(this.position.copy(), _a.scale(5000), "#fa0");
 	}
 }
+
+
+
+
+
+function SpinParticle({mass, position, radius, config = {}}) {
+	GravParticle.call(this, {position: position, mass: mass, radius: radius, config: config});
+	this.angle 				= 0;
+	this.angularVelocity 	= .1;
+
+	this.update = function() {
+		this.applyGravitation();
+		this.applyAngularVelocity();
+	}
+
+	this.applyAngularVelocity = function() {
+		this.angle += this.angularVelocity;
+		while (this.angle > Math.PI) this.angle -= Math.PI * 2;
+		while (this.angle < -Math.PI) this.angle += Math.PI * 2;
+
+
+		RenderEngine.drawVector(this.position.copy(), new Vector([0, 0]).setAngle(this.angle, 30), "#fff");
+	}
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -226,5 +259,4 @@ function GravGroup() {
 		This.mass = 0;
 		for (let i = 0; i < This.particles.length; i++) This.mass += This.particles[i].mass;
 	}
-	
 }
