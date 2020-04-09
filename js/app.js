@@ -31,25 +31,24 @@ App.setup();
 // g = new GravParticle({position: [500, 300], mass: 200, radius: 20});
 
 PhysicsEngine.addParticle(new GravParticle({mass: 30023590, position: [1000, 1000], radius: 40})); //SUN
-PhysicsEngine.addParticle(new GravParticle({mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}})); //earth
-PhysicsEngine.addParticle(new GravParticle({mass: 50235, position: [500, 1000], radius: 15, config: {startVelocity: [0, -2]}})); //mercury
+let mercury = new GravParticle({mass: 50235, position: [500, 1000], radius: 15, config: {startVelocity: [0, -2]}}); //mercury
+PhysicsEngine.addParticle(mercury);
 
-let gg = new GravGroup();
-PhysicsEngine.addParticle(gg);
+
+{
+let earthGroup = new GravGroup();
+let earth = new GravParticle({mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}}); //earth
+
+earthGroup.addParticle(earth);
+
+
+let moon = new GravParticle({mass: 30002, position: [300, 1050], radius: 10, config: {startVelocity: [0, 2]}}); 
+earthGroup.addParticle(moon);
+PhysicsEngine.addParticle(earthGroup);
+}
 
 // gg.addParticle(new GravParticle({position: [100, 0], mass: 14000, radius: 15}));
 // gg.addParticle(new GravParticle({position: [0, 100], mass: 14000, radius: 15}));
-
-let testParticles = [
-	new GravParticle({position: [0, 0], mass: 10000, radius: 10}),
-	new GravParticle({position: [100, 0], mass: 10000, radius: 10}),
-	new GravParticle({position: [100, 100], mass: 10000, radius: 10}),
-	new GravParticle({position: [0, 100], mass: 10000, radius: 10}),
-];
-
-for (particle of testParticles) gg.addParticle(particle);
-
-
 
 
 
@@ -60,18 +59,21 @@ for (particle of testParticles) gg.addParticle(particle);
 // new GravParticle({mass: 5035, position: [300, 1120], radius: 5, config: {startVelocity: [.6, 2.45]}}); //moon kinda
 // createParticleSet(new Vector([300, 1000]), 5);
 
-function createParticleSet(_position, _spread, _count = 20) {
-	for (let i = 0; i < _count; i++) {
-		let radius = 5;
-		let mass = 5000; //4/3 * Math.PI * Math.pow(radius, 3);
-		new GravParticle({position: [
-			_position.value[0] - _spread + 2 * _spread * Math.random(), 
-			_position.value[1] - _spread + 2 * _spread * Math.random()
-		], mass: mass, radius: radius, config: {
-			exerciseGravity: false
-		}});
-	}
-}
+// function createParticleSet(_position, _spread, _count = 20) {
+// 	let gg = new GravGroup();
+// 	for (let i = 0; i < _count; i++) {
+// 		let radius = 5;
+// 		let mass = 5000; //4/3 * Math.PI * Math.pow(radius, 3);
+// 		g = new GravParticle({position: [
+// 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
+// 			_position.value[1] - _spread + 2 * _spread * Math.random()
+// 		], mass: mass, radius: radius, config: {
+// 			exerciseGravity: true
+// 		}});
+// 		gg.addParticle(g);
+// 	}
+// 	PhysicsEngine.addParticle(gg);
+// }
 
 
 

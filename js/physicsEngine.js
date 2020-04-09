@@ -179,14 +179,17 @@ function GravGroup() {
 	let This = this;
 	this.particles = [];
 
-	this.addParticle = function(_particle) {
-		let particle = new GravGroupParticle(_particle, this);
+	this.addParticle = function(particle) {
+		particle.config.isGravGroupParticle = true;
+		particle.gravGroup = this;
+		particle.getFgrav = function() {
+			return PhysicsEngine.getTotalGravVectorByGravGroup(this, this.gravGroup);
+		}
+
 		this.particles.push(particle);
 		PhysicsEngine.addParticle(particle);
 
 		reCalculateMass();
-		this.position = PhysicsEngine.getCenterOfMass(this.particles);
-
 
 		return particle;
 	}
@@ -206,6 +209,8 @@ function GravGroup() {
 
 		let acceleration = this.applyGravitation();
 		for (let i = 0; i < this.particles.length; i++) this.particles[i].velocity.add(acceleration);
+
+		this.position = PhysicsEngine.getCenterOfMass(this.particles);
 	}
 
 
@@ -221,17 +226,5 @@ function GravGroup() {
 		This.mass = 0;
 		for (let i = 0; i < This.particles.length; i++) This.mass += This.particles[i].mass;
 	}
+	
 }
-
-
-
-function GravGroupParticle({mass, position, radius, config = {}}, _gravGroup) {
-	config.isGravGroupParticle = true;
-	GravParticle.call(this, {mass: mass, position: position.value, radius: radius, config: config});
-	this.gravGroup = _gravGroup;
-
-	this.getFgrav = function() {
-		return PhysicsEngine.getTotalGravVectorByGravGroup(this, this.gravGroup);
-	}
-}
-
