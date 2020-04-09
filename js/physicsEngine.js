@@ -118,6 +118,13 @@ function Particle({position, mass, config = {}}) {
 			break;
 		}
 	}
+
+
+	this.positionTrace = [];
+	this.addPositionDot = function() {
+		this.positionTrace.push(this.position.copy());
+		if (this.positionTrace.length > 300) this.positionTrace.splice(0, this.positionTrace.length - 300);
+	}
 }
 
 
@@ -133,6 +140,7 @@ function GravParticle({mass, position, radius, config = {}}) {
 
 	this.update = function() {
 		this.applyGravitation();
+		if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
 	}
 
 
@@ -167,11 +175,12 @@ function GravParticle({mass, position, radius, config = {}}) {
 function SpinParticle({mass, position, radius, config = {}}) {
 	GravParticle.call(this, {position: position, mass: mass, radius: radius, config: config});
 	this.angle 				= 0;
-	this.angularVelocity 	= .1;
+	this.angularVelocity 	= .01;
 
 	this.update = function() {
 		this.applyGravitation();
 		this.applyAngularVelocity();
+		if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
 	}
 
 	this.applyAngularVelocity = function() {
@@ -180,7 +189,7 @@ function SpinParticle({mass, position, radius, config = {}}) {
 		while (this.angle < -Math.PI) this.angle += Math.PI * 2;
 
 
-		RenderEngine.drawVector(this.position.copy(), new Vector([0, 0]).setAngle(this.angle, 30), "#fff");
+		RenderEngine.drawVector(this.position.copy(), new Vector([0, 0]).setAngle(-this.angle, 30), "#fff");
 	}
 }
 

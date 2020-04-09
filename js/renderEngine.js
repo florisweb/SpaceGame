@@ -4,6 +4,7 @@ function _RenderEngine() {
 	}
 	this.settings = new function() {
 		this.renderVectors = true;
+		this.renderPositionTrace = false;
 	}
 
 	this.camera = new function() {
@@ -202,6 +203,8 @@ function _RenderEngine() {
 		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius / this.camera.zoom);
 		ctx.closePath();
 		ctx.stroke();
+
+		if (_entity.positionTrace && this.settings.renderPositionTrace) this.drawPointList(_entity.positionTrace);
 	}
 
 	this.drawVector = function(_startVector, _relativeVector, _color = "red") {
@@ -214,6 +217,18 @@ function _RenderEngine() {
 		ctx.lineTo(canStop.value[0], canStop.value[1]);
 		ctx.closePath();
 		ctx.stroke();
+	}
+
+	this.drawPointList = function(_points) {
+		for (let p = 0; p < _points.length; p++)
+		{
+			let pos = this.camera.worldPosToCanvasPos(_points[p]);
+			ctx.fillStyle = "#eee";
+			ctx.beginPath();
+			ctx.circle(pos.value[0], pos.value[1], 2);
+			ctx.closePath();
+			ctx.fill();
+		}
 	}
 
 
