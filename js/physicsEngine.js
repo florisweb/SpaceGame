@@ -24,37 +24,48 @@ function _PhysicsEngine() {
 
 
 	this.update = function() {
-		for (let p = this.particles.length -1; p >= 0; p--)
+		for (let p = this.particles.length - 1; p >= 0; p--)
 		{
-			if (!this.world.inWorld(this.particles[p])) 
+			if (!this.world.inWorld(this.particles[p]) || (this.particles[p].config.isGravGroup && this.particles[p].particles.length == 0)) 
 			{
-				this.particles.splice(p, 1);
+				this.particles[p].remove();
 				continue;
 			}
 			
-			this.particles[p].applyGravitation();
+			this.particles[p].update();
 		}
 	}
 
 
+	this.addParticle = function(_particle) {
+		this.particles.push(_particle);
+	}
 
-	
 
-	
+
 	this.getTotalGravVector = function(_particle) {
+		return getTotalGravVectorByList(_particle, this.particles, false);
+	}
+	this.getTotalGravVectorByGravGroup = function(_particle, _gravGroup) {
+		return getTotalGravVectorByList(_particle, _gravGroup.particles, true);
+	}
+
+	function getTotalGravVectorByList(_particle, _particleList, _inGravGroup = false) {
 		let curVector = new Vector([0, 0]);
-		for (let i = 0; i < this.particles.length; i++) 
+		for (let i = 0; i < _particleList.length; i++) 
 		{
-			let curParticle = this.particles[i];
+			let curParticle = _particleList[i];
 			if (!curParticle.config.exerciseGravity) continue;
+			if (curParticle.config.isGravGroupParticle && !_inGravGroup) continue;
 			if (curParticle.id == _particle.id) continue;
 			
 			curVector.add(
-				this.getGravitationVector(_particle, curParticle)
+				PhysicsEngine.getGravitationVector(_particle, curParticle)
 			);
 		}
 		return curVector;
 	}
+
 
 
 	this.getGravitationVector = function(_particleA, _particleB) {
@@ -71,7 +82,21 @@ function _PhysicsEngine() {
 	}
 
 
+
+	this.getCenterOfMass = function(_particles) {
+		let curVector = new Vector([0, 0]); 
+		let massTillNow = 0;
+		for (let i = 0; i < _particles.length; i++)
+		{
+			massTillNow += _particles[i].mass;
+			let perc = _particles[i].mass / massTillNow;
+			let delta = curVector.difference(_particles[i].position);
+			curVector.add(delta.scale(perc));
+		}
+		return curVector
+	}
 }
+
 
 
 
@@ -84,9 +109,19 @@ function Particle({position, mass, config = {}}) {
 	this.config = config
 
 	if (this.config.startVelocity) this.velocity = new Vector(this.config.startVelocity);
-
-	PhysicsEngine.particles.push(this);
+	this.remove = function() {
+		for (let i = PhysicsEngine.particles.length - 1; i >= 0; i--)
+		{
+			if (PhysicsEngine.particles[i].id != this.id) continue;
+			PhysicsEngine.particles.splice(i, 1);
+			if (this.gravGroup) this.gravGroup.removeParticle(this.id);
+			break;
+		}
+	}
 }
+
+
+
 
 
 
@@ -96,21 +131,107 @@ function GravParticle({mass, position, radius, config = {}}) {
 	
 	this.radius = radius;
 
+	this.update = function() {
+		this.applyGravitation();
+	}
+
 
 	this.applyGravitation = function() {
-		let Fgrav = PhysicsEngine.getTotalGravVector(this);
+		let Fgrav = this.getFgrav();
 		let Fres = Fgrav.copy();
 
 		let a = Fres.scale(1 / this.mass);
 		this.velocity.add(a);
-
 		this.position.add(this.velocity);
 
+		this.drawVectors(Fgrav, a.copy());
+		return a;
+	}
+
+	this.getFgrav = function() {
+		return PhysicsEngine.getTotalGravVector(this);
+	}
+
+	this.drawVectors = function(_Fgrav, _a) {
 		if (!RenderEngine.settings.renderVectors) return;
-		RenderEngine.drawVector(this.position.copy(), Fgrav.scale(30), "#00f");
+		RenderEngine.drawVector(this.position.copy(), _Fgrav.scale(30), "#00f");
 		RenderEngine.drawVector(this.position.copy(), this.velocity.copy().scale(30), "#f00");
-		RenderEngine.drawVector(this.position.copy(), a.scale(3000), "#fa0");
+		RenderEngine.drawVector(this.position.copy(), _a.scale(3000), "#fa0");
 	}
 }
 
+
+
+
+
+
+
+
+function GravGroup() {
+	GravParticle.call(this, {
+		mass: 1, 
+		position: [0, 0], 
+		radius: 0, 
+		config: {
+			isGravGroup: true,
+		}
+	});
+	let This = this;
+	this.particles = [];
+
+	this.addParticle = function(_particle) {
+		let particle = new GravGroupParticle(_particle, this);
+		this.particles.push(particle);
+		PhysicsEngine.addParticle(particle);
+
+		reCalculateMass();
+		this.position = PhysicsEngine.getCenterOfMass(this.particles);
+
+
+		return particle;
+	}
+
+	this.removeParticle = function(_id) {
+		for (let i = this.particles.length - 1; i >= 0; i--)
+		{
+			if (this.particles[i].id != _id) continue;
+			this.particles.splice(i, 1)[0].remove();
+			break;
+		}
+	}
+
+
+	this.update = function() {
+		this.updateValues();
+
+		let acceleration = this.applyGravitation();
+		for (let i = 0; i < this.particles.length; i++) this.particles[i].velocity.add(acceleration);
+	}
+
+
+	this.updateValues = function() {
+		this.radius = 0;
+		for (let i = 0; i < this.particles.length; i++) 
+		{
+			let distanceFromCenter = this.position.difference(this.particles[i].position).getLength();
+			if (this.radius < distanceFromCenter) this.radius = distanceFromCenter;
+		}
+	}
+	function reCalculateMass() {
+		This.mass = 0;
+		for (let i = 0; i < This.particles.length; i++) This.mass += This.particles[i].mass;
+	}
+}
+
+
+
+function GravGroupParticle({mass, position, radius, config = {}}, _gravGroup) {
+	config.isGravGroupParticle = true;
+	GravParticle.call(this, {mass: mass, position: position.value, radius: radius, config: config});
+	this.gravGroup = _gravGroup;
+
+	this.getFgrav = function() {
+		return PhysicsEngine.getTotalGravVectorByGravGroup(this, this.gravGroup);
+	}
+}
 

@@ -21,6 +21,7 @@ function _Game() {
     Animator.update();
 
   	requestAnimationFrame(function () {Game.update()});
+    // setTimeout(function () {Game.update()}, 1000);
   }
 }
 
