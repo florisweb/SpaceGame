@@ -16,7 +16,11 @@ function CollisionParticle({mass, position, config = {}}, _shapeFunction) {
 		if (vector.getLength() == 0) return vector;
 
 		let Fcollision = vector.getProjection(_Fres);
-		let FantiSpeed = .5 * this.mass * Math.pow(this.velocity.getLength(), 2);
+		let FantiSpeed = 
+				.5 * 
+				this.mass * 
+				Math.pow(vector.getProjection(this.velocity).getLength(), 2) * 
+				PhysicsEngine.collision.settings.antiSpeedConstant;
 		
 		Fcollision.setLength(Fcollision.getLength() + FantiSpeed)
 

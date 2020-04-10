@@ -54,7 +54,7 @@ PhysicsEngine.addParticle(sun);
 
 
 
-let mercuryConfig = {mass: 50235, position: [500, 1000], radius: 20, config: {startVelocity: [0, 2.1]}};
+let mercuryConfig = {mass: 50235, position: [500, 1000], radius: 20, config: {startVelocity: [0, .1]}};
 let mercury = new GravParticle(mercuryConfig); //mercury
 CollisionParticle.call(mercury, mercuryConfig, circleShapeFunction);
 SpinParticle.call(mercury, mercuryConfig);

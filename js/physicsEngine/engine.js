@@ -27,7 +27,7 @@ function _PhysicsEngine() {
 		this.settings = new function() {
 			this.rays = 10;
 			this.rayStepSize = .1;
-			this.rayPower = 2;
+			this.antiSpeedConstant = .4;
 		}
 	}
 
