@@ -2,8 +2,8 @@
 function _CollisionEngine() {
 	this.collisionBoxes = [
 		new CollisionBox({position: [80, 130], diagonal: [50, 80]}),
-		new CollisionCircle({position: [100, 100], radius: 50, lines: 50}),
-		new CollisionCircle({position: [160, 100], radius: 30, lines: 50}),
+		new CollisionCircle({position: [100, 100], radius: 50, lineCount: 50}),
+		new CollisionCircle({position: [160, 100], radius: 30, lineCount: 50}),
 		new CollisionBox({position: [70, 30], diagonal: [30, 80]}),
 
 		new CollisionBox({position: [170, 30], diagonal: [30, 80]}),
@@ -17,24 +17,26 @@ function _CollisionEngine() {
 
 
 	this.drawIntersections = function() {
-		for (item of this.collisionBoxes) {
-			for (target of this.collisionBoxes) 
+		for (item of this.collisionBoxes) 
+		{
+			let intersections = this.getIntersections(item);
+			for (intersection  of intersections)
 			{
-				if (item.id == target.id) continue;
-				for (line of target.lines)
-				{
-					let intersections = item.getIntersections(line);
-					for (intersection of intersections)
-					{
-						RenderEngine.drawVector(intersection, new Vector([10, 0]), "#0f0");
-					}
-				}
+				RenderEngine.drawVector(intersection, new Vector([10, 0]), "#0f0");
 			}
-
 		}
-
 	}
 
+	
+	this.getIntersections = function(_item) {
+		let intersections = [];
+		for (let i = 0; i < this.collisionBoxes.length; i++) 
+		{
+			if ( _item.id == this.collisionBoxes[i].id) continue;
+			intersections = intersections.concat(_item.getIntersectionsByMesh(this.collisionBoxes[i]));
+		}
+		return intersections;
+	}
 }
 
 
@@ -93,69 +95,85 @@ function CollisionLine({position, shape}) {
 
 
 
+function CollisionMesh({position, factory}) {
+	this.id = newId();
+	this.position = new Vector(position);
+	this.lines = factory.call(this);
+
+	this.draw = function() {
+		for (line of this.lines) line.draw();
+	}
+	
+	this.getIntersectionsByLine = function(_line) {
+		let intersections = [];
+		for (let l = 0; l < this.lines.length; l++)
+		{
+			let intersection = this.lines[l].getIntersections(_line);
+			if (!intersection) continue;
+			intersections.push(intersection[0]);
+		}
+		return intersections;
+	}
+	this.getIntersectionsByMesh = function(_mesh) {
+		let intersections = [];
+		for (let l = 0; l < _mesh.lines.length; l++)
+		{
+			let result = this.getIntersectionsByLine(_mesh.lines[l]);
+			intersections = intersections.concat(result);
+		}
+		return intersections;
+	}
+}
+
+
+
 function CollisionBox({position, diagonal}) {
-	this.id = newId();
-	this.position = new Vector(position);
 	this.diagonal = new Vector(diagonal);
-
-	this.lines = [
-		new CollisionLine({position: this.position.copy().value, shape: [this.diagonal.value[0], 0]}),
-		new CollisionLine({position: this.position.copy().value, shape: [0, this.diagonal.value[1]]}),
-		new CollisionLine({position: this.position.copy().add(this.diagonal).value, shape: [-this.diagonal.value[0], 0]}),
-		new CollisionLine({position: this.position.copy().add(this.diagonal).value, shape: [0, -this.diagonal.value[1]]}),
-	];
-	this.draw = function() {
-		for (line of this.lines) line.draw();
+	
+	function generateMesh() {
+		return [
+			new CollisionLine({position: this.position.copy().value, shape: [this.diagonal.value[0], 0]}),
+			new CollisionLine({position: this.position.copy().value, shape: [0, this.diagonal.value[1]]}),
+			new CollisionLine({position: this.position.copy().add(this.diagonal).value, shape: [-this.diagonal.value[0], 0]}),
+			new CollisionLine({position: this.position.copy().add(this.diagonal).value, shape: [0, -this.diagonal.value[1]]}),
+		];
 	}
 
-	this.getIntersections = function(_line) {
-		let intersections = [];
-		for (line of this.lines) 
-		{
-			let intersection = line.getIntersections(_line);
-			if (!intersection) continue;
-			intersections.push(intersection[0]);
-		}
-		return intersections;
-	}
+	CollisionMesh.call(this, {position: position, factory: generateMesh});
 }
 
-function CollisionCircle({position, radius, lines}) {
-	this.id = newId();
-
-	this.position = new Vector(position);
+function CollisionCircle({position, radius, lineCount}) {
 	this.radius = radius;
-	this.lines = [];
+	
+	function generateMesh() {
+		let lines = [];
 
-	const anglePerLine = (2 * Math.PI) / lines;
-	const b = Math.PI / anglePerLine / 2;
-	const length = Math.sin(anglePerLine * .5) * this.radius * 2;
-	for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
-	{
-		let deltaPos = this.position.copy().add(new Vector([0, 0]).setAngle(a, this.radius));
-		let newLine = new CollisionLine({
-			position: deltaPos.value, 
-			shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
-		});
-		this.lines.push(newLine);
-	}
-
-
-	this.draw = function() {
-		for (line of this.lines) line.draw();
-	}
-
-	this.getIntersections = function(_line) {
-		let intersections = [];
-		for (line of this.lines) 
+		const anglePerLine = (2 * Math.PI) / lineCount;
+		const b = Math.PI / anglePerLine / 2;
+		const length = Math.sin(anglePerLine * .5) * this.radius * 2;
+		
+		for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
 		{
-			let intersection = line.getIntersections(_line);
-			if (!intersection) continue;
-			intersections.push(intersection[0]);
+			let deltaPos = this.position.copy().add(new Vector([0, 0]).setAngle(a, this.radius));
+			let newLine = new CollisionLine({
+				position: deltaPos.value, 
+				shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
+			});
+			lines.push(newLine);
 		}
-		return intersections;
+		return lines;
 	}
+
+	CollisionMesh.call(this, {position: position, factory: generateMesh});
 }
+
+
+
+
+
+
+
+
 
 
 
