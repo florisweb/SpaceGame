@@ -33,12 +33,23 @@ Planned features:
 
 
 
-- SpinParticle extends GravParticle
+- SpinParticle extends Particle
 	angle: 					float [-Math.PI, Math.PI]
 	angularVelocity: 		float
 
 
 
+- CollisionParticle extends Particle
+	config: {
+		exerciseCollisions: boolean [true]
+	}
+	
+	shapeFunction
+		f:	shapeFunction(pos)
+		p:	pos: 2d-vector
+		r:	boolean, whether that vector is within the shape
+	 
+	
 
 
 
@@ -73,22 +84,36 @@ Note: if the particle-array stays the same and the particles only interect with 
 
 
 
+
+
+
+
+
+
+
 Vector
 
 f: 	setAngle(angle, radius)
 p: 	angle [-Math.PI, Math.PI]		* See Angle
 	radius optional [1]
 
+f: 	getProjection(projVector)
+p:  projVector 2d-vector
+r: 	2d-vector		returns the projection of projVector on self
 
 
 
+Coords:
+		x ->
+	y	0 0		1 0
+	|	
+	\/	0 1		1 1
 
 
 Angle
-
 		
-	
-			 0
-	-.5 PI		.5 PI
-	  	   -PI/PI
+		   -.5 PI
+	-PI/PI			0
+			.5 PI
+
 
