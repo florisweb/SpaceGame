@@ -1,4 +1,167 @@
 
+function _CollisionEngine() {
+	this.collisionBoxes = [
+		new CollisionBox({position: [80, 130], diagonal: [50, 80]}),
+		new CollisionCircle({position: [100, 100], radius: 50, lines: 50}),
+		new CollisionCircle({position: [160, 100], radius: 30, lines: 50}),
+		new CollisionBox({position: [70, 30], diagonal: [30, 80]}),
+
+		new CollisionBox({position: [170, 30], diagonal: [30, 80]}),
+		new CollisionBox({position: [170, 10], diagonal: [50, 30]}),
+
+	];
+
+	this.draw = function() {
+		for (item of this.collisionBoxes) item.draw();
+	}
+
+
+	this.drawIntersections = function() {
+		for (item of this.collisionBoxes) {
+			for (target of this.collisionBoxes) 
+			{
+				if (item.id == target.id) continue;
+				for (line of target.lines)
+				{
+					let intersections = item.getIntersections(line);
+					for (intersection of intersections)
+					{
+						RenderEngine.drawVector(intersection, new Vector([10, 0]), "#0f0");
+					}
+				}
+			}
+
+		}
+
+	}
+
+}
+
+
+
+
+function CollisionLine({position, shape}) {
+	this.position 	= new Vector(position);
+	this.shape 	 	= new Vector(shape);
+
+	this.getIntersections = function(_line) {
+		let a = this.shape.getAngle();
+		let b = _line.shape.getAngle();
+
+		let intersectX = 	(
+								Math.tan(a) * this.position.value[0] 
+								- Math.tan(b) * _line.position.value[0] 
+								- this.position.value[1] 
+								+ _line.position.value[1]
+							) / ( 
+								Math.tan(a) - Math.tan(b)
+							);
+		let intersectY = 	(
+								Math.tan(b) * this.position.value[1]
+								- Math.tan(a) * _line.position.value[1]
+								+ (_line.position.value[0] - this.position.value[0]) * Math.tan(a) * Math.tan(b)
+							) / (
+								Math.tan(b) - Math.tan(a)
+							);
+		if (!this.xOnDomain(intersectX) || !_line.xOnDomain(intersectX)) return false;
+		if (!this.yOnDomain(intersectY) || !_line.yOnDomain(intersectY)) return false;
+
+		return [new Vector([
+			intersectX,
+			intersectY,
+		])];
+	}
+
+	const marge = 0.0001;
+	this.xOnDomain = function(_x) {
+		let endX = this.position.copy().add(this.shape).value[0];
+		let min = Math.min(this.position.value[0], endX);
+		let max = Math.max(this.position.value[0], endX);
+		return min - marge <= _x && _x <= max + marge;
+	}
+	this.yOnDomain = function(_y) {
+		let endY = this.position.copy().add(this.shape).value[1];
+		let min = Math.min(this.position.value[1], endY);
+		let max = Math.max(this.position.value[1], endY);
+		return min - marge <= _y && _y <= max + marge;
+	}
+
+	this.draw = function() {
+		RenderEngine.drawVector(this.position.copy(), this.shape.copy());
+	}
+}
+
+
+
+function CollisionBox({position, diagonal}) {
+	this.id = newId();
+	this.position = new Vector(position);
+	this.diagonal = new Vector(diagonal);
+
+	this.lines = [
+		new CollisionLine({position: this.position.copy().value, shape: [this.diagonal.value[0], 0]}),
+		new CollisionLine({position: this.position.copy().value, shape: [0, this.diagonal.value[1]]}),
+		new CollisionLine({position: this.position.copy().add(this.diagonal).value, shape: [-this.diagonal.value[0], 0]}),
+		new CollisionLine({position: this.position.copy().add(this.diagonal).value, shape: [0, -this.diagonal.value[1]]}),
+	];
+	this.draw = function() {
+		for (line of this.lines) line.draw();
+	}
+
+	this.getIntersections = function(_line) {
+		let intersections = [];
+		for (line of this.lines) 
+		{
+			let intersection = line.getIntersections(_line);
+			if (!intersection) continue;
+			intersections.push(intersection[0]);
+		}
+		return intersections;
+	}
+}
+
+function CollisionCircle({position, radius, lines}) {
+	this.id = newId();
+
+	this.position = new Vector(position);
+	this.radius = radius;
+	this.lines = [];
+
+	const anglePerLine = (2 * Math.PI) / lines;
+	const b = Math.PI / anglePerLine / 2;
+	const length = Math.sin(anglePerLine * .5) * this.radius * 2;
+	for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
+	{
+		let deltaPos = this.position.copy().add(new Vector([0, 0]).setAngle(a, this.radius));
+		let newLine = new CollisionLine({
+			position: deltaPos.value, 
+			shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
+		});
+		this.lines.push(newLine);
+	}
+
+
+	this.draw = function() {
+		for (line of this.lines) line.draw();
+	}
+
+	this.getIntersections = function(_line) {
+		let intersections = [];
+		for (line of this.lines) 
+		{
+			let intersection = line.getIntersections(_line);
+			if (!intersection) continue;
+			intersections.push(intersection[0]);
+		}
+		return intersections;
+	}
+}
+
+
+
+
+
+
 
 
 function CollisionParticle({mass, position, config = {}}, _shapeFunction) {
@@ -15,7 +178,7 @@ function CollisionParticle({mass, position, config = {}}, _shapeFunction) {
 		let vector = getCollisionVector();
 		if (vector.getLength() == 0) return vector;
 
-		let Fcollision = vector.getProjection(_Fres);
+		let Fcollision = vector.getProjection(_Fres);		
 		let FantiSpeed = 
 				.5 * 
 				this.mass * 

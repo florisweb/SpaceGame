@@ -1,3 +1,6 @@
+const CollisionEngine = new _CollisionEngine();
+
+
 function _PhysicsEngine() {
 	this.particles = [];
 
@@ -27,7 +30,7 @@ function _PhysicsEngine() {
 		this.settings = new function() {
 			this.rays = 10;
 			this.rayStepSize = .1;
-			this.antiSpeedConstant = .4;
+			this.antiSpeedConstant = 1;
 		}
 	}
 
