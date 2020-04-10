@@ -19,18 +19,11 @@ function _PhysicsEngine() {
 		this.size = new Vector([2000, 2000]);
 
 		this.inWorld = function(_particle) {
-			if (_particle.position.value[0] < -_particle.radius || _particle.position.value[1] < -_particle.radius) return false;
-			if (_particle.position.value[0] > this.size.value[0] + _particle.radius || _particle.position.value[1] > this.size.value[1] + _particle.radius) return false;
+			if (_particle.position.value[0] < -_particle.collisionMesh.meshRange || 
+				_particle.position.value[1] < -_particle.collisionMesh.meshRange) return false;
+			if (_particle.position.value[0] > this.size.value[0] + _particle.collisionMesh.meshRange || 
+				_particle.position.value[1] > this.size.value[1] + _particle.collisionMesh.meshRange) return false;
 			return true;
-		}
-	}
-
-	
-	this.collision = new function() {
-		this.settings = new function() {
-			this.rays = 10;
-			this.rayStepSize = .1;
-			this.antiSpeedConstant = 1;
 		}
 	}
 

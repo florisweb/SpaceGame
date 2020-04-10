@@ -22,8 +22,8 @@ function _Game() {
     PhysicsEngine.update();
     Animator.update();
 
-  	// requestAnimationFrame(function () {Game.update()});
-    // setTimeout(function () {Game.update()}, 50);
+  	requestAnimationFrame(function () {Game.update()});
+    // setTimeout(function () {Game.update()}, 1000);
   }
 }
 

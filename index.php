@@ -32,6 +32,19 @@
 			$.getScript("js/app.js?antiCache="						+ antiCache, function() {});
 			
 		</script>
+<!-- 
+		<script type="text/javascript" src="js/extraFunctions.js"></script>
+		<script type="text/javascript" src="js/vector.js"></script>
+		<script type="text/javascript" src="js/animator.js"></script>
 
+		<script type="text/javascript" src="js/physicsEngine/gravity.js"></script>
+		<script type="text/javascript" src="js/physicsEngine/collision.js"></script>
+		<script type="text/javascript" src="js/physicsEngine/engine.js"></script>
+
+		<script type="text/javascript" src="js/renderEngine.js"></script>
+		<script type="text/javascript" src="js/inputHandler.js"></script>
+		<script type="text/javascript" src="js/game.js"></script>
+		<script type="text/javascript" src="js/app.js"></script>
+ -->
 	</body>
 </html>	

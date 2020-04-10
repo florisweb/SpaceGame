@@ -46,8 +46,11 @@ function _RenderEngine() {
 		this.inView = function(_particle) {
 			let projSize = this.getWorldProjectionSize();
 			let dPos = this.position.difference(_particle.position);
-			if (dPos.value[0] < -_particle.radius || dPos.value[1] < -_particle.radius) return false;
-			if (dPos.value[0] > projSize.value[0] + _particle.radius || dPos.value[1] > projSize.value[1] + _particle.radius) return false;
+			if (
+				dPos.value[0] < -_particle.collisionMesh.meshRange || 
+				dPos.value[1] < -_particle.collisionMesh.meshRange) return false;
+			if (dPos.value[0] > projSize.value[0] + _particle.collisionMesh.meshRange || 
+				dPos.value[1] > projSize.value[1] + _particle.collisionMesh.meshRange) return false;
 			return true;
 		}
 
@@ -200,7 +203,8 @@ function _RenderEngine() {
 		if (_entity.config.isGravGroup) ctx.strokeStyle = "#00f";
 		if (_entity.config.isGravGroupParticle) ctx.strokeStyle = "#0f0";
 		ctx.beginPath();
-		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius / this.camera.zoom);
+		// ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius / this.camera.zoom);
+		_entity.collisionMesh.draw();
 		ctx.closePath();
 		ctx.stroke();
 
