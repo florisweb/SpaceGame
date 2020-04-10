@@ -7,6 +7,10 @@ function Vector(_value) {
 		this.value[1] += _vector.value[1];
 		return this;
 	}
+	this.dotProduct = function(_vector) {
+		return 	this.value[0] * _vector.value[0] + 
+				this.value[1] * _vector.value[1];
+	}
 	
 	this.difference = function(_vector) {
 		return new Vector([
@@ -15,40 +19,11 @@ function Vector(_value) {
 		]);
 	}
 
-
-
-	this.getLength = function() {
-		return Math.sqrt(
-			this.value[0] * this.value[0] + 
-			this.value[1] * this.value[1]
-		);
-	}
-	
-	this.setLength = function(_length) {
-		this.setAngle(this.getAngle(), _length);
-		return this;
-	}
-
-
-	this.getAngle = function() {
-		return Math.atan2(this.value[1], this.value[0]);
-	}
-	
-	this.setAngle = function(_angle, _radius = 1) {
-		this.value[0] = Math.sin(_angle) * _radius;
-		this.value[1] = Math.cos(_angle) * _radius;
-		return this;
-	}
-
-
-
-
 	this.scale = function(_scalar) {
 		this.value[0] *= _scalar;
 		this.value[1] *= _scalar;
 		return this;
 	}
-
 
 
 	this.copy = function() {
@@ -57,6 +32,35 @@ function Vector(_value) {
 
 
 
+
+
+
+	this.getLength = function() {
+		return Math.sqrt(this.dotProduct(this));
+	}
+	
+	this.setLength = function(_length) {
+		this.setAngle(this.getAngle(), _length);
+		return this;
+	}
+
+
+	this.getAngle = function() { // check
+		return Math.atan2(this.value[1], this.value[0]);
+	}
+	
+	this.setAngle = function(_angle, _radius = 1) {
+		_angle = (_angle - .5 * Math.PI) * -1;
+		this.value[0] = Math.sin(_angle) * _radius;
+		this.value[1] = Math.cos(_angle) * _radius;
+		return this;
+	}
+
+	this.getProjection = function(_projectionVector) {
+		let dAngle = _projectionVector.getAngle() - this.getAngle();
+		let length = _projectionVector.getLength() * Math.cos(dAngle);
+		return new Vector([0, 0]).setAngle(this.getAngle(), length);
+	}
 
 
 
