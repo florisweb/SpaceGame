@@ -1,6 +1,7 @@
 function _PhysicsEngine() {
 	this.particles = [];
 
+
 	this.constants = new function() {
 		this.G = 6.674 * Math.pow(10, -11 + 6);
 	}
@@ -20,6 +21,17 @@ function _PhysicsEngine() {
 			return true;
 		}
 	}
+
+	
+	this.collision = new function() {
+		this.settings = new function() {
+			this.rays = 10;
+			this.rayStepSize = .1;
+			this.rayPower = 2;
+		}
+	}
+
+
 
 
 

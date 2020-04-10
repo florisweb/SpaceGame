@@ -3,7 +3,11 @@ function Particle({position, mass, config = {}}) {
 	this.mass = mass;
 	this.position = new Vector(position);
 	this.velocity = new Vector([0, 0]); // x-y-vector
-	this.config = config
+	if (this.config)
+	{
+		this.config = {...this.config, ...config};
+	} else this.config = config;
+
 
 	if (this.config.startVelocity) this.velocity = new Vector(this.config.startVelocity);
 	this.remove = function() {
@@ -22,6 +26,16 @@ function Particle({position, mass, config = {}}) {
 		this.positionTrace.push(this.position.copy());
 		if (this.positionTrace.length > 300) this.positionTrace.splice(0, this.positionTrace.length - 300);
 	}
+
+
+	this.applyFres = function(_Fres) {
+		let a = _Fres.copy().scale(1 / this.mass);
+		this.velocity.add(a);
+		this.position.add(this.velocity);
+
+		this.drawVectors(_Fres, a.copy());
+		return a;
+	}
 }
 
 
@@ -33,22 +47,9 @@ function GravParticle({mass, position, radius, config = {}}) {
 	
 	this.radius = radius;
 
-	this.update = function() {
-		this.applyGravitation();
-		if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
-	}
 
-
-	this.applyGravitation = function() {
-		let Fgrav = this.getFgrav();
-		let Fres = Fgrav.copy();
-
-		let a = Fres.scale(1 / this.mass);
-		this.velocity.add(a);
-		this.position.add(this.velocity);
-
-		this.drawVectors(Fgrav, a.copy());
-		return a;
+	this.getGravVector = function() {
+		return this.getFgrav();
 	}
 
 	this.getFgrav = function() {
@@ -71,12 +72,6 @@ function SpinParticle({mass, position, radius, config = {}}) {
 	Particle.call(this, {position: position, mass: mass, radius: radius, config: config});
 	this.angle 				= 0;
 	this.angularVelocity 	= .01;
-
-	this.update = function() {
-		this.applyGravitation();
-		this.applyAngularVelocity();
-		if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
-	}
 
 	this.applyAngularVelocity = function() {
 		this.angle += this.angularVelocity;
@@ -148,8 +143,6 @@ function GravGroup() {
 
 		let acceleration = this.applyGravitation();
 		for (let i = 0; i < this.particles.length; i++) this.particles[i].velocity.add(acceleration);
-
-		this.position = PhysicsEngine.getCenterOfMass(this.particles);
 	}
 
 
@@ -160,6 +153,7 @@ function GravGroup() {
 			let distanceFromCenter = this.position.difference(this.particles[i].position).getLength();
 			if (this.radius < distanceFromCenter) this.radius = distanceFromCenter;
 		}
+		this.position = PhysicsEngine.getCenterOfMass(this.particles);
 	}
 	function reCalculateMass() {
 		This.mass = 0;

@@ -24,34 +24,77 @@ function _app() {
 // }
 App.setup();
 
+const circleShapeFunction = function(_position) {
+	return this.position.difference(_position).getLength() < this.radius; 
+}
+const update = function() {
+	let Fres = this.getGravVector();
+	Fres.add(this.getCollisionVector(Fres));	
+	this.applyFres(Fres);
+	
+	this.applyAngularVelocity();
+	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
+}
 
-// g = new GravParticle({position: [50, -20], mass: 50, radius: 10});
-// g = new GravParticle({position: [100, 150], mass: 200, radius: 20});
-// g = new GravParticle({position: [300, 150], mass: 50, radius: 10});
-// g = new GravParticle({position: [500, 300], mass: 200, radius: 20});
 
-PhysicsEngine.addParticle(new GravParticle({mass: 30023590, position: [1000, 1000], radius: 40})); //SUN
-let mercury = new GravParticle({mass: 50235, position: [500, 1000], radius: 15, config: {startVelocity: [0, -2]}}); //mercury
+
+
+
+let sunConfig = {mass: 30023590, position: [1000, 1000], radius: 40, config: {isSun: true}};
+let sun = new GravParticle(sunConfig); //mercury
+CollisionParticle.call(sun, sunConfig, circleShapeFunction);
+SpinParticle.call(sun, sunConfig);
+sun.update = update;
+PhysicsEngine.addParticle(sun);
+
+
+
+
+
+
+
+
+let mercuryConfig = {mass: 50235, position: [500, 1000], radius: 20, config: {startVelocity: [0, 2.1]}};
+let mercury = new GravParticle(mercuryConfig); //mercury
+CollisionParticle.call(mercury, mercuryConfig, circleShapeFunction);
+SpinParticle.call(mercury, mercuryConfig);
+mercury.update = update;
 PhysicsEngine.addParticle(mercury);
 
 
-{
-let earthGroup = new GravGroup();
-let earth = new SpinParticle({mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}}); //earth
-GravParticle.call(earth, {mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}});
 
+
+
+
+let earthGroup = new GravGroup();
+earthGroup.update = function() {
+	this.updateValues();
+
+	let Fres = this.getGravVector();
+	let acceleration = this.applyFres(Fres);
+
+	for (let i = 0; i < this.particles.length; i++) this.particles[i].velocity.add(acceleration);
+}
+
+
+let earthConfig = {mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}};
+let earth = new GravParticle(earthConfig); 
+CollisionParticle.call(earth, earthConfig, circleShapeFunction);
+SpinParticle.call(earth, earthConfig);
+earth.update = update;
 earthGroup.addParticle(earth);
 
 
-let moon = new SpinParticle({mass: 30002, position: [300, 1050], radius: 10, config: {startVelocity: [0, 2]}}); 
-GravParticle.call(moon, {mass: 30002, position: [300, 1050], radius: 10, config: {startVelocity: [0, 2]}});
+let moonConfig = {mass: 30002, position: [300, 1050], radius: 10, config: {startVelocity: [0, 2]}};
+let moon = new GravParticle(moonConfig); 
+CollisionParticle.call(moon, moonConfig, circleShapeFunction);
+SpinParticle.call(moon, moonConfig);
+moon.update = update;
 earthGroup.addParticle(moon);
 
-PhysicsEngine.addParticle(earthGroup);
-}
 
-// gg.addParticle(new GravParticle({position: [100, 0], mass: 14000, radius: 15}));
-// gg.addParticle(new GravParticle({position: [0, 100], mass: 14000, radius: 15}));
+PhysicsEngine.addParticle(earthGroup);
+
 
 
 
