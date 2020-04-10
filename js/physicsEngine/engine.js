@@ -32,6 +32,7 @@ function _PhysicsEngine() {
 
 
 	this.update = function() {
+		CollisionEngine.update();
 		for (let p = this.particles.length - 1; p >= 0; p--)
 		{
 			if (!this.world.inWorld(this.particles[p]) || (this.particles[p].config.isGravGroup && this.particles[p].particles.length == 0)) 

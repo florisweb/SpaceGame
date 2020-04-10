@@ -8,9 +8,29 @@
 
 function _CollisionEngine() {
 	this.collisionParticles = [];
+	this.cache = [];
+	
+
 	this.settings = new function() {
 		this.antiSpeedConstant = .5;
 	}
+
+	this.update = function() {
+		// this.clearCache();
+	}
+
+	this.clearCache = function() {
+		this.cache = [];
+		this.cache.add = function(_aId, _bId, value) {
+			if (this[_aId + "-" + _bId]) {this[_aId + "-" + _bId] = value; return}
+			this[_bId + "-" + _aId] = value;
+		}
+		this.cache.get = function(_aId, _bId) {
+			if (this[_aId + "-" + _bId]) return this[_aId + "-" + _bId];
+			return this[_bId + "-" + _aId];
+		}
+	}
+	this.clearCache();
 
 
 	this.draw = function() {
@@ -19,18 +39,6 @@ function _CollisionEngine() {
 
 	this.addCollisionParticle = function(_collisionBox) {
 		this.collisionParticles.push(_collisionBox);
-	}
-
-
-	this.drawIntersections = function() {
-		for (item of this.collisionParticles) 
-		{
-			let intersections = this.getIntersections(item);
-			for (intersection  of intersections)
-			{
-				RenderEngine.drawVector(intersection, new Vector([10, 0]), "#0f0");
-			}
-		}
 	}
 
 	
@@ -42,11 +50,21 @@ function _CollisionEngine() {
 			if (_item.id == curParticle.id) continue;
 			
 			if (_item.parent.position.difference(curParticle.parent.position).getLength() > _item.meshRange + curParticle.meshRange) continue;
-			intersections = intersections.concat(_item.getIntersectionsByMesh(curParticle));
+			let subIntersect = this.cache.get(_item.id, curParticle.id);
+			if (!subIntersect) 
+			{
+				subIntersect = _item.getIntersectionsByMesh(curParticle);
+				this.cache.add(_item.id, curParticle.id, subIntersect);
+			}
+			
+			intersections = intersections.concat(subIntersect);
 		}
 		return intersections;
 	}
 }
+
+
+
 
 
 
