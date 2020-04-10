@@ -20,7 +20,12 @@
 			$.getScript("js/extraFunctions.js?antiCache=" 			+ antiCache, function() {});
 			$.getScript("js/vector.js?antiCache=" 					+ antiCache, function() {});
 			$.getScript("js/animator.js?antiCache=" 				+ antiCache, function() {});
-			$.getScript("js/physicsEngine.js?antiCache=" 			+ antiCache, function() {});
+				
+			$.getScript("js/physicsEngine/gravity.js?antiCache=" 	+ antiCache, function() {});
+			$.getScript("js/physicsEngine/collision.js?antiCache=" 	+ antiCache, function() {});
+			$.getScript("js/physicsEngine/engine.js?antiCache=" 	+ antiCache, function() {});
+
+
 			$.getScript("js/renderEngine.js?antiCache="				+ antiCache, function() {});
 			$.getScript("js/inputHandler.js?antiCache=" 			+ antiCache, function() {});
 			$.getScript("js/game.js?antiCache="						+ antiCache, function() {});

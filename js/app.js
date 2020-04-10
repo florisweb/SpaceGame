@@ -38,12 +38,15 @@ PhysicsEngine.addParticle(mercury);
 {
 let earthGroup = new GravGroup();
 let earth = new SpinParticle({mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}}); //earth
+GravParticle.call(earth, {mass: 500235, position: [200, 1000], radius: 20, config: {startVelocity: [0, 1.5]}});
 
 earthGroup.addParticle(earth);
 
 
 let moon = new SpinParticle({mass: 30002, position: [300, 1050], radius: 10, config: {startVelocity: [0, 2]}}); 
+GravParticle.call(moon, {mass: 30002, position: [300, 1050], radius: 10, config: {startVelocity: [0, 2]}});
 earthGroup.addParticle(moon);
+
 PhysicsEngine.addParticle(earthGroup);
 }
 
