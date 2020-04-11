@@ -136,17 +136,194 @@ function CollisionLine({offset, shape}, _parent) {
 
 
 
-function CollisionMesh({factory, offset}, _parent) {
-	this.id = newId();
-	this.parent = _parent;
+// function CollisionMesh({factory, offset}, _parent) {
+// 	this.id = newId();
+// 	this.parent = _parent;
 	
-	this.lines = factory.call(this);
-	this.offset = new Vector(offset);
-	this.meshRange = setMeshRange(this.lines);
+// 	this.lines = factory.call(this);
+// 	this.offset = new Vector(offset);
+// 	this.meshRange = setMeshRange(this.lines);
 
-	this.draw = function() {
-		for (line of this.lines) line.draw();
+// 	this.draw = function() {
+// 		for (line of this.lines) line.draw();
+// 	}
+
+// 	function setMeshRange(_lines) {
+// 		let maxRange = 0;
+// 		for (let i = 0; i < _lines.length; i++) 
+// 		{
+// 			let vector1 = _lines[i].offset.copy();
+// 			let vector2 = vector1.copy().add(_lines[i].shape);
+// 			let range1 = vector1.getLength();
+// 			let range2 = vector2.getLength();
+// 			let range = range1 > range2 ? range1 : range2;
+
+// 			if (range < maxRange) continue;
+// 			maxRange = range;
+// 		}
+// 		return maxRange;
+// 	}
+	
+// 	this.getIntersectionsByLine = function(_line) {
+// 		let intersections = [];
+// 		for (let l = 0; l < this.lines.length; l++)
+// 		{
+// 			let intersection = this.lines[l].getIntersections(_line);
+// 			if (!intersection) continue;
+// 			intersections.push(intersection[0]);
+// 		}
+// 		return intersections;
+// 	}
+// 	this.getIntersectionsByMesh = function(_mesh) {
+// 		let intersections = [];
+// 		for (let l = 0; l < _mesh.lines.length; l++)
+// 		{
+// 			let result = this.getIntersectionsByLine(_mesh.lines[l]);
+// 			intersections = intersections.concat(result);
+// 		}
+// 		return intersections;
+// 	}
+
+// 	this.getCollisionVectors = function() {
+// 		let collisions = CollisionEngine.getIntersections(this);
+// 		for (let t = 0; t < collisions.length; t++)
+// 		{
+// 			let curVector = new Vector([0, 0]);
+// 			let curTarget = collisions[t];
+
+// 			for (let i = 0; i < curTarget.intersects.length; i++)
+// 			{
+// 				curVector.add(curTarget.intersects[i]);
+// 			}
+
+// 			collisions[t].vector = curVector.scale(1 / curTarget.intersects.length);
+// 			delete collisions[t].intersects;
+// 		}
+// 		return collisions;
+
+
+// 		// let collisionVector = new Vector([0, 0]);
+// 		// if (intersections.length == 0) return collisionVector;
+
+// 		// for (let i = 0; i < intersections.length; i++)
+// 		// {
+// 		// 	let relativePos = this.parent.position.difference(intersections[i]);
+// 		// 	let meshPercentage = relativePos.copy().setLength((this.meshRange - relativePos.getLength()) / this.meshRange + CollisionEngine.settings.collisionBorderStartValue);			
+// 		// 	collisionVector.add(meshPercentage);
+// 		// }
+
+// 		// return new Vector([0, 0]);// collisionVector.scale(1 / intersections.length);
+// 	}
+// }
+
+// function OuterCollisionMesh({factory, offset}, _parent) {
+// 	this.parent = _parent;
+	
+// 	this.lines = factory.call(this);
+// 	this.offset = new Vector(offset);
+// 	this.meshRange = setMeshRange(this.lines);
+
+// 	this.draw = function() {
+// 		for (line of this.lines) line.draw();
+// 	}
+
+// 	function setMeshRange(_lines) {
+// 		let maxRange = 0;
+// 		for (let i = 0; i < _lines.length; i++) 
+// 		{
+// 			let vector1 = _lines[i].offset.copy();
+// 			let vector2 = vector1.copy().add(_lines[i].shape);
+// 			let range1 = vector1.getLength();
+// 			let range2 = vector2.getLength();
+// 			let range = range1 > range2 ? range1 : range2;
+
+// 			if (range < maxRange) continue;
+// 			maxRange = range;
+// 		}
+// 		return maxRange;
+// 	}
+	
+// 	this.getIntersectionsByLine = function(_line) {
+// 		let intersections = [];
+// 		for (let l = 0; l < this.lines.length; l++)
+// 		{
+// 			let intersection = this.lines[l].getIntersections(_line);
+// 			if (!intersection) continue;
+// 			intersections.push(intersection[0]);
+// 		}
+// 		return intersections;
+// 	}
+// 	this.getIntersectionsByMesh = function(_mesh) {
+// 		let intersections = [];
+// 		for (let l = 0; l < _mesh.lines.length; l++)
+// 		{
+// 			let result = this.getIntersectionsByLine(_mesh.lines[l]);
+// 			intersections = intersections.concat(result);
+// 		}
+// 		return intersections;
+// 	}
+
+// 	this.getCollisionVectors = function() {
+// 		let collisions = CollisionEngine.getIntersections(this);
+// 		for (let t = 0; t < collisions.length; t++)
+// 		{
+// 			let curVector = new Vector([0, 0]);
+// 			let curTarget = collisions[t];
+
+// 			for (let i = 0; i < curTarget.intersects.length; i++)
+// 			{
+// 				curVector.add(curTarget.intersects[i]);
+// 			}
+
+// 			collisions[t].vector = curVector.scale(1 / curTarget.intersects.length);
+// 			delete collisions[t].intersects;
+// 		}
+// 		return collisions;
+
+
+// 		// let collisionVector = new Vector([0, 0]);
+// 		// if (intersections.length == 0) return collisionVector;
+
+// 		// for (let i = 0; i < intersections.length; i++)
+// 		// {
+// 		// 	let relativePos = this.parent.position.difference(intersections[i]);
+// 		// 	let meshPercentage = relativePos.copy().setLength((this.meshRange - relativePos.getLength()) / this.meshRange + CollisionEngine.settings.collisionBorderStartValue);			
+// 		// 	collisionVector.add(meshPercentage);
+// 		// }
+
+// 		// return new Vector([0, 0]);// collisionVector.scale(1 / intersections.length);
+// 	}
+// }
+
+
+
+function CollisionParticle({mass, position, config = {}}, _meshFactory) {
+	this.mesh = new MeshObject({meshFactory: _meshFactory, offset: [0, 0]}, this);
+	CollisionEngine.addCollisionParticle(this.mesh);
+
+
+	this.getCollisionVector = function() {
+		this.mesh.getCollisionVectors();
+
+
+		return {
+			positionCorrection: new Vector,
+			collisionVector: new Vector
+		}
 	}
+}
+
+
+
+
+function MeshObject({meshFactory, offset}, _parent) {
+	this.offset	= new Vector(offset);
+	this.parent = _parent;
+
+	this.outerMesh = new OuterMesh({factory: meshFactory}, this);
+	this.innerMesh = new InnerMesh(this.outerMesh, this);
+	this.meshRange = setMeshRange(this.outerMesh.lines);
+
 
 	function setMeshRange(_lines) {
 		let maxRange = 0;
@@ -163,58 +340,71 @@ function CollisionMesh({factory, offset}, _parent) {
 		}
 		return maxRange;
 	}
-	
-	this.getIntersectionsByLine = function(_line) {
-		let intersections = [];
-		for (let l = 0; l < this.lines.length; l++)
-		{
-			let intersection = this.lines[l].getIntersections(_line);
-			if (!intersection) continue;
-			intersections.push(intersection[0]);
-		}
-		return intersections;
-	}
-	this.getIntersectionsByMesh = function(_mesh) {
-		let intersections = [];
-		for (let l = 0; l < _mesh.lines.length; l++)
-		{
-			let result = this.getIntersectionsByLine(_mesh.lines[l]);
-			intersections = intersections.concat(result);
-		}
-		return intersections;
-	}
 
 	this.getCollisionVectors = function() {
-		let collisions = CollisionEngine.getIntersections(this);
-		for (let t = 0; t < collisions.length; t++)
-		{
-			let curVector = new Vector([0, 0]);
-			let curTarget = collisions[t];
+		CollisionEngine.collisionParticles;
+		return [];
+	}
 
-			for (let i = 0; i < curTarget.intersects.length; i++)
-			{
-				curVector.add(curTarget.intersects[i]);
-			}
-
-			collisions[t].vector = curVector.scale(1 / curTarget.intersects.length);
-			delete collisions[t].intersects;
-		}
-		return collisions;
-
-
-		// let collisionVector = new Vector([0, 0]);
-		// if (intersections.length == 0) return collisionVector;
-
-		// for (let i = 0; i < intersections.length; i++)
-		// {
-		// 	let relativePos = this.parent.position.difference(intersections[i]);
-		// 	let meshPercentage = relativePos.copy().setLength((this.meshRange - relativePos.getLength()) / this.meshRange + CollisionEngine.settings.collisionBorderStartValue);			
-		// 	collisionVector.add(meshPercentage);
-		// }
-
-		// return new Vector([0, 0]);// collisionVector.scale(1 / intersections.length);
+	this.getPosition = function() {
+		return this.parent.position.copy().add(this.offset);
 	}
 }
+
+
+function OuterMesh({factory}, _meshObject) {
+	this.mesh = _meshObject;
+	this.lines = factory.call(this);
+
+	this.draw = function() {
+		for (line of this.lines) line.draw();
+	}
+}
+
+function InnerMesh(_outerMesh, _meshObject) {
+	this.mesh = _meshObject;
+	this.lines = createLines(_outerMesh);
+	
+
+
+	this.getCollisionVector = function(_meshObject) {
+		return new Vector([0, 0]);
+	}
+
+	this.getCollisions = function(_outerMesh) {
+		return [{
+			line: line,
+			collision: new Vector
+		}]
+	}
+
+
+	function createLines() {
+
+	}
+	
+	function setLineLength() {
+		let position = this.mesh.getPosition()
+		this.getCollisions(this.mesh.outerMesh)
+		for line of lines
+			item.line.shape.setLength(
+				position.difference(item.line.collision).getLength()
+			)
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
