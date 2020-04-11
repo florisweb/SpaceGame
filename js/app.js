@@ -20,7 +20,7 @@ App.setup();
 
 const createMeshFactory = function({radius}) {
 	return function (_parent) {
-		return new CollisionCircle({radius: radius, lineCount: 20}, _parent);
+		return new CollisionCircle({radius: radius, lineCount: Math.round(radius / 2 + 5)}, _parent);
 	}
 }
 
@@ -32,7 +32,7 @@ const createMeshFactory2 = function({size}) {
 
 
 const update = function() {
-	this.Fres.add(this.getGravVector());
+	// this.Fres.add(this.getGravVector());
 	this.Fres.add(this.getCollisionVector(this.Fres));
 	this.applyFres(this.Fres);
 	
@@ -44,7 +44,7 @@ const update = function() {
 
 
 
-let sunConfig = {mass: 30023590, position: [1300, 1000], config: {}};
+let sunConfig = {mass: 20023590, position: [1300, 1000], config: {}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40}));
 SpinParticle.call(sun, sunConfig);
@@ -53,13 +53,34 @@ PhysicsEngine.addParticle(sun);
 
 
 
+{
+let sunConfig2 = {mass: 2023590, position: [1000, 500], config: {startVelocity: [0, 0]}};
+let sun2 = new GravParticle(sunConfig2); //mercury
+CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
+SpinParticle.call(sun2, sunConfig2);
+sun2.update = update;
+PhysicsEngine.addParticle(sun2);
+}
 
-// let sunConfig2 = {mass: 3002350, position: [1100, 1000], config: {startVelocity: [0, .2]}};
-// let sun2 = new GravParticle(sunConfig2); //mercury
-// CollisionParticle.call(sun2, sunConfig2, createMeshFactory2({size: [40, 40]}));
-// SpinParticle.call(sun2, sunConfig2);
-// sun2.update = update;
-// PhysicsEngine.addParticle(sun2);
+{
+let sunConfig2 = {mass: 2023590, position: [800, 1000], config: {startVelocity: [0, 0]}};
+let sun2 = new GravParticle(sunConfig2); //mercury
+CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
+SpinParticle.call(sun2, sunConfig2);
+sun2.update = update;
+PhysicsEngine.addParticle(sun2);
+}
+
+
+
+{
+let sunConfig2 = {mass: 2023590, position: [1000, 1500], config: {startVelocity: [0, 0]}};
+let sun2 = new GravParticle(sunConfig2); //mercury
+CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
+SpinParticle.call(sun2, sunConfig2);
+sun2.update = update;
+PhysicsEngine.addParticle(sun2);
+}
 
 
 
@@ -133,14 +154,14 @@ function createParticleSet(_position, _spread, _count = 20) {
 	// }
 
 	for (let i = 0; i < _count; i++) {
-		let radius = 10;
+		let radius = 20;
 		let mass = 4/3 * Math.PI * Math.pow(radius, 3) * .2;
 		let config = {position: [
 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
 			_position.value[1] - _spread + 2 * _spread * Math.random()
 		], mass: mass, config: {}};
 		g = new GravParticle(config);
-		CollisionParticle.call(g, config, createMeshFactory2({size: [radius, radius]}));
+		CollisionParticle.call(g, config, createMeshFactory({radius: radius}));
 
 		g.update = update;
 

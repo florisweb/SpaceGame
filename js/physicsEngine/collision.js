@@ -5,8 +5,8 @@ function _CollisionEngine() {
 	
 
 	this.settings = new function() {
-		this.antiSpeedConstant = 2;
 		this.useCache = true;
+		this.collisionBorderStartValue = .1;
 	}
 
 	this.update = function() {
@@ -52,14 +52,13 @@ function _CollisionEngine() {
 				if (this.settings.useCache) this.cache.add(_item.id, curParticle.id, subIntersect);
 			}
 
-			intersections = intersections.concat(subIntersect);
+			if (subIntersect.length == 0) continue;
+			for (let i = 0; i < subIntersect.length; i++) RenderEngine.drawVector(subIntersect[i].copy(), new Vector([2, 2]), "#0f0");
+			
+			intersections.push({intersects: subIntersect, target: this.collisionParticles[i]})
 		}
-		for (let i = 0; i < intersections.length; i++) RenderEngine.drawVector(intersections[i].copy(), new Vector([20, 0]), "#0f0");
+		
 		return intersections;
-	}
-
-	this.fillCache = function() {
-		for (let i = 0; i < this.collisionParticles.length; i++) this.getIntersections(this.collisionParticles[i]);
 	}
 }
 
@@ -134,6 +133,9 @@ function CollisionLine({offset, shape}, _parent) {
 
 
 
+
+
+
 function CollisionMesh({factory, offset}, _parent) {
 	this.id = newId();
 	this.parent = _parent;
@@ -150,8 +152,12 @@ function CollisionMesh({factory, offset}, _parent) {
 		let maxRange = 0;
 		for (let i = 0; i < _lines.length; i++) 
 		{
-			let vector = _lines[i].offset.copy().add(_lines[i].shape);
-			let range = vector.getLength();
+			let vector1 = _lines[i].offset.copy();
+			let vector2 = vector1.copy().add(_lines[i].shape);
+			let range1 = vector1.getLength();
+			let range2 = vector2.getLength();
+			let range = range1 > range2 ? range1 : range2;
+
 			if (range < maxRange) continue;
 			maxRange = range;
 		}
@@ -178,21 +184,40 @@ function CollisionMesh({factory, offset}, _parent) {
 		return intersections;
 	}
 
-	this.getCollisionVector = function() {
-		let intersections = CollisionEngine.getIntersections(this);
-		let collisionVector = new Vector([0, 0]);
-		if (intersections.length == 0) return collisionVector;
-
-		for (let i = 0; i < intersections.length; i++)
+	this.getCollisionVectors = function() {
+		let collisions = CollisionEngine.getIntersections(this);
+		for (let t = 0; t < collisions.length; t++)
 		{
-			let relativePos = this.parent.position.difference(intersections[i]);
-			relativePos.setLength(this.meshRange - relativePos.getLength());
-			collisionVector.add(relativePos);
-		}
+			let curVector = new Vector([0, 0]);
+			let curTarget = collisions[t];
 
-		return collisionVector.scale(1 / intersections.length).scale(1);
+			for (let i = 0; i < curTarget.intersects.length; i++)
+			{
+				curVector.add(curTarget.intersects[i]);
+			}
+
+			collisions[t].vector = curVector.scale(1 / curTarget.intersects.length);
+			delete collisions[t].intersects;
+		}
+		return collisions;
+
+
+		// let collisionVector = new Vector([0, 0]);
+		// if (intersections.length == 0) return collisionVector;
+
+		// for (let i = 0; i < intersections.length; i++)
+		// {
+		// 	let relativePos = this.parent.position.difference(intersections[i]);
+		// 	let meshPercentage = relativePos.copy().setLength((this.meshRange - relativePos.getLength()) / this.meshRange + CollisionEngine.settings.collisionBorderStartValue);			
+		// 	collisionVector.add(meshPercentage);
+		// }
+
+		// return new Vector([0, 0]);// collisionVector.scale(1 / intersections.length);
 	}
 }
+
+
+
 
 
 
@@ -218,6 +243,7 @@ function CollisionBox({diagonal}, _parent) {
 	CollisionMesh.call(this, {factory: generateMesh, offset: this.diagonal.copy().scale(-.5).value}, _parent);
 }
 
+
 function CollisionCircle({radius, lineCount}, _parent) {
 	this.radius = radius;
 	
@@ -225,15 +251,15 @@ function CollisionCircle({radius, lineCount}, _parent) {
 		let lines = [];
 
 		const anglePerLine = (2 * Math.PI) / lineCount;
-		const b = Math.PI / anglePerLine / 2;
-		const length = Math.sin(anglePerLine * .5) * this.radius * 2;
+		// const length = Math.sin(anglePerLine * .5) * this.radius * 2;
 		
 		for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
 		{
-			let deltaPos = new Vector([0, 0]).setAngle(a, this.radius);
+			let deltaPos = new Vector([0, 0]).setAngle(a, this.radius * 0);
 			let newLine = new CollisionLine({
 				offset: deltaPos.value, 
-				shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
+				// shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
+				shape: new Vector([0, 0]).setAngle(a, this.radius).value
 			}, _parent);
 			lines.push(newLine);
 		}
@@ -262,28 +288,35 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	this.collisionMesh = _meshFactory(this);
 	CollisionEngine.addCollisionParticle(this.collisionMesh);
 
-	this.getCollisionVector = function(_Fres) {
-		let vector = this.collisionMesh.getCollisionVector();
-		if (vector.getLength() == 0) return vector;
-
-		let antiFres = vector.getProjection(_Fres);
-		vector.add(antiFres);
-
+	this.getCollisionVector = function() {
+		let vectors = this.collisionMesh.getCollisionVectors();
+		if (vectors.length == 0) return new Vector([0, 0]);
+		console.log("vectors", vectors);
+		for (let i = 0; i < vectors.length; i++) RenderEngine.drawVector(vectors[i].vector.copy(), new Vector([2, 2]), "#00f");
 
 
-		let velocityComponent = vector.getProjection(this.velocity);
-		if (velocityComponent.getAngle() - vector.getAngle() == 0)
-		{
-			let FantiSpeed = 
-					.5 * 
-					this.mass * 
-					Math.pow(velocityComponent.getLength(), 2) * 
-					CollisionEngine.settings.antiSpeedConstant;
 
-			vector.setLength(vector.getLength() + FantiSpeed);
-		}
 
-		return vector.scale(-1);
+		// let deltaPixels = vectors.copy().scale(this.collisionMesh.meshRange); // exact amount of pixels that has to be moved in order to seperate
+		// console.log(deltaPixels);
+		// this.position.add(deltaPixels.scale(-.5));
+
+		// let antiFres = vector.getProjection(this.Fres);
+		// vector.add(antiFres);
+		
+		// let velocityComponent = vector.getProjection(this.velocity);
+		// if (velocityComponent.getAngle() - vector.getAngle() == 0)
+		// {
+		// 	let Ekin = 
+		// 			.5 * 
+		// 			this.mass * 
+		// 			Math.pow(velocityComponent.getLength(), 2);
+		// 	let Fkin = Ekin / this.collisionMesh.meshRange;
+		// 	vector.setLength(antiFres.getLength() + Fkin);
+		// }
+
+		return new Vector([0, 0]);
+		// return vector.scale(-1);
 	}
 }
 
