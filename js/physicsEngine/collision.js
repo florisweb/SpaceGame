@@ -456,7 +456,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 
 	function createLines(This) {
-		const lineCount = 20;
+		const lineCount = 6;
 		const anglePerLine = (2 * Math.PI) / lineCount;
 		
 		let lines = [];
@@ -578,7 +578,7 @@ function CollisionCircle({radius, lineCount}, _parent) {
 
 
 
-// 		// let deltaPixels = vectors.copy().scale(this.collisionMesh.meshRange); // exact amount of pixels that has to be moved in order to seperate
+// 		// let deltaPixels = vectors.copy().scale(this.mesh.meshRange); // exact amount of pixels that has to be moved in order to seperate
 // 		// console.log(deltaPixels);
 // 		// this.position.add(deltaPixels.scale(-.5));
 
@@ -592,7 +592,7 @@ function CollisionCircle({radius, lineCount}, _parent) {
 // 		// 			.5 * 
 // 		// 			this.mass * 
 // 		// 			Math.pow(velocityComponent.getLength(), 2);
-// 		// 	let Fkin = Ekin / this.collisionMesh.meshRange;
+// 		// 	let Fkin = Ekin / this.mesh.meshRange;
 // 		// 	vector.setLength(antiFres.getLength() + Fkin);
 // 		// }
 

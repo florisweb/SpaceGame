@@ -19,10 +19,10 @@ function _PhysicsEngine() {
 		this.size = new Vector([2000, 2000]);
 
 		this.inWorld = function(_particle) {
-			if (_particle.position.value[0] < -_particle.collisionMesh.meshRange || 
-				_particle.position.value[1] < -_particle.collisionMesh.meshRange) return false;
-			if (_particle.position.value[0] > this.size.value[0] + _particle.collisionMesh.meshRange || 
-				_particle.position.value[1] > this.size.value[1] + _particle.collisionMesh.meshRange) return false;
+			if (_particle.position.value[0] < -_particle.mesh.meshRange || 
+				_particle.position.value[1] < -_particle.mesh.meshRange) return false;
+			if (_particle.position.value[0] > this.size.value[0] + _particle.mesh.meshRange || 
+				_particle.position.value[1] > this.size.value[1] + _particle.mesh.meshRange) return false;
 			return true;
 		}
 	}

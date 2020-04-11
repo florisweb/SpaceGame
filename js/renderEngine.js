@@ -47,10 +47,10 @@ function _RenderEngine() {
 			let projSize = this.getWorldProjectionSize();
 			let dPos = this.position.difference(_particle.position);
 			if (
-				dPos.value[0] < -_particle.collisionMesh.meshRange || 
-				dPos.value[1] < -_particle.collisionMesh.meshRange) return false;
-			if (dPos.value[0] > projSize.value[0] + _particle.collisionMesh.meshRange || 
-				dPos.value[1] > projSize.value[1] + _particle.collisionMesh.meshRange) return false;
+				dPos.value[0] < -_particle.mesh.meshRange || 
+				dPos.value[1] < -_particle.mesh.meshRange) return false;
+			if (dPos.value[0] > projSize.value[0] + _particle.mesh.meshRange || 
+				dPos.value[1] > projSize.value[1] + _particle.mesh.meshRange) return false;
 			return true;
 		}
 
@@ -199,15 +199,15 @@ function _RenderEngine() {
 		if (!this.camera.inView(_entity)) return false;
 		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
 
-		ctx.strokeStyle = "#f00";
+		ctx.strokeStyle = "#0f0";
 		ctx.beginPath();
-		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.collisionMesh.meshRange / this.camera.zoom);
+		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.mesh.meshRange / this.camera.zoom);
 		ctx.closePath();
 		ctx.stroke();
 
 		ctx.globalAlpha = .5;
 		ctx.beginPath();
-		_entity.collisionMesh.draw();
+		_entity.mesh.draw();
 		ctx.closePath();
 		ctx.stroke();
 		ctx.globalAlpha = 1;
