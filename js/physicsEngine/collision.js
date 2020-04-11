@@ -40,13 +40,15 @@ function _CollisionEngine() {
 		let vectors = [];
 		for (let i = 0; i < this.collisionParticles.length; i++) 
 		{
+
 			let curParticle = this.collisionParticles[i]; 
 			if (_item.id == curParticle.id) continue;
 			
 			// if (_item.parent.position.difference(curParticle.parent.position).getLength() > _item.meshRange + curParticle.meshRange) continue;
 			// for (let i = 0; i < subIntersect.length; i++) RenderEngine.drawVector(subIntersect[i].copy(), new Vector([2, 2]), "#0f0");
+
 			let vector = _item.innerMesh.getCollisionVector(curParticle);
-			if (vector.getLength() == 0) continue;
+			if (!vector) continue;
 			
 			vectors.push({
 				vector: vector, 
@@ -338,16 +340,22 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	CollisionEngine.addCollisionParticle(this.mesh);
 
 
-	this.getCollisionVector = function() {
+	this.getCollisionData = function() {
 		let vectors = this.mesh.getCollisionVectors();
-		// console.log(vectors);
-		
-		return new Vector([0, 0]);
 
-		// return {
-		// 	positionCorrection: new Vector,
-		// 	collisionVector: new Vector
-		// }
+		let positionCorrectionVector = new Vector([0, 0]);
+		for (let v = 0; v < vectors.length; v++)
+		{
+			positionCorrectionVector.add(
+				vectors[v].vector.difference(this.position)
+			);
+		}
+
+
+		return {
+			positionCorrection: positionCorrectionVector,
+			vector: new Vector([0, 0])
+		}
 	}
 }
 
@@ -359,6 +367,7 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 function MeshObject({meshFactory, offset}, _parent) {
 	this.offset	= new Vector(offset);
 	this.parent = _parent;
+	this.id = newId();
 
 	this.getPosition = function() {
 		return this.parent.position.copy().add(this.offset);
@@ -428,7 +437,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 	this.getCollisionVector = function(_meshObject) {
 		let vector = new Vector([0, 0]);
 		let collisions = this.getCollisions(_meshObject.outerMesh);
-		if (collisions.lenght == 0) return vector;
+		if (collisions.length == 0) return false;
 		
 		for (let c = 0; c < collisions.length; c++)
 		{
@@ -443,7 +452,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 		for (let l = 0; l < this.lines.length; l++)
 		{
 			let intersections = this.lines[l].getIntersectionsFromLineList(_outerMesh.lines);
-			if (!intersections) continue;
+			if (!intersections || !intersections.length) continue;
 			if (intersections.length > 1) console.warn("Problems sir:", intersections);
 
 			collisions.push({
@@ -458,7 +467,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 
 	function createLines(This) {
-		const lineCount = 6;
+		const lineCount = 10;
 		const anglePerLine = (2 * Math.PI) / lineCount;
 		
 		let lines = [];

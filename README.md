@@ -75,10 +75,25 @@ Note: if the particle-array stays the same and the particles only interect with 
 
 CollisionEngine:
 
-f:	CollisionMesh.getCollisionVector
-p:	/
-r:	2d-vector: percentage of how far another mesh is inside the current mesh (1 = center, 0 = not at all)
+f: 	MeshObject.getCollisionVectors
+r:	[{
+	vector: new Vector 		CollisionPosition relative to (0, 0)
+	target: MeshObject
+}]
 
+
+f: 	CollisionParticle.getCollisionData
+r:	{
+	vector: new Vector: Fcollision
+	positionCorrection: new Vector
+}
+
+
+
+?
+f:	CollisionMesh.getCollisionVector
+r:	2d-vector: percentage of how far another mesh is inside the current mesh (1 = center, 0 = not at all)
+?
 
 
 
