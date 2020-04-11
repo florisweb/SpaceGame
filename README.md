@@ -77,7 +77,7 @@ CollisionEngine:
 
 f: 	MeshObject.getCollisionVectors
 r:	[{
-	vector: new Vector 		CollisionPosition relative to (0, 0)
+	vector: new Vector 		CollisionPosition relative to mesh.parent.getPosition()
 	target: MeshObject
 }]
 

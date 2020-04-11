@@ -40,12 +40,10 @@ function _CollisionEngine() {
 		let vectors = [];
 		for (let i = 0; i < this.collisionParticles.length; i++) 
 		{
-
 			let curParticle = this.collisionParticles[i]; 
 			if (_item.id == curParticle.id) continue;
 			
-			// if (_item.parent.position.difference(curParticle.parent.position).getLength() > _item.meshRange + curParticle.meshRange) continue;
-			// for (let i = 0; i < subIntersect.length; i++) RenderEngine.drawVector(subIntersect[i].copy(), new Vector([2, 2]), "#0f0");
+			if (_item.parent.position.difference(curParticle.parent.position).getLength() > _item.meshRange + curParticle.meshRange) continue;
 
 			let vector = _item.innerMesh.getCollisionVector(curParticle);
 			if (!vector) continue;
@@ -340,21 +338,37 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	CollisionEngine.addCollisionParticle(this.mesh);
 
 
-	this.getCollisionData = function() {
+	this.getCollisionData = function(_Fres) {
 		let vectors = this.mesh.getCollisionVectors();
 
 		let positionCorrectionVector = new Vector([0, 0]);
-		for (let v = 0; v < vectors.length; v++)
+		let Fcollision = new Vector([0, 0]);
+		
+
+		if (vectors.length)
 		{
-			positionCorrectionVector.add(
-				vectors[v].vector.difference(this.position)
-			);
+			for (let v = 0; v < vectors.length; v++)
+			{
+				positionCorrectionVector.add(vectors[v].vector);
+
+				Fcollision.add(vectors[v].vector);
+			}
+
+			positionCorrectionVector.scale(1 / vectors.length);
+
+	
+			Fcollision.add(Fcollision.getProjection(_Fres));
+
+			let speed = Fcollision.getProjection(this.velocity);
+			Fcollision.add(speed.scale(this.mass));
+
+			// Fcollision.add();
 		}
 
 
 		return {
-			positionCorrection: positionCorrectionVector,
-			vector: new Vector([0, 0])
+			positionCorrection: positionCorrectionVector.scale(-1 * .5),
+			vector: Fcollision.scale(-1),
 		}
 	}
 }
@@ -436,28 +450,42 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 	this.getCollisionVector = function(_meshObject) {
 		let vector = new Vector([0, 0]);
-		let collisions = this.getCollisions(_meshObject.outerMesh);
+		// let collisions = this.getCollisions(_meshObject.outerMesh);
+		let collisions = this.getInvertedCollisions(_meshObject.outerMesh);
 		if (collisions.length == 0) return false;
 		
 		for (let c = 0; c < collisions.length; c++)
 		{
 			vector.add(collisions[c].collision);
+			RenderEngine.drawVector(collisions[c].collision.copy().add(this.mesh.getPosition()), new Vector([2, 2]), "#0f0");
 		}
 
 		return vector.scale(1 / collisions.length);
 	}
 
+	this.getInvertedCollisions = function(_outerMesh) {
+		let collisions = this.getCollisions(_outerMesh);
+		for (let l = 0; l < collisions.length; l++)
+		{
+			collisions[l].collision.setLength(collisions[l].line.shape.getLength() - collisions[l].collision.getLength());
+		}
+	
+		return collisions;
+	}
+
+
 	this.getCollisions = function(_outerMesh) {
+		let meshPosition = this.mesh.parent.position.copy();
 		let collisions = [];
 		for (let l = 0; l < this.lines.length; l++)
 		{
 			let intersections = this.lines[l].getIntersectionsFromLineList(_outerMesh.lines);
 			if (!intersections || !intersections.length) continue;
-			if (intersections.length > 1) console.warn("Problems sir:", intersections);
-
+																																			// if (intersections.length > 1) console.warn("Problems sir:", intersections); !!!!!!!! TODO
+			let collision = meshPosition.difference(intersections[0]);
 			collisions.push({
 				line: this.lines[l],
-				collision: intersections[0]
+				collision: collision
 			})
 		}
 
@@ -484,12 +512,11 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 	
 	function setLineLength(This) {
-		let position = This.mesh.getPosition()
 		let collisions = This.getCollisions(This.mesh.outerMesh)
 		for (let l = 0; l < collisions.length; l++)
 		{
 			collisions[l].line.shape.setLength(
-				position.difference(collisions[l].collision).getLength()
+				collisions[l].collision.add(This.mesh.offset).getLength()
 			);
 		}
 	}
