@@ -159,8 +159,8 @@ function CollisionLine({offset, shape}, _meshObject) {
 		return min - marge <= _y && _y <= max + marge;
 	}
 
-	this.draw = function() {
-		RenderEngine.drawVector(this.getPosition().copy(), this.shape.copy());
+	this.draw = function(_color) {
+		RenderEngine.drawVector(this.getPosition().copy(), this.shape.copy(), _color);
 	}
 }
 
@@ -363,8 +363,8 @@ function MeshObject({meshFactory, offset}, _parent) {
 	}
 
 	this.outerMesh = new OuterMesh({factory: meshFactory}, this);
-	this.innerMesh = new InnerMesh(this.outerMesh, this);
 	this.meshRange = setMeshRange(this.outerMesh.lines);
+	this.innerMesh = new InnerMesh(this.outerMesh, this);
 
 
 	function setMeshRange(_lines) {
@@ -388,8 +388,8 @@ function MeshObject({meshFactory, offset}, _parent) {
 	}
 
 	this.draw = function() {
-		this.outerMesh.draw();
-		this.innerMesh.draw();
+		this.outerMesh.draw("#f00");
+		this.innerMesh.draw("rgba(0, 0, 255, .5)");
 	}
 }
 
@@ -404,8 +404,8 @@ function OuterMesh({factory}, _meshObject) {
 	this.mesh = _meshObject;
 	this.lines = factory.call(this.mesh);
 
-	this.draw = function() {
-		for (line of this.lines) line.draw();
+	this.draw = function(_color) {
+		for (line of this.lines) line.draw(_color);
 	}
 }
 
@@ -418,8 +418,8 @@ function InnerMesh(_outerMesh, _meshObject) {
 	this.mesh = _meshObject;
 	this.lines = createLines(this);
 
-	this.draw = function() {
-		for (line of this.lines) line.draw();
+	this.draw = function(_color) {
+		for (line of this.lines) line.draw(_color);
 	}
 
 
@@ -533,15 +533,14 @@ function CollisionCircle({radius, lineCount}, _parent) {
 		let lines = [];
 
 		const anglePerLine = (2 * Math.PI) / lineCount;
-		// const length = Math.sin(anglePerLine * .5) * this.radius * 2;
+		const length = Math.sin(anglePerLine * .5) * this.radius * 2;
 		
 		for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
 		{
-			let deltaPos = new Vector([0, 0]).setAngle(a, this.radius * 0);
+			let deltaPos = new Vector([0, 0]).setAngle(a, this.radius);
 			let newLine = new CollisionLine({
 				offset: deltaPos.value, 
-				// shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
-				shape: new Vector([0, 0]).setAngle(a, this.radius).value
+				shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
 			}, this);
 			lines.push(newLine);
 		}

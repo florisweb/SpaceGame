@@ -62,27 +62,6 @@ sun2.update = update;
 PhysicsEngine.addParticle(sun2);
 }
 
-{
-let sunConfig2 = {mass: 2023590, position: [800, 1000], config: {startVelocity: [0, 0]}};
-let sun2 = new GravParticle(sunConfig2); //mercury
-CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
-SpinParticle.call(sun2, sunConfig2);
-sun2.update = update;
-PhysicsEngine.addParticle(sun2);
-}
-
-
-
-{
-let sunConfig2 = {mass: 2023590, position: [1000, 1500], config: {startVelocity: [0, 0]}};
-let sun2 = new GravParticle(sunConfig2); //mercury
-CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
-SpinParticle.call(sun2, sunConfig2);
-sun2.update = update;
-PhysicsEngine.addParticle(sun2);
-}
-
-
 
 
 
