@@ -15,7 +15,6 @@ function Particle({position, mass, config = {}}) {
 		{
 			if (PhysicsEngine.particles[i].id != this.id) continue;
 			PhysicsEngine.particles.splice(i, 1);
-			if (this.gravGroup) this.gravGroup.removeParticle(this.id);
 			break;
 		}
 	}
@@ -92,71 +91,3 @@ function SpinParticle({mass, position, radius, config = {}}) {
 
 
 
-
-
-
-
-
-
-
-
-
-function GravGroup() {
-	GravParticle.call(this, {
-		mass: 1, 
-		position: [0, 0], 
-		radius: 0, 
-		config: {
-			isGravGroup: true,
-		}
-	});
-	let This = this;
-	this.particles = [];
-
-	this.addParticle = function(particle) {
-		particle.config.isGravGroupParticle = true;
-		particle.gravGroup = this;
-		particle.getFgrav = function() {
-			return PhysicsEngine.getTotalGravVectorByGravGroup(this, this.gravGroup);
-		}
-
-		this.particles.push(particle);
-		PhysicsEngine.addParticle(particle);
-
-		reCalculateMass();
-
-		return particle;
-	}
-
-	this.removeParticle = function(_id) {
-		for (let i = this.particles.length - 1; i >= 0; i--)
-		{
-			if (this.particles[i].id != _id) continue;
-			this.particles.splice(i, 1)[0].remove();
-			break;
-		}
-	}
-
-
-	this.update = function() {
-		this.updateValues();
-
-		let acceleration = this.applyGravitation();
-		for (let i = 0; i < this.particles.length; i++) this.particles[i].velocity.add(acceleration);
-	}
-
-
-	this.updateValues = function() {
-		this.radius = 0;
-		for (let i = 0; i < this.particles.length; i++) 
-		{
-			let distanceFromCenter = this.position.difference(this.particles[i].position).getLength();
-			if (this.radius < distanceFromCenter) this.radius = distanceFromCenter;
-		}
-		this.position = PhysicsEngine.getCenterOfMass(this.particles);
-	}
-	function reCalculateMass() {
-		This.mass = 0;
-		for (let i = 0; i < This.particles.length; i++) This.mass += This.particles[i].mass;
-	}
-}

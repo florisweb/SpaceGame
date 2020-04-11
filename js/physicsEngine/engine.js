@@ -35,7 +35,7 @@ function _PhysicsEngine() {
 		CollisionEngine.update();
 		for (let p = this.particles.length - 1; p >= 0; p--)
 		{
-			if (!this.world.inWorld(this.particles[p]) || (this.particles[p].config.isGravGroup && this.particles[p].particles.length == 0)) 
+			if (!this.world.inWorld(this.particles[p])) 
 			{
 				this.particles[p].remove();
 				continue;
@@ -55,17 +55,13 @@ function _PhysicsEngine() {
 	this.getTotalGravVector = function(_particle) {
 		return getTotalGravVectorByList(_particle, this.particles, false);
 	}
-	this.getTotalGravVectorByGravGroup = function(_particle, _gravGroup) {
-		return getTotalGravVectorByList(_particle, _gravGroup.particles, true);
-	}
 
-	function getTotalGravVectorByList(_particle, _particleList, _inGravGroup = false) {
+	function getTotalGravVectorByList(_particle, _particleList) {
 		let curVector = new Vector([0, 0]);
 		for (let i = 0; i < _particleList.length; i++) 
 		{
 			let curParticle = _particleList[i];
 			if (!curParticle.config.exerciseGravity) continue;
-			if (curParticle.config.isGravGroupParticle && !_inGravGroup) continue;
 			if (curParticle.id == _particle.id) continue;
 			
 			curVector.add(

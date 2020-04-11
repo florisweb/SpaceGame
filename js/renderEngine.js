@@ -3,7 +3,7 @@ function _RenderEngine() {
 		canvas: gameCanvas,
 	}
 	this.settings = new function() {
-		this.renderVectors = true;
+		this.renderVectors = false;
 		this.renderPositionTrace = false;
 	}
 
@@ -200,8 +200,6 @@ function _RenderEngine() {
 		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
 
 		ctx.strokeStyle = "red";
-		if (_entity.config.isGravGroup) ctx.strokeStyle = "#00f";
-		if (_entity.config.isGravGroupParticle) ctx.strokeStyle = "#0f0";
 		ctx.beginPath();
 		// ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.radius / this.camera.zoom);
 		_entity.collisionMesh.draw();

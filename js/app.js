@@ -44,12 +44,12 @@ const update = function() {
 
 
 
-// let sunConfig = {mass: 30023590, position: [1300, 1000], config: {}};
-// let sun = new GravParticle(sunConfig); //mercury
-// CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40, offsetPosition: [0, 0]}));
-// SpinParticle.call(sun, sunConfig);
-// sun.update = update;
-// PhysicsEngine.addParticle(sun);
+let sunConfig = {mass: 30023590, position: [1300, 1000], config: {}};
+let sun = new GravParticle(sunConfig); //mercury
+CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40, offsetPosition: [0, 0]}));
+SpinParticle.call(sun, sunConfig);
+sun.update = update;
+PhysicsEngine.addParticle(sun);
 
 
 
@@ -133,8 +133,8 @@ function createParticleSet(_position, _spread, _count = 20) {
 	// }
 
 	for (let i = 0; i < _count; i++) {
-		let radius = 5;
-		let mass = 5000; //4/3 * Math.PI * Math.pow(radius, 3);
+		let radius = 30;
+		let mass = 4/3 * Math.PI * Math.pow(radius, 3) * .2;
 		let config = {position: [
 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
 			_position.value[1] - _spread + 2 * _spread * Math.random()
