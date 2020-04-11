@@ -20,7 +20,7 @@ App.setup();
 
 const createMeshFactory = function({radius}) {
 	return function (_parent) {
-		return new CollisionCircle({radius: radius, lineCount: Math.round(radius / 2 + 5)}, _parent);
+		return new CollisionCircle({radius: radius, lineCount: 5}, _parent);
 	}
 }
 
