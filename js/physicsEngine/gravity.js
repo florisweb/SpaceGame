@@ -26,13 +26,15 @@ function Particle({position, mass, config = {}}) {
 		if (this.positionTrace.length > 300) this.positionTrace.splice(0, this.positionTrace.length - 300);
 	}
 
-
-	this.applyFres = function(_Fres) {
-		let a = _Fres.copy().scale(1 / this.mass);
+	
+	this.Fres = new Vector([0, 0]);
+	this.applyFres = function() {
+		let a = this.Fres.copy().scale(1 / this.mass);
 		this.velocity.add(a);
 		this.position.add(this.velocity);
 
-		this.drawVectors(_Fres, a.copy());
+		this.drawVectors(this.Fres.copy(), a.copy());
+		this.Fres = new Vector([0, 0]);
 		return a;
 	}
 }

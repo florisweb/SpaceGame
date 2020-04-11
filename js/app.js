@@ -32,11 +32,11 @@ const createMeshFactory2 = function({size}) {
 
 
 const update = function() {
-	let Fres = this.getGravVector();
-	Fres.add(this.getCollisionVector(Fres));
-	this.applyFres(Fres);
+	this.Fres.add(this.getGravVector());
+	this.Fres.add(this.getCollisionVector(this.Fres));
+	this.applyFres(this.Fres);
 	
-	this.applyAngularVelocity();
+	if (this.applyAngularVelocity) this.applyAngularVelocity();
 	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
 }
 
@@ -142,11 +142,7 @@ function createParticleSet(_position, _spread, _count = 20) {
 		g = new GravParticle(config);
 		CollisionParticle.call(g, config, createMeshFactory2({size: [radius, radius]}));
 
-		g.update = function() {
-			let Fres = this.getGravVector();
-			Fres.add(this.getCollisionVector(Fres));
-			this.applyFres(Fres);
-		}
+		g.update = update;
 
 		// gg.addParticle(g);
 		PhysicsEngine.addParticle(g);

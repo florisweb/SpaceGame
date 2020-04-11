@@ -33,6 +33,7 @@ function _PhysicsEngine() {
 
 	this.update = function() {
 		CollisionEngine.update();
+		// Calculate Fres
 		for (let p = this.particles.length - 1; p >= 0; p--)
 		{
 			if (!this.world.inWorld(this.particles[p])) 
@@ -42,6 +43,12 @@ function _PhysicsEngine() {
 			}
 			
 			this.particles[p].update();
+		}
+
+		// Apply Fres
+		for (let p = this.particles.length - 1; p >= 0; p--)
+		{	
+			this.particles[p].applyFres();
 		}
 	}
 
