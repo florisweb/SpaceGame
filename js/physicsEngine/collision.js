@@ -5,7 +5,7 @@ function _CollisionEngine() {
 	
 
 	this.settings = new function() {
-		this.antiSpeedConstant = .5;
+		this.antiSpeedConstant = 2;
 		this.useCache = true;
 	}
 
@@ -54,6 +54,7 @@ function _CollisionEngine() {
 
 			intersections = intersections.concat(subIntersect);
 		}
+		for (let i = 0; i < intersections.length; i++) RenderEngine.drawVector(intersections[i].copy(), new Vector([20, 0]), "#0f0");
 		return intersections;
 	}
 
@@ -61,6 +62,9 @@ function _CollisionEngine() {
 		for (let i = 0; i < this.collisionParticles.length; i++) this.getIntersections(this.collisionParticles[i]);
 	}
 }
+
+
+
 
 
 
@@ -182,6 +186,7 @@ function CollisionMesh({factory, offset}, _parent) {
 		for (let i = 0; i < intersections.length; i++)
 		{
 			let relativePos = this.parent.position.difference(intersections[i]);
+			relativePos.setLength(this.meshRange - relativePos.getLength());
 			collisionVector.add(relativePos);
 		}
 
@@ -261,14 +266,13 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 		let vector = this.collisionMesh.getCollisionVector();
 		if (vector.getLength() == 0) return vector;
 
-		// vector.scale(this.mass / 1);
-
 		let antiFres = vector.getProjection(_Fres);
 		vector.add(antiFres);
 
 
+
 		let velocityComponent = vector.getProjection(this.velocity);
-		if (velocityComponent.getAngle() - vector.getAngle() == 0) // ?????
+		if (velocityComponent.getAngle() - vector.getAngle() == 0)
 		{
 			let FantiSpeed = 
 					.5 * 

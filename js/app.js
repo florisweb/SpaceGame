@@ -54,12 +54,12 @@ PhysicsEngine.addParticle(sun);
 
 
 
-let sunConfig2 = {mass: 3002350, position: [1130, 1000], config: {startVelocity: [0, .2]}};
-let sun2 = new GravParticle(sunConfig2); //mercury
-CollisionParticle.call(sun2, sunConfig2, createMeshFactory2({size: [40, 40]}));
-SpinParticle.call(sun2, sunConfig2);
-sun2.update = update;
-PhysicsEngine.addParticle(sun2);
+// let sunConfig2 = {mass: 3002350, position: [1100, 1000], config: {startVelocity: [0, .2]}};
+// let sun2 = new GravParticle(sunConfig2); //mercury
+// CollisionParticle.call(sun2, sunConfig2, createMeshFactory2({size: [40, 40]}));
+// SpinParticle.call(sun2, sunConfig2);
+// sun2.update = update;
+// PhysicsEngine.addParticle(sun2);
 
 
 
@@ -133,14 +133,14 @@ function createParticleSet(_position, _spread, _count = 20) {
 	// }
 
 	for (let i = 0; i < _count; i++) {
-		let radius = 30;
+		let radius = 10;
 		let mass = 4/3 * Math.PI * Math.pow(radius, 3) * .2;
 		let config = {position: [
 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
 			_position.value[1] - _spread + 2 * _spread * Math.random()
 		], mass: mass, config: {}};
 		g = new GravParticle(config);
-		CollisionParticle.call(g, config, createMeshFactory({radius: radius, offsetPosition: [0, 0]}));
+		CollisionParticle.call(g, config, createMeshFactory2({size: [radius, radius]}));
 
 		g.update = function() {
 			let Fres = this.getGravVector();
