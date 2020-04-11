@@ -13,20 +13,20 @@ function _app() {
 }
 
 
-
-
-
-
-// document.body.onload = async function() {
-//   console.warn("Start loading...s"); 
-//   await App.setup();
-//   console.warn("App loaded!"	);
-// }
 App.setup();
 
-const createMeshFactory = function({radius, offsetPosition}) {
+
+
+
+const createMeshFactory = function({radius}) {
 	return function (_parent) {
-		return new CollisionCircle({radius: radius, lineCount: 10, offsetPosition: offsetPosition}, _parent);
+		return new CollisionCircle({radius: radius, lineCount: 20}, _parent);
+	}
+}
+
+const createMeshFactory2 = function({size}) {
+	return function (_parent) {
+		return new CollisionBox({diagonal: size}, _parent);
 	}
 }
 
@@ -46,7 +46,7 @@ const update = function() {
 
 let sunConfig = {mass: 30023590, position: [1300, 1000], config: {}};
 let sun = new GravParticle(sunConfig); //mercury
-CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40, offsetPosition: [0, 0]}));
+CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40}));
 SpinParticle.call(sun, sunConfig);
 sun.update = update;
 PhysicsEngine.addParticle(sun);
@@ -54,12 +54,12 @@ PhysicsEngine.addParticle(sun);
 
 
 
-// let sunConfig2 = {mass: 3002350, position: [1130, 1000], config: {startVelocity: [0, .2]}};
-// let sun2 = new GravParticle(sunConfig2); //mercury
-// CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 20, offsetPosition: [0, 0]}));
-// SpinParticle.call(sun2, sunConfig2);
-// sun2.update = update;
-// PhysicsEngine.addParticle(sun2);
+let sunConfig2 = {mass: 3002350, position: [1130, 1000], config: {startVelocity: [0, .2]}};
+let sun2 = new GravParticle(sunConfig2); //mercury
+CollisionParticle.call(sun2, sunConfig2, createMeshFactory2({size: [40, 40]}));
+SpinParticle.call(sun2, sunConfig2);
+sun2.update = update;
+PhysicsEngine.addParticle(sun2);
 
 
 

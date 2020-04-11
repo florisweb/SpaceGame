@@ -1,10 +1,3 @@
-/*new CollisionBox({position: [80, 130], diagonal: [50, 80]}),
-		new CollisionCircle({position: [100, 100], radius: 50, lineCount: 50}),
-		new CollisionCircle({position: [160, 100], radius: 30, lineCount: 50}),
-		new CollisionBox({position: [70, 30], diagonal: [30, 80]}),
-
-		new CollisionBox({position: [170, 30], diagonal: [30, 80]}),
-		new CollisionBox({position: [170, 10], diagonal: [50, 30]}),*/
 
 function _CollisionEngine() {
 	this.collisionParticles = [];
@@ -81,7 +74,7 @@ function CollisionLine({offset, shape}, _parent) {
 	this.parent 	= _parent;
 
 	this.getPosition = function() {
-		return this.parent.position.copy().add(this.offset);
+		return this.parent.position.copy().add(this.offset).add(this.parent.collisionMesh.offset);
 	}
 
 	this.getIntersections = function(_line) {
@@ -137,10 +130,12 @@ function CollisionLine({offset, shape}, _parent) {
 
 
 
-function CollisionMesh({factory}, _parent) {
+function CollisionMesh({factory, offset}, _parent) {
 	this.id = newId();
-	this.lines = factory.call(this);
 	this.parent = _parent;
+	
+	this.lines = factory.call(this);
+	this.offset = new Vector(offset);
 	this.meshRange = setMeshRange(this.lines);
 
 	this.draw = function() {
@@ -200,7 +195,10 @@ function CollisionMesh({factory}, _parent) {
 
 
 
-function CollisionBox({position, diagonal}, _parent) {
+
+
+
+function CollisionBox({diagonal}, _parent) {
 	this.diagonal = new Vector(diagonal);
 	
 	function generateMesh() {
@@ -212,10 +210,10 @@ function CollisionBox({position, diagonal}, _parent) {
 		];
 	}
 
-	CollisionMesh.call(this, {position: position, factory: generateMesh}, _parent);
+	CollisionMesh.call(this, {factory: generateMesh, offset: this.diagonal.copy().scale(-.5).value}, _parent);
 }
 
-function CollisionCircle({position, radius, lineCount}, _parent) {
+function CollisionCircle({radius, lineCount}, _parent) {
 	this.radius = radius;
 	
 	function generateMesh() {
@@ -237,7 +235,7 @@ function CollisionCircle({position, radius, lineCount}, _parent) {
 		return lines;
 	}
 
-	CollisionMesh.call(this, {position: position, factory: generateMesh}, _parent);
+	CollisionMesh.call(this, {factory: generateMesh, offset: [0, 0]}, _parent);
 }
 
 
