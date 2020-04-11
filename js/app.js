@@ -32,8 +32,8 @@ const createMeshFactory2 = function({size}) {
 
 
 const update = function() {
-	// this.Fres.add(this.getGravVector());
-	this.Fres.add(this.getCollisionVector(this.Fres));
+	this.Fres.add(this.getGravVector());
+	// this.Fres.add(this.getCollisionVector(this.Fres));
 	this.applyFres(this.Fres);
 	
 	if (this.applyAngularVelocity) this.applyAngularVelocity();

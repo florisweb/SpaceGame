@@ -340,7 +340,9 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 
 	this.getCollisionVector = function() {
 		let vectors = this.mesh.getCollisionVectors();
-		console.log(vectors);
+		// console.log(vectors);
+		
+		return new Vector([0, 0]);
 
 		// return {
 		// 	positionCorrection: new Vector,
