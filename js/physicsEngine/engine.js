@@ -6,7 +6,11 @@ function _PhysicsEngine() {
 
 
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 6);
+		this.G = 6.674 * Math.pow(10, -11 + 7);
+	}
+
+	this.settings = new function() {
+		this.roundError = Math.pow(10, 4);
 	}
 
 	this.formulas = new function() {
@@ -15,6 +19,9 @@ function _PhysicsEngine() {
 		}
 		this.calcMassInfluence = function(_massA, _massB) {
 			return _massA / (_massA + _massB);
+		}
+		this.Egrav = function(_massA, _massB, _radius) {
+			return -PhysicsEngine.constants.G * (_massA * _massB) / _radius;
 		}
 	}
 
@@ -33,10 +40,11 @@ function _PhysicsEngine() {
 
 
 
-
+	this.Etotal = 0;
 
 	this.update = function() {
 		CollisionEngine.update();
+		
 		// Calculate Fres
 		for (let p = this.particles.length - 1; p >= 0; p--)
 		{
@@ -49,11 +57,22 @@ function _PhysicsEngine() {
 			this.particles[p].calcPhysics();
 		}
 
+		// let prevEtotal = this.Etotal;
+		// this.Etotal = 0;
 		// Apply Fres
 		for (let p = this.particles.length - 1; p >= 0; p--)
 		{	
 			this.particles[p].applyPhysics(this.particles[p].physicsObj);
+
+			// let Ekin = .5 * this.particles[p].mass * Math.pow(this.particles[p].velocity.getLength(), 2);;
+			// let Egrav = this.particles[p].calcEGrav().getLength();
+			// this.Etotal += Ekin + Egrav;
 		}
+				
+		// let energyChange = Math.round(
+		// 		(this.Etotal - prevEtotal) * this.settings.roundError
+		// 	) / this.settings.roundError;
+		// if (energyChange != 0) console.warn("An energy change accured in the system:", energyChange);
 	}
 
 
@@ -95,6 +114,38 @@ function _PhysicsEngine() {
 		return new Vector([0, 0])
 				.setAngle(dVector.getAngle())
 				.setLength(gravitation);
+	}
+
+
+
+
+
+	this.getGravEnergy = function(_particleA, _particleB) {
+		let dVector = _particleA.position.difference(_particleB.position);
+		let gravitation = PhysicsEngine.formulas.Egrav(
+			_particleA.mass, 
+			_particleB.mass,
+			dVector.getLength()
+		);
+
+		return new Vector([0, 0])
+				.setAngle(dVector.getAngle())
+				.setLength(gravitation);
+	}
+
+	this.getTotalGravEnergy = function(_particle) {
+		let curVector = new Vector([0, 0]);
+		for (let i = 0; i < this.particles.length; i++) 
+		{
+			let curParticle = this.particles[i];
+			if (!curParticle.config.exerciseGravity) continue;
+			if (curParticle.id == _particle.id) continue;
+			
+			curVector.add(
+				this.getGravEnergy(_particle, curParticle)
+			);
+		}
+		return curVector;
 	}
 
 

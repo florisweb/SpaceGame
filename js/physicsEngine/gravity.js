@@ -63,6 +63,10 @@ function GravParticle({mass, position, radius, config = {}}) {
 		return this.getFgrav();
 	}
 
+	this.calcEGrav = function() {
+		return PhysicsEngine.getTotalGravEnergy(this);
+	}
+
 	this.getFgrav = function() {
 		return PhysicsEngine.getTotalGravVector(this);
 	}

@@ -20,7 +20,7 @@ App.setup();
 
 const createMeshFactory = function({radius}) {
 	return function (_parent) {
-		return new CollisionCircle({radius: radius, lineCount: 3}, _parent);
+		return new CollisionCircle({radius: radius, lineCount: 10}, _parent);
 	}
 }
 
@@ -33,14 +33,12 @@ const createMeshFactory2 = function({size}) {
 
 const calcPhysics = function() {
 	this.physicsObj.Fres.add(this.getGravVector());
-	
 	let collisionData = this.getCollisionData(this.physicsObj.Fres);
-	
-	// console.log(collisionData.positionCorrection, this.id);
-
 
 	this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
 	this.physicsObj.Fres.add(collisionData.vector);
+
+	// console.log(this.velocity.getLength() * (this.velocity.getAngle() * 2 / Math.PI - 1));
 	
 
 	if (this.applyAngularVelocity) this.applyAngularVelocity();
@@ -51,17 +49,17 @@ const calcPhysics = function() {
 
 
 
-let sunConfig = {mass: 10023590, position: [800, 1000], config: {startVelocity: [1, 0]}};
+let sunConfig = {mass: 10023590, position: [1000, 1000], config: {startVelocity: [0, 1]}};
 let sun = new GravParticle(sunConfig); //mercury
-CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40}));
+CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 30}));
 SpinParticle.call(sun, sunConfig);
 sun.calcPhysics = calcPhysics;
-PhysicsEngine.addParticle(sun);
+// PhysicsEngine.addParticle(sun);
 
 
 
 {
-let sunConfig2 = {mass: 10023590, position: [400, 1000], config: {startVelocity: [4, 0]}};
+let sunConfig2 = {mass: 10023590, position: [1500, 500], config: {startVelocity: [-10, 0]}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
 SpinParticle.call(sun2, sunConfig2);

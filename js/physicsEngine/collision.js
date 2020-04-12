@@ -6,7 +6,7 @@ function _CollisionEngine() {
 
 	this.settings = new function() {
 		this.useCache = true;
-		this.bouncyness = .6;
+		this.collisionVelocityTransfer = .9; // bouncyness
 	}
 
 	this.update = function() {
@@ -338,7 +338,7 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	CollisionEngine.addCollisionParticle(this.mesh);
 
 
-	this.getCollisionData = function(_Fres) {
+	this.getCollisionData = function() {
 		let vectors = this.mesh.getCollisionVectors();
 
 		let positionCorrectionVector = new Vector([0, 0]);
@@ -347,29 +347,28 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 
 		if (vectors.length)
 		{
+			let angleVector = new Vector([0, 0]);
+			for (let v = 0; v < vectors.length; v++)
+			{
+				angleVector.add(vectors[v].vector);
+			}
+			Fcollision.setAngle(angleVector.getAngle(), .01 / PhysicsEngine.settings.roundError) // Small energy loss here
+
 			for (let v = 0; v < vectors.length; v++)
 			{
 				let target = vectors[v].target.parent;
 				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
-				// console.log(collisionPercentage, this.id);
 
 				positionCorrectionVector.add(
 					vectors[v].vector.copy().scale(collisionPercentage)
 				);
 
-				Fcollision.add(vectors[v].vector);
-
-				let ownProjectionSpeed = Fcollision.getProjection(this.velocity);
 				let impactSpeed = Fcollision.getProjection(this.velocity.difference(target.velocity));
-				
-				// console.log("Impact: ", impactSpeed.getLength());
-				// Fcollision.add(ownProjectionSpeed.copy().scale(this.mass));
-				Fcollision.add(impactSpeed.scale(-target.mass * CollisionEngine.settings.bouncyness));
-				// * CollisionEngine.settings.bouncyness
+				let FspeedChange = impactSpeed.scale(-target.mass * CollisionEngine.settings.collisionVelocityTransfer);
+				Fcollision.add(FspeedChange);
 			}
 
 			positionCorrectionVector.scale(1 / vectors.length);
-			// Fcollision.add(Fcollision.getProjection(_Fres));
 		}
 
 
