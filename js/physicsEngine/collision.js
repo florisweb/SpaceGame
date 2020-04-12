@@ -6,7 +6,7 @@ function _CollisionEngine() {
 
 	this.settings = new function() {
 		this.useCache = true;
-		this.collisionBorderStartValue = .1;
+		this.bouncyness = .6;
 	}
 
 	this.update = function() {
@@ -349,7 +349,8 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 		{
 			for (let v = 0; v < vectors.length; v++)
 			{
-				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, vectors[v].target.parent.mass);
+				let target = vectors[v].target.parent;
+				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
 				// console.log(collisionPercentage, this.id);
 
 				positionCorrectionVector.add(
@@ -357,15 +358,18 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 				);
 
 				Fcollision.add(vectors[v].vector);
+
+				let ownProjectionSpeed = Fcollision.getProjection(this.velocity);
+				let impactSpeed = Fcollision.getProjection(this.velocity.difference(target.velocity));
+				
+				// console.log("Impact: ", impactSpeed.getLength());
+				// Fcollision.add(ownProjectionSpeed.copy().scale(this.mass));
+				Fcollision.add(impactSpeed.scale(-target.mass * CollisionEngine.settings.bouncyness));
+				// * CollisionEngine.settings.bouncyness
 			}
 
 			positionCorrectionVector.scale(1 / vectors.length);
-
-	
-			Fcollision.add(Fcollision.getProjection(_Fres));
-
-			let speed = Fcollision.getProjection(this.velocity);
-			Fcollision.add(speed.scale(this.mass));
+			// Fcollision.add(Fcollision.getProjection(_Fres));
 		}
 
 
