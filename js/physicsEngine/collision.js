@@ -1,8 +1,6 @@
 
 function _CollisionEngine() {
-	this.collisionParticles = [];
-	this.cache = [];
-	
+	this.cache = new Cache();
 
 	this.settings = new function() {
 		this.useCache = true;
@@ -10,54 +8,53 @@ function _CollisionEngine() {
 	}
 
 	this.update = function() {
-		this.clearCache();
-	}
-
-	this.clearCache = function() {
-		this.cache = [];
-		this.cache.add = function(_aId, _bId, _value) {
-			value = Object.assign([], _value);
-			if (this[_aId + "-" + _bId]) {this[_aId + "-" + _bId] = value; return}
-			this[_bId + "-" + _aId] = value;
-		}
-		this.cache.get = function(_aId, _bId) {
-			if (this[_aId + "-" + _bId]) return this[_aId + "-" + _bId];
-			return this[_bId + "-" + _aId];
-		}
-	}
-	this.clearCache();
-
-
-	this.draw = function() {
-		for (item of this.collisionParticles) item.draw();
-	}
-
-	this.addCollisionParticle = function(_collisionParticle) {
-		this.collisionParticles.push(_collisionParticle);
+		this.cache.clear();
 	}
 
 	this.getCollisionVectors = function(_item) {
 		let vectors = [];
-		for (let i = 0; i < this.collisionParticles.length; i++) 
+		for (let i = 0; i < PhysicsEngine.particles.length; i++) 
 		{
-			let curParticle = this.collisionParticles[i]; 
-			if (_item.id == curParticle.id) continue;
-			
-			if (_item.parent.position.difference(curParticle.parent.position).getLength() > _item.meshRange + curParticle.meshRange) continue;
+			let curParticle = PhysicsEngine.particles[i]; 
+			if (!curParticle || !curParticle.config.exerciseCollisions || !curParticle.mesh) continue;
+			let curMesh = curParticle.mesh;
 
-			let vector = _item.innerMesh.getCollisionVector(curParticle);
+			if (_item.parent.position.difference(curMesh.parent.position).getLength() > _item.meshRange + curMesh.meshRange) continue;
+			if (_item.id == curMesh.id) continue;
+
+			let vector = _item.innerMesh.getCollisionVector(curMesh);
 			if (!vector) continue;
 			
 			vectors.push({
 				vector: vector, 
-				target: this.collisionParticles[i]
+				target: PhysicsEngine.particles[i].mesh
 			});
 		}
 		
 		return vectors;
-
 	}
 }
+
+
+
+function Cache() {
+  let cache = [];
+
+  this.add = function(_aId, _bId, _value) {
+    value = Object.assign([], _value);
+    if (cache[_aId + "-" + _bId]) {cache[_aId + "-" + _bId] = value; return}
+    cache[_bId + "-" + _aId] = value;
+  }
+  this.get = function(_aId, _bId) {
+    if (cache[_aId + "-" + _bId]) return cache[_aId + "-" + _bId];
+    return cache[_bId + "-" + _aId];
+  }
+  this.clear = function() {
+    cache = [];
+  }
+}
+
+
 
 
 
@@ -74,7 +71,6 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	Particle.call(this, {position: position, mass: mass, config: config});
 
 	this.mesh = _meshFactory(this);
-	CollisionEngine.addCollisionParticle(this.mesh);
 
 
 	this.getCollisionData = function() {

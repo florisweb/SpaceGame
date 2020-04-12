@@ -49,17 +49,17 @@ const calcPhysics = function() {
 
 
 
-let sunConfig = {mass: 10023590, position: [1000, 1000], config: {startVelocity: [0, 1]}};
+let sunConfig = {mass: 10023590, position: [1000, 1000], config: {startVelocity: [.5, -.5]}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 30}));
 SpinParticle.call(sun, sunConfig);
 sun.calcPhysics = calcPhysics;
-// PhysicsEngine.addParticle(sun);
+PhysicsEngine.addParticle(sun);
 
 
 
 {
-let sunConfig2 = {mass: 10023590, position: [1500, 500], config: {startVelocity: [-10, 0]}};
+let sunConfig2 = {mass: 10023590, position: [1500, 500], config: {startVelocity: [0, 0]}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
 SpinParticle.call(sun2, sunConfig2);

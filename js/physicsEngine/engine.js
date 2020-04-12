@@ -6,7 +6,7 @@ function _PhysicsEngine() {
 
 
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 7);
+		this.G = 6.674 * Math.pow(10, -11 + 6);
 	}
 
 	this.settings = new function() {
