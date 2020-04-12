@@ -210,11 +210,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 		let collisions = this.getInvertedCollisions(_meshObject.outerMesh);
 		if (collisions.length == 0) return false;
 		
-		for (let c = 0; c < collisions.length; c++)
-		{
-			vector.add(collisions[c].collision);
-			RenderEngine.drawVector(collisions[c].collision.copy().add(this.mesh.getPosition()), new Vector([2, 2]), "#0f0");
-		}
+		for (let c = 0; c < collisions.length; c++) vector.add(collisions[c].collision);
 
 		return vector.scale(1 / collisions.length);
 	}
