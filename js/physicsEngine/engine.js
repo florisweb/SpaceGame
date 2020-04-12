@@ -13,7 +13,11 @@ function _PhysicsEngine() {
 		this.gravitation = function(_massA, _massB, _radius) {
 			return PhysicsEngine.constants.G * (_massA * _massB) / (_radius * _radius);
 		}
+		this.calcMassInfluence = function(_massA, _massB) {
+			return _massA / (_massA + _massB);
+		}
 	}
+
 	
 	this.world = new function() {
 		this.size = new Vector([2000, 2000]);

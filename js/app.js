@@ -35,6 +35,9 @@ const calcPhysics = function() {
 	this.physicsObj.Fres.add(this.getGravVector());
 	
 	let collisionData = this.getCollisionData(this.physicsObj.Fres);
+	
+	// console.log(collisionData.positionCorrection, this.id);
+
 
 	this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
 	this.physicsObj.Fres.add(collisionData.vector);
@@ -48,7 +51,7 @@ const calcPhysics = function() {
 
 
 
-let sunConfig = {mass: 20023590, position: [800, 1000], config: {startVelocity: [2, 0]}};
+let sunConfig = {mass: 10023590, position: [800, 1000], config: {startVelocity: [1, 0]}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40}));
 SpinParticle.call(sun, sunConfig);
@@ -58,7 +61,7 @@ PhysicsEngine.addParticle(sun);
 
 
 {
-let sunConfig2 = {mass: 2023590, position: [500, 1000], config: {startVelocity: [2.5, 0]}};
+let sunConfig2 = {mass: 10023590, position: [400, 1000], config: {startVelocity: [4, 0]}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
 SpinParticle.call(sun2, sunConfig2);

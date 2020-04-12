@@ -349,7 +349,12 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 		{
 			for (let v = 0; v < vectors.length; v++)
 			{
-				positionCorrectionVector.add(vectors[v].vector);
+				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, vectors[v].target.parent.mass);
+				// console.log(collisionPercentage, this.id);
+
+				positionCorrectionVector.add(
+					vectors[v].vector.copy().scale(collisionPercentage)
+				);
 
 				Fcollision.add(vectors[v].vector);
 			}
@@ -361,13 +366,11 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 
 			let speed = Fcollision.getProjection(this.velocity);
 			Fcollision.add(speed.scale(this.mass));
-
-			// Fcollision.add();
 		}
 
 
 		return {
-			positionCorrection: positionCorrectionVector.scale(-1 * .5),
+			positionCorrection: positionCorrectionVector.scale(-1),
 			vector: Fcollision.scale(-1),
 		}
 	}
