@@ -33,6 +33,10 @@ function Vector(_value) {
 
 
 
+	this.rotate = function(_angle) {
+		this.setAngle(this.getAngle() + _angle, this.getLength());
+		return this;
+	}
 
 
 	this.getLength = function() {
