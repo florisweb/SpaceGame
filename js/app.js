@@ -45,11 +45,27 @@ const calcPhysics = function() {
 	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
 }
 
+const calcPhysics2 = function() {
+	// this.physicsObj.Fres.add(this.getGravVector());
+	let collisionData = this.getCollisionData(this.physicsObj.Fres);
+
+	this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
+	this.physicsObj.Fres.add(collisionData.vector);
+
+	// console.log(this.velocity.getLength() * (this.velocity.getAngle() * 2 / Math.PI - 1));
+	
+
+	if (this.applyAngularVelocity) this.applyAngularVelocity();
+	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
+}
 
 
 
 
-let sunConfig = {mass: 10023590, position: [1000, 1000], config: {startVelocity: [.5, -.5]}};
+
+
+
+let sunConfig = {mass: 113097.33552923254, position: [900, 800], config: {startVelocity: [0, .5]}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 30}));
 SpinParticle.call(sun, sunConfig);
@@ -59,11 +75,11 @@ PhysicsEngine.addParticle(sun);
 
 
 {
-let sunConfig2 = {mass: 10023590, position: [1500, 500], config: {startVelocity: [0, 0]}};
+let sunConfig2 = {mass: 268020.573106329, position: [1150, 1000], config: {startVelocity: [-.5, 0]}};
 let sun2 = new GravParticle(sunConfig2); //mercury
-CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
+CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 40}));
 SpinParticle.call(sun2, sunConfig2);
-sun2.calcPhysics = calcPhysics;
+sun2.calcPhysics = calcPhysics2;
 PhysicsEngine.addParticle(sun2);
 }
 
@@ -139,7 +155,7 @@ function createParticleSet(_position, _spread, _count = 20) {
 
 	for (let i = 0; i < _count; i++) {
 		let radius = 20;
-		let mass = 4/3 * Math.PI * Math.pow(radius, 3) * .2;
+		let mass = 4/3 * Math.PI * Math.pow(radius, 3);
 		let config = {position: [
 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
 			_position.value[1] - _spread + 2 * _spread * Math.random()

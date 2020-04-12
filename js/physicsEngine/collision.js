@@ -4,7 +4,7 @@ function _CollisionEngine() {
 
 	this.settings = new function() {
 		this.useCache = true;
-		this.collisionVelocityTransfer = .9; // bouncyness
+		this.collisionVelocityTransfer = .5; // bouncyness
 	}
 
 	this.update = function() {
@@ -92,18 +92,37 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 			for (let v = 0; v < vectors.length; v++)
 			{
 				let target = vectors[v].target.parent;
+				
+
 				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
 
 				positionCorrectionVector.add(
-					vectors[v].vector.copy().scale(collisionPercentage)
+					vectors[v].vector.copy().scale(1 - collisionPercentage) //.scale(collisionPercentage)
 				);
 
-				let impactSpeed = Fcollision.getProjection(this.velocity.difference(target.velocity));
-				let FspeedChange = impactSpeed.scale(-target.mass * CollisionEngine.settings.collisionVelocityTransfer);
+				let velocityProjection1 = Fcollision.getProjection(this.velocity);
+				let velocityProjection2 = Fcollision.getProjection(target.velocity);
+				let u1 = velocityProjection1.getLength() * (1 - (Fcollision.getAngle() - velocityProjection1.getAngle()) / Math.PI * 2);
+				let u2 = velocityProjection2.getLength() * (1 - (Fcollision.getAngle() - velocityProjection2.getAngle()) / Math.PI * 2);
+
+
+				
+				
+				// Thank you buddy: https://en.wikipedia.org/wiki/Elastic_collision
+				let newVelocityComponent = (
+												(this.mass - target.mass) / (this.mass + target.mass) * u1 
+												+ 2 * target.mass / (this.mass + target.mass) * u2
+											);
+				
+				let deltaVelocity = newVelocityComponent - u1;
+
+				let deltaVelocityVector = Fcollision.copy().setLength(deltaVelocity * CollisionEngine.settings.collisionVelocityTransfer);
+			
+				let FspeedChange = deltaVelocityVector.scale(-this.mass); //.scale(-target.mass * CollisionEngine.settings.collisionVelocityTransfer);
 				Fcollision.add(FspeedChange);
 			}
 
-			positionCorrectionVector.scale(1 / vectors.length);
+			// positionCorrectionVector.scale(1 / vectors.length);
 		}
 
 

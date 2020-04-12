@@ -6,6 +6,8 @@ let Animator;
 
 function _Game() {
   this.updates = 0;
+  this.running = true;
+
   this.setup = function() {
     Animator = new _Animator();
     PhysicsEngine = new _PhysicsEngine();
@@ -22,6 +24,7 @@ function _Game() {
     PhysicsEngine.update();
     Animator.update();
 
+    if (!this.running) return;
   	requestAnimationFrame(function () {Game.update()});
     // setTimeout(function () {Game.update()}, 50);
   }
