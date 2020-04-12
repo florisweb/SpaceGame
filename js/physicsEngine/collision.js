@@ -71,6 +71,7 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	Particle.call(this, {position: position, mass: mass, config: config});
 
 	this.mesh = _meshFactory(this);
+	this.angle = 0;
 
 
 	this.getCollisionData = function() {
@@ -140,9 +141,16 @@ function MeshObject({meshFactory, offset}, _parent) {
 	this.offset	= new Vector(offset);
 	this.parent = _parent;
 	this.id = newId();
+	
+	this.angle = 0;
+	this.getAngle = function() {
+		return this.parent.angle + this.angle;
+	}
 
 	this.getPosition = function() {
-		return this.parent.position.copy().add(this.offset);
+		return this.parent.position.copy().add(
+			this.offset.copy().rotate(this.parent.angle)
+		);
 	}
 
 	this.outerMesh = new OuterMesh({factory: meshFactory}, this);
@@ -219,7 +227,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 		let collisions = this.getCollisions(_outerMesh);
 		for (let l = 0; l < collisions.length; l++)
 		{
-			collisions[l].collision.setLength(collisions[l].line.shape.getLength() - collisions[l].collision.getLength());
+			collisions[l].collision.setLength(collisions[l].line.getShape().getLength() - collisions[l].collision.getLength());
 		}
 	
 		return collisions;
@@ -264,7 +272,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 	
 	function setLineLength(This) {
-		let collisions = This.getCollisions(This.mesh.outerMesh)
+		let collisions = This.getCollisions(This.mesh.outerMesh);
 		for (let l = 0; l < collisions.length; l++)
 		{
 			collisions[l].line.shape.setLength(
@@ -298,7 +306,12 @@ function CollisionLine({offset, shape}, _meshObject) {
 	this.mesh 		= _meshObject;
 
 	this.getPosition = function() {
-		return this.mesh.getPosition().copy().add(this.offset);
+		return this.mesh.getPosition().copy().add(
+			this.offset.copy().rotate(this.mesh.getAngle())
+		);
+	}
+	this.getShape = function() {
+		return this.shape.copy().rotate(this.mesh.getAngle());
 	}
 
 	this.getIntersectionsFromLineList = function(_lineList) {
@@ -314,8 +327,8 @@ function CollisionLine({offset, shape}, _meshObject) {
 	}
 
 	this.getIntersection = function(_line) {
-		let a = this.shape.getAngle();
-		let b = _line.shape.getAngle();
+		let a = this.getShape().getAngle();
+		let b = _line.getShape().getAngle();
 		let posA = this.getPosition();
 		let posB = _line.getPosition();
 
@@ -346,21 +359,21 @@ function CollisionLine({offset, shape}, _meshObject) {
 	const marge = 0.0001;
 	this.xOnDomain = function(_x) {
 		let position = this.getPosition();
-		let endX = position.copy().add(this.shape).value[0];
+		let endX = position.copy().add(this.getShape()).value[0];
 		let min = Math.min(position.value[0], endX);
 		let max = Math.max(position.value[0], endX);
 		return min - marge <= _x && _x <= max + marge;
 	}
 	this.yOnDomain = function(_y) {
 		let position = this.getPosition();
-		let endY = position.copy().add(this.shape).value[1];
+		let endY = position.copy().add(this.getShape()).value[1];
 		let min = Math.min(position.value[1], endY);
 		let max = Math.max(position.value[1], endY);
 		return min - marge <= _y && _y <= max + marge;
 	}
 
 	this.draw = function(_color) {
-		RenderEngine.drawVector(this.getPosition().copy(), this.shape.copy(), _color);
+		RenderEngine.drawVector(this.getPosition().copy(), this.getShape().copy(), _color);
 	}
 }
 

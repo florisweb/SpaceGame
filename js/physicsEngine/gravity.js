@@ -2,6 +2,8 @@ function Particle({position, mass, config = {}}) {
 	this.id = newId();
 	this.mass = mass;
 	this.position = new Vector(position);
+	this.angle = 0;
+	
 	this.velocity = new Vector([0, 0]); // x-y-vector
 	if (this.config)
 	{
@@ -85,7 +87,6 @@ function GravParticle({mass, position, radius, config = {}}) {
 
 function SpinParticle({mass, position, radius, config = {}}) {
 	Particle.call(this, {position: position, mass: mass, radius: radius, config: config});
-	this.angle 				= 0;
 	this.angularVelocity 	= .01;
 
 	this.applyAngularVelocity = function() {
@@ -94,7 +95,7 @@ function SpinParticle({mass, position, radius, config = {}}) {
 		while (this.angle < -Math.PI) this.angle += Math.PI * 2;
 
 
-		RenderEngine.drawVector(this.position.copy(), new Vector([0, 0]).setAngle(-this.angle, 30), "#fff");
+		RenderEngine.drawVector(this.position.copy(), new Vector([0, 0]).setAngle(this.angle, 30), "#fff");
 	}
 }
 

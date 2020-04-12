@@ -20,7 +20,7 @@ App.setup();
 
 const createMeshFactory = function({radius}) {
 	return function (_parent) {
-		return new CollisionCircle({radius: radius, lineCount: 10}, _parent);
+		return new CollisionCircle({radius: radius, lineCount: 4}, _parent);
 	}
 }
 
@@ -36,10 +36,7 @@ const calcPhysics = function() {
 	let collisionData = this.getCollisionData(this.physicsObj.Fres);
 
 	this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
-	this.physicsObj.Fres.add(collisionData.vector);
-
-	// console.log(this.velocity.getLength() * (this.velocity.getAngle() * 2 / Math.PI - 1));
-	
+	this.physicsObj.Fres.add(collisionData.vector);	
 
 	if (this.applyAngularVelocity) this.applyAngularVelocity();
 	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
@@ -53,7 +50,7 @@ const calcPhysics = function() {
 
 
 
-let sunConfig = {mass: 113097.33552923254, position: [1300, 1200], config: {startVelocity: [0, 0]}};
+let sunConfig = {mass: 113097.33552923254, position: [1300, 1200], config: {startVelocity: [3, -2]}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 30}));
 SpinParticle.call(sun, sunConfig);
