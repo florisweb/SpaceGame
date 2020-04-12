@@ -27,14 +27,24 @@ function Particle({position, mass, config = {}}) {
 	}
 
 	
-	this.Fres = new Vector([0, 0]);
-	this.applyFres = function() {
-		let a = this.Fres.copy().scale(1 / this.mass);
+	this.physicsObj = {
+		Fres: new Vector([0, 0]),
+		positionCorrection: new Vector([0, 0])
+	}
+
+	this.applyPhysics = function(_physicsObj) {
+		let a = _physicsObj.Fres.copy().scale(1 / this.mass);
 		this.velocity.add(a);
 		this.position.add(this.velocity);
+		this.position.add(_physicsObj.positionCorrection);
 
-		this.drawVectors(this.Fres.copy(), a.copy());
-		this.Fres = new Vector([0, 0]);
+		this.drawVectors(_physicsObj.Fres.copy(), a.copy());
+		
+		this.physicsObj = {
+			Fres: new Vector([0, 0]),
+			positionCorrection: new Vector([0, 0])
+		}
+
 		return a;
 	}
 }

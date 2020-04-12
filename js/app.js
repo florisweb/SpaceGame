@@ -20,7 +20,7 @@ App.setup();
 
 const createMeshFactory = function({radius}) {
 	return function (_parent) {
-		return new CollisionCircle({radius: radius, lineCount: 4}, _parent);
+		return new CollisionCircle({radius: radius, lineCount: 3}, _parent);
 	}
 }
 
@@ -31,16 +31,15 @@ const createMeshFactory2 = function({size}) {
 }
 
 
-const update = function() {
-	this.Fres.add(this.getGravVector());
+const calcPhysics = function() {
+	this.physicsObj.Fres.add(this.getGravVector());
 	
-	let collisionData = this.getCollisionData(this.Fres);
+	let collisionData = this.getCollisionData(this.physicsObj.Fres);
 
-	this.position.add(collisionData.positionCorrection);
-	this.Fres.add(collisionData.vector);
-
-	this.applyFres(this.Fres);
+	this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
+	this.physicsObj.Fres.add(collisionData.vector);
 	
+
 	if (this.applyAngularVelocity) this.applyAngularVelocity();
 	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
 }
@@ -49,21 +48,21 @@ const update = function() {
 
 
 
-let sunConfig = {mass: 20023590, position: [1300, 1000], config: {}};
+let sunConfig = {mass: 20023590, position: [800, 1000], config: {startVelocity: [2, 0]}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 40}));
 SpinParticle.call(sun, sunConfig);
-sun.update = update;
+sun.calcPhysics = calcPhysics;
 PhysicsEngine.addParticle(sun);
 
 
 
 {
-let sunConfig2 = {mass: 2023590, position: [1000, 1000], config: {startVelocity: [30, 0]}};
+let sunConfig2 = {mass: 2023590, position: [500, 1000], config: {startVelocity: [2.5, 0]}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 30}));
 SpinParticle.call(sun2, sunConfig2);
-sun2.update = update;
+sun2.calcPhysics = calcPhysics;
 PhysicsEngine.addParticle(sun2);
 }
 
@@ -147,7 +146,7 @@ function createParticleSet(_position, _spread, _count = 20) {
 		g = new GravParticle(config);
 		CollisionParticle.call(g, config, createMeshFactory({radius: radius}));
 
-		g.update = update;
+		g.calcPhysics = calcPhysics;
 
 		// gg.addParticle(g);
 		PhysicsEngine.addParticle(g);

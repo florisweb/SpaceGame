@@ -42,13 +42,13 @@ function _PhysicsEngine() {
 				continue;
 			}
 			
-			this.particles[p].update();
+			this.particles[p].calcPhysics();
 		}
 
 		// Apply Fres
 		for (let p = this.particles.length - 1; p >= 0; p--)
 		{	
-			this.particles[p].applyFres();
+			this.particles[p].applyPhysics(this.particles[p].physicsObj);
 		}
 	}
 
