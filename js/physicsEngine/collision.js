@@ -105,8 +105,6 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 				let u1 = velocityProjection1.getLength() * (1 - (Fcollision.getAngle() - velocityProjection1.getAngle()) / Math.PI * 2);
 				let u2 = velocityProjection2.getLength() * (1 - (Fcollision.getAngle() - velocityProjection2.getAngle()) / Math.PI * 2);
 
-
-				
 				
 				// Thank you buddy: https://en.wikipedia.org/wiki/Elastic_collision
 				let newVelocityComponent = (
@@ -118,11 +116,11 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 
 				let deltaVelocityVector = Fcollision.copy().setLength(deltaVelocity * CollisionEngine.settings.collisionVelocityTransfer);
 			
-				let FspeedChange = deltaVelocityVector.scale(-this.mass); //.scale(-target.mass * CollisionEngine.settings.collisionVelocityTransfer);
+				let FspeedChange = deltaVelocityVector.scale(-this.mass);
 				Fcollision.add(FspeedChange);
 			}
 
-			// positionCorrectionVector.scale(1 / vectors.length);
+			positionCorrectionVector.scale(1 / vectors.length);
 		}
 
 
@@ -253,7 +251,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 
 	function createLines(This) {
-		const lineCount = 10;
+		const lineCount = 20;
 		const anglePerLine = (2 * Math.PI) / lineCount;
 		
 		let lines = [];
