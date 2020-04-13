@@ -32,7 +32,6 @@ function Vector(_value) {
 
 
 
-
 	this.rotate = function(_angle) {
 		this.setAngle(this.getAngle() + _angle, this.getLength());
 		return this;
@@ -44,7 +43,7 @@ function Vector(_value) {
 	}
 	
 	this.setLength = function(_length) {
-		this.setAngle(this.getAngle(), _length);
+		this.scale(_length / this.getLength());
 		return this;
 	}
 
@@ -54,7 +53,8 @@ function Vector(_value) {
 	}
 	
 	this.setAngle = function(_angle, _radius = 1) {
-		_angle = (_angle - .5 * Math.PI) * -1;
+		_angle = .5 * Math.PI - _angle;
+
 		this.value[0] = Math.sin(_angle) * _radius;
 		this.value[1] = Math.cos(_angle) * _radius;
 		return this;
