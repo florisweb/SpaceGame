@@ -61,50 +61,66 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 
 		let vectors = this.mesh.getCollisionVectors();
 
-		let positionCorrectionVector = new Vector([0, 0]);
-		let Fcollision = new Vector([0, 0]);
-		
-
 		if (vectors.length)
 		{
-			let angleVector = new Vector([0, 0]);
-			for (let v = 0; v < vectors.length; v++)
-			{
-				angleVector.add(vectors[v].vector);
-			}
-			let collisionAngle = angleVector.getAngle();
-			Fcollision.setAngle(collisionAngle, .01 / PhysicsEngine.settings.roundError) // Small energy loss here
+			Fcollision = createCollisionAngleVector(vectors);
 
-			let velocityProjection1 = Fcollision.getProjection(this.velocity);
-			let u1 = velocityProjection1.getLength() * (1 - (collisionAngle - velocityProjection1.getAngle()) / Math.PI * 2);
+			let preventCollisionReaction = false;
+			if (this.config.onCollision) try {// Handle onCollision-event
+				preventCollisionReaction = this.config.onCollision.call(this, vectors, Fcollision);
+			} catch (e) {};
 
-			for (let v = 0; v < vectors.length; v++)
-			{
-				let target = vectors[v].target.parent;
-				
-				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
-				positionCorrectionVector.add(
-					vectors[v].vector.copy().scale(1 - collisionPercentage)
-				);
-
-				let velocityProjection2 = Fcollision.getProjection(target.velocity);
-				let u2 = velocityProjection2.getLength() * (1 - (collisionAngle - velocityProjection2.getAngle()) / Math.PI * 2);
-				
-				// Thank you buddy: https://en.wikipedia.org/wiki/Elastic_collision
-				let deltaVelocity = (
-										(this.mass - target.mass) / (this.mass + target.mass) * u1 
-										+ 2 * target.mass / (this.mass + target.mass) * u2
-									) - u1;
-		
-				let deltaVelocityVector = Fcollision.copy().setLength(deltaVelocity * CollisionEngine.settings.collisionVelocityTransfer);
-			
-				let FspeedChange = deltaVelocityVector.scale(-this.mass);
-				Fcollision.add(FspeedChange);
-			}
-
-			positionCorrectionVector.scale(1 / vectors.length);
+			if (!preventCollisionReaction) return collisionHandler.call(this, vectors, Fcollision);
 		}
 
+		return {
+			positionCorrection: new Vector([0, 0]),
+			vector: new Vector([0, 0])
+		}
+	}
+
+	function createCollisionAngleVector(_vectors) {
+		let angleVector = new Vector([0, 0]);
+		for (let v = 0; v < _vectors.length; v++)
+		{
+			angleVector.add(_vectors[v].vector);
+		}
+		return angleVector.setLength(.01 / PhysicsEngine.settings.roundError);// Small energy loss here
+	}
+
+
+	function collisionHandler(vectors, Fcollision) {
+		let collisionAngle = Fcollision.getAngle();
+		let positionCorrectionVector = new Vector([0, 0]);
+
+		let velocityProjection1 = Fcollision.getProjection(this.velocity);
+		let u1 = velocityProjection1.getLength() * (1 - (collisionAngle - velocityProjection1.getAngle()) / Math.PI * 2);
+
+		for (let v = 0; v < vectors.length; v++)
+		{
+			let target = vectors[v].target.parent;
+			
+			let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
+			positionCorrectionVector.add(
+				vectors[v].vector.copy().scale(1 - collisionPercentage)
+			);
+
+			let velocityProjection2 = Fcollision.getProjection(target.velocity);
+			let u2 = velocityProjection2.getLength() * (1 - (collisionAngle - velocityProjection2.getAngle()) / Math.PI * 2);
+			
+			// Thank you buddy: https://en.wikipedia.org/wiki/Elastic_collision
+			let deltaVelocity = (
+									(this.mass - target.mass) / (this.mass + target.mass) * u1 
+									+ 2 * target.mass / (this.mass + target.mass) * u2
+								) - u1;
+	
+			let deltaVelocityVector = Fcollision.copy().setLength(deltaVelocity * CollisionEngine.settings.collisionVelocityTransfer);
+		
+			let FspeedChange = deltaVelocityVector.scale(-this.mass);
+			Fcollision.add(FspeedChange);
+		}
+
+		positionCorrectionVector.scale(1 / vectors.length);
 
 		return {
 			positionCorrection: positionCorrectionVector.scale(-1),
