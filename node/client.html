@@ -1,0 +1,36 @@
+<script>
+
+
+  var socket;
+
+  function init() {
+    socket = new WebSocket("ws://localhost:8080", "spaceGame-protocol");
+    
+    socket.onopen = function(e) {
+      console.log(e);
+    }
+
+    socket.onmessage = function(e) {
+      console.log("message", e);
+    }
+
+    socket.onerror = function(e) {
+      console.log("[Error] " + e.data);
+    }
+
+    socket.onclose = function(e) {
+      if(e.wasClean) {
+        console.log("Disconnected.");
+      } else {
+        console.log("Connection died. -- Reconnecting...");
+      }
+    }
+  }
+
+
+  window.onload = function(e) {
+    // init();
+  }
+
+
+</script>
