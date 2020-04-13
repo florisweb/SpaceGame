@@ -1,9 +1,11 @@
 const CollisionEngine = new _CollisionEngine();
-
+window.stats = {
+	count: 0,
+	time: 0
+}
 
 function _PhysicsEngine() {
 	this.particles = [];
-
 
 	this.constants = new function() {
 		this.G = 6.674 * Math.pow(10, -11 + 6 + 1);
@@ -83,21 +85,22 @@ function _PhysicsEngine() {
 
 
 	this.getTotalGravVector = function(_particle) {
-		return getTotalGravVectorByList(_particle, this.particles, false);
+		return getTotalGravVectorByList(_particle, this.particles);
 	}
 
 	function getTotalGravVectorByList(_particle, _particleList) {
 		let curVector = new Vector([0, 0]);
+		
 		for (let i = 0; i < _particleList.length; i++) 
 		{
 			let curParticle = _particleList[i];
 			if (!curParticle.config.exerciseGravity) continue;
-			if (curParticle.id == _particle.id) continue;
-			
-			curVector.add(
-				PhysicsEngine.getGravitationVector(_particle, curParticle)
-			);
+			if (curParticle.id == _particle.id) continue;			
+
+			let gravVector = PhysicsEngine.getGravitationVector(_particle, curParticle);
+			curVector.add(gravVector);
 		}
+
 		return curVector;
 	}
 
@@ -115,9 +118,6 @@ function _PhysicsEngine() {
 				.setAngle(dVector.getAngle())
 				.setLength(gravitation);
 	}
-
-
-
 
 
 	this.getGravEnergy = function(_particleA, _particleB) {
@@ -166,3 +166,22 @@ function _PhysicsEngine() {
 
 
 
+// function GravCache() {
+//   let cache = [];
+
+//   this.set = function(_aId, _bId, _vector) {
+//     if (cache[_aId + "-" + _bId]) {
+//     	cache[_aId + "-" + _bId] = _vector.copy(); 
+//     	return;
+//     }
+//     cache[_bId + "-" + _aId] = _vector.copy().scale(-1);
+//   }
+//   this.get = function(_aId, _bId) {
+//     if (cache[_aId + "-" + _bId]) return cache[_aId + "-" + _bId].copy();
+//     if (!cache[_bId + "-" + _aId]) return false;
+//     return cache[_bId + "-" + _aId].copy().scale(-1);
+//   }
+//   this.clear = function() {
+//     cache = [];
+//   }
+// }

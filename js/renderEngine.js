@@ -105,7 +105,8 @@ function _RenderEngine() {
 
 
 	let lastUpdate = new Date();
-	this.update = function(_entities = []) {
+	this.update = function() {
+		Animator.update();
 		this.camera.update();
 
 		this.clearCanvas();
@@ -113,14 +114,17 @@ function _RenderEngine() {
 		this.drawWorldGrid();
 
 
-		for (let i = 0; i < _entities.length; i++)
+		for (let i = 0; i < PhysicsEngine.particles.length; i++)
 		{
-			this.drawEntity(_entities[i]);
+			this.drawEntity(PhysicsEngine.particles[i]);
 		}
 
 		let fps = Math.round(1 / ((new Date() - lastUpdate) / 1000));
 		this.drawStatistics(fps + "/" + Game.maxFps);
 		lastUpdate = new Date();
+
+		if (!Game.running) return;
+		requestAnimationFrame(function () {RenderEngine.update()});
 	}
 
 
@@ -205,13 +209,10 @@ function _RenderEngine() {
 		ctx.closePath();
 		ctx.stroke();
 
-		ctx.globalAlpha = .5;
-		ctx.beginPath();
-		_entity.mesh.draw();
-		ctx.closePath();
-		ctx.stroke();
-		ctx.globalAlpha = 1;
+		if (_entity.config.exerciseCollisions) _entity.mesh.outerMesh.draw("#f00");
+
 		
+		if (typeof _entity.angle == "number") this.drawVector(_entity.position.copy(), new Vector([0, 0]).setAngle(_entity.angle, 30), "#fff");
 
 		if (_entity.positionTrace && this.settings.renderPositionTrace) this.drawPointList(_entity.positionTrace);
 	}

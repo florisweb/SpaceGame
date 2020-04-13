@@ -35,12 +35,12 @@ function Particle({position, mass, config = {}}) {
 	}
 
 	this.applyPhysics = function(_physicsObj) {
-		let a = _physicsObj.Fres.copy().scale(1 / this.mass);
+		let a = _physicsObj.Fres.scale(1 / this.mass);
 		this.velocity.add(a);
 		this.position.add(this.velocity);
 		this.position.add(_physicsObj.positionCorrection);
 
-		this.drawVectors(_physicsObj.Fres.copy(), a.copy());
+		// this.drawVectors(_physicsObj.Fres.copy(), a.copy());
 		
 		this.physicsObj = {
 			Fres: new Vector([0, 0]),
@@ -56,12 +56,14 @@ function Particle({position, mass, config = {}}) {
 
 function GravParticle({mass, position, radius, config = {}}) {
 	if (config.exerciseGravity === undefined) config.exerciseGravity = true;
+	if (config.gravitySensitive === undefined) config.gravitySensitive = true;
 	Particle.call(this, {position: position, mass: mass, config: config});
 	
 	this.radius = radius;
 
 
 	this.getGravVector = function() {
+		if (!this.config.gravitySensitive) return new Vector([0, 0]);
 		return this.getFgrav();
 	}
 
@@ -93,9 +95,6 @@ function SpinParticle({mass, position, radius, config = {}}) {
 		this.angle += this.angularVelocity;
 		while (this.angle > Math.PI) this.angle -= Math.PI * 2;
 		while (this.angle < -Math.PI) this.angle += Math.PI * 2;
-
-
-		RenderEngine.drawVector(this.position.copy(), new Vector([0, 0]).setAngle(this.angle, 30), "#fff");
 	}
 }
 

@@ -1,25 +1,22 @@
 
 function _CollisionEngine() {
-	this.cache = new Cache();
-
 	this.settings = new function() {
 		this.useCache = true;
 		this.collisionVelocityTransfer = .5; // bouncyness
 	}
 
-	this.update = function() {
-		this.cache.clear();
-	}
+	this.update = function() {}
 
 	this.getCollisionVectors = function(_item) {
 		let vectors = [];
-		for (let i = 0; i < PhysicsEngine.particles.length; i++) 
+		let particleCount = PhysicsEngine.particles.length;
+		for (let i = 0; i < particleCount; i++) 
 		{
 			let curParticle = PhysicsEngine.particles[i]; 
 			if (!curParticle || !curParticle.config.exerciseCollisions || !curParticle.mesh) continue;
 			let curMesh = curParticle.mesh;
 
-			if (_item.parent.position.difference(curMesh.parent.position).getLength() > _item.meshRange + curMesh.meshRange) continue;
+			if (_item.parent.position.difference(curParticle.position).getLength() > _item.meshRange + curMesh.meshRange) continue;
 			if (_item.id == curMesh.id) continue;
 
 			let vector = _item.innerMesh.getCollisionVector(curMesh);
@@ -37,25 +34,6 @@ function _CollisionEngine() {
 
 
 
-function Cache() {
-  let cache = [];
-
-  this.add = function(_aId, _bId, _value) {
-    value = Object.assign([], _value);
-    if (cache[_aId + "-" + _bId]) {cache[_aId + "-" + _bId] = value; return}
-    cache[_bId + "-" + _aId] = value;
-  }
-  this.get = function(_aId, _bId) {
-    if (cache[_aId + "-" + _bId]) return cache[_aId + "-" + _bId];
-    return cache[_bId + "-" + _aId];
-  }
-  this.clear = function() {
-    cache = [];
-  }
-}
-
-
-
 
 
 
@@ -68,6 +46,7 @@ function Cache() {
 
 function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 	if (config.exerciseCollisions === undefined) config.exerciseCollisions = true;
+	if (config.collisionSensitive === undefined) config.collisionSensitive = true;
 	Particle.call(this, {position: position, mass: mass, config: config});
 
 	this.mesh = _meshFactory(this);
@@ -75,6 +54,11 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 
 
 	this.getCollisionData = function() {
+		if (!config.collisionSensitive) return {
+			positionCorrection: new Vector([0, 0]),
+			vector: new Vector([0, 0])
+		}
+
 		let vectors = this.mesh.getCollisionVectors();
 
 		let positionCorrectionVector = new Vector([0, 0]);
@@ -88,33 +72,30 @@ function CollisionParticle({mass, position, config = {}}, _meshFactory) {
 			{
 				angleVector.add(vectors[v].vector);
 			}
-			Fcollision.setAngle(angleVector.getAngle(), .01 / PhysicsEngine.settings.roundError) // Small energy loss here
+			let collisionAngle = angleVector.getAngle();
+			Fcollision.setAngle(collisionAngle, .01 / PhysicsEngine.settings.roundError) // Small energy loss here
+
+			let velocityProjection1 = Fcollision.getProjection(this.velocity);
+			let u1 = velocityProjection1.getLength() * (1 - (collisionAngle - velocityProjection1.getAngle()) / Math.PI * 2);
 
 			for (let v = 0; v < vectors.length; v++)
 			{
 				let target = vectors[v].target.parent;
 				
-
 				let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
-
 				positionCorrectionVector.add(
-					vectors[v].vector.copy().scale(1 - collisionPercentage) //.scale(collisionPercentage)
+					vectors[v].vector.copy().scale(1 - collisionPercentage)
 				);
 
-				let velocityProjection1 = Fcollision.getProjection(this.velocity);
 				let velocityProjection2 = Fcollision.getProjection(target.velocity);
-				let u1 = velocityProjection1.getLength() * (1 - (Fcollision.getAngle() - velocityProjection1.getAngle()) / Math.PI * 2);
-				let u2 = velocityProjection2.getLength() * (1 - (Fcollision.getAngle() - velocityProjection2.getAngle()) / Math.PI * 2);
-
+				let u2 = velocityProjection2.getLength() * (1 - (collisionAngle - velocityProjection2.getAngle()) / Math.PI * 2);
 				
 				// Thank you buddy: https://en.wikipedia.org/wiki/Elastic_collision
-				let newVelocityComponent = (
-												(this.mass - target.mass) / (this.mass + target.mass) * u1 
-												+ 2 * target.mass / (this.mass + target.mass) * u2
-											);
-				
-				let deltaVelocity = newVelocityComponent - u1;
-
+				let deltaVelocity = (
+										(this.mass - target.mass) / (this.mass + target.mass) * u1 
+										+ 2 * target.mass / (this.mass + target.mass) * u2
+									) - u1;
+		
 				let deltaVelocityVector = Fcollision.copy().setLength(deltaVelocity * CollisionEngine.settings.collisionVelocityTransfer);
 			
 				let FspeedChange = deltaVelocityVector.scale(-this.mass);
@@ -179,7 +160,7 @@ function MeshObject({meshFactory, offset}, _parent) {
 	}
 
 	this.draw = function() {
-		this.outerMesh.draw("#f00");
+		if (this.parent.config.exerciseCollisions) this.outerMesh.draw("#f00");
 		this.innerMesh.draw("rgba(0, 0, 255, .5)");
 	}
 }
@@ -214,8 +195,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 	this.getCollisionVector = function(_meshObject) {
 		let vector = new Vector([0, 0]);
-		// let collisions = this.getCollisions(_meshObject.outerMesh);
-		let collisions = this.getInvertedCollisions(_meshObject.outerMesh);
+		let collisions = this.getCollisions(_meshObject.outerMesh, true);
 		if (collisions.length == 0) return false;
 		
 		for (let c = 0; c < collisions.length; c++) vector.add(collisions[c].collision);
@@ -223,26 +203,21 @@ function InnerMesh(_outerMesh, _meshObject) {
 		return vector.scale(1 / collisions.length);
 	}
 
-	this.getInvertedCollisions = function(_outerMesh) {
-		let collisions = this.getCollisions(_outerMesh);
-		for (let l = 0; l < collisions.length; l++)
-		{
-			collisions[l].collision.setLength(collisions[l].line.getShape().getLength() - collisions[l].collision.getLength());
-		}
-	
-		return collisions;
-	}
 
-
-	this.getCollisions = function(_outerMesh) {
+	this.getCollisions = function(_outerMesh, _inverted = true) {
 		let meshPosition = this.mesh.parent.position.copy();
 		let collisions = [];
 		for (let l = 0; l < this.lines.length; l++)
 		{
 			let intersections = this.lines[l].getIntersectionsFromLineList(_outerMesh.lines);
-			if (!intersections || !intersections.length) continue;
-																																			// if (intersections.length > 1) console.warn("Problems sir:", intersections); !!!!!!!! TODO
+			if (!intersections || !intersections.length) continue;																													// if (intersections.length > 1) console.warn("Problems sir:", intersections); !!!!!!!! TODO
+
 			let collision = meshPosition.difference(intersections[0]);
+			if (_inverted) 
+			{
+				collision.setLength(this.lines[l].shape.getLength() - collision.getLength());
+			}
+
 			collisions.push({
 				line: this.lines[l],
 				collision: collision
@@ -272,7 +247,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 	
 	function setLineLength(This) {
-		let collisions = This.getCollisions(This.mesh.outerMesh);
+		let collisions = This.getCollisions(This.mesh.outerMesh, false);
 		for (let l = 0; l < collisions.length; l++)
 		{
 			collisions[l].line.shape.setLength(
@@ -347,8 +322,10 @@ function CollisionLine({offset, shape}, _meshObject) {
 							) / (
 								Math.tan(b) - Math.tan(a)
 							);
-		if (!this.xOnDomain(intersectX) || !_line.xOnDomain(intersectX)) return false;
-		if (!this.yOnDomain(intersectY) || !_line.yOnDomain(intersectY)) return false;
+		if (
+			!this.xOnDomain(intersectX) || !_line.xOnDomain(intersectX) ||
+			!this.yOnDomain(intersectY) || !_line.yOnDomain(intersectY)
+		) return false;
 
 		return new Vector([
 			intersectX,

@@ -27,6 +27,7 @@ Planned features:
 	radius
 	config: {
 		exerciseGravity: boolean [true]			Whether the particle has any gravitational effect on other particles
+		gravitySensitive: boolean [true] 		Whether other particles have gravitational effect on the particle
 	}
 
 
@@ -40,6 +41,7 @@ Planned features:
 - CollisionParticle extends Particle
 	config: {
 		exerciseCollisions: boolean [true]
+		collisionSensitive: boolean [true]
 	}
 	
 	shapeFunction
