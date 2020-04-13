@@ -27,7 +27,7 @@ function Vector(_value) {
 
 
 	this.copy = function() {
-		return new Vector(Object.assign([], this.value));
+		return new Vector([this.value[0], this.value[1]]);
 	}
 
 
