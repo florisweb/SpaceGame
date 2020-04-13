@@ -163,7 +163,7 @@ PhysicsEngine.addParticle(sun2);
 
 
 function createBullet(_position, _velocity) {
-	const explosionPower = Math.pow(10, 5);
+	const explosionPower = Math.pow(10, 4);
 	let bulletConfig = {mass: 100, position: _position, config: {
 		startVelocity: _velocity,
 		exerciseCollisions: false,
@@ -171,8 +171,8 @@ function createBullet(_position, _velocity) {
 		onCollision: function(_targets) {
 			for (let i = 0; i < _targets.length; i++)
 			{
-				let explosionVector = _targets[i].vector.scale(explosionPower);
-				_targets[i].target.parent.physicsObj.Fres.add(explosionVector);
+				let deltaSpeed = _targets[i].vector.getProjection(this.velocity).difference(_targets[i].vector.getProjection(_targets[i].target.parent.velocity))
+				_targets[i].target.parent.physicsObj.Fres.add(deltaSpeed.scale(-explosionPower));
 			}
 			this.remove();
 			return true;

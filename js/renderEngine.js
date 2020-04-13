@@ -105,6 +105,8 @@ function _RenderEngine() {
 
 
 	let lastUpdate = new Date();
+	let fps = 0;
+	let fpsSum = 0;
 	this.update = function() {
 		Animator.update();
 		this.camera.update();
@@ -118,8 +120,11 @@ function _RenderEngine() {
 		{
 			this.drawEntity(PhysicsEngine.particles[i]);
 		}
+		
 
-		let fps = Math.round(1 / ((new Date() - lastUpdate) / 1000));
+		fpsSum += 1000 / ((new Date() - lastUpdate));
+		if (Game.updates % 20 == 0) {fps = Math.round(fpsSum / 20); fpsSum = 0;}
+
 		this.drawStatistics(fps + "/" + Game.maxFps);
 		lastUpdate = new Date();
 
