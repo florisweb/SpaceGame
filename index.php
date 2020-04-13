@@ -31,56 +31,7 @@
 			$.getScript("js/game.js?antiCache="						+ antiCache, function() {});
 			$.getScript("js/app.js?antiCache="						+ antiCache, function() {});
 			
-
-
-
-			// var socket;
-
-			// function init() {
-			// 	socket = new WebSocket("ws://localhost:8080", "spaceGame-protocol");
-
-			// 	socket.onopen = function(e) {
-			// 		console.log(e);
-			// 	}
-
-			// 	socket.onmessage = function(e) {
-			// 		let data = JSON.parse(e.data);
-
-			// 		PhysicsEngine.particles = [];
-
-			// 		for (let p = 0; p < data.length; p++)
-			// 		{
-			// 			let config = {mass: data[p].mass, position: data[p].position, config: {startVelocity: data[p].velocity}};
-			// 			let particle = new GravParticle(config);
-			// 			CollisionParticle.call(particle, config, createMeshFactory({radius: data[p].radius}));
-			// 			SpinParticle.call(particle, config);
-			// 			particle.calcPhysics = calcPhysics;
-			// 			particle.angle = data[p].angle;
-			// 			particle.id = data[p].id;
-						
-			// 			PhysicsEngine.addParticle(particle);
-			// 		}
-
-			// 	}
-
-			// 	socket.onerror = function(e) {
-			// 		console.log("[Error] " + e.data);
-			// 	}
-
-			// 	socket.onclose = function(e) {
-			// 		if(e.wasClean) {
-			// 			console.log("Disconnected.");
-			// 		} else {
-			// 			console.log("Connection died. -- Reconnecting...");
-			// 		}
-			// 	}
-			// }
-
-			// document.body.onload = function() {
-			// 	init();
-			// }
 		</script>
-
 <!-- 
 		<script type="text/javascript" src="js/extraFunctions.js"></script>
 		<script type="text/javascript" src="js/vector.js"></script>

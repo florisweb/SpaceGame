@@ -42,16 +42,14 @@ Planned features:
 	config: {
 		exerciseCollisions: boolean [true]
 		collisionSensitive: boolean [true]
-		onCollision - see \/
 	}
 	
+	shapeFunction
+		f:	shapeFunction(pos)
+		p:	pos: 2d-vector
+		r:	boolean, whether that vector is within the shape
+	 
 	
-	f: 	onCollision(vectors, Fcollision)
-	p:	vectors: [{
-		vector:	new Vector: own indent vector 
-		target: the collision-target's mesh-object
-	}]
-	r: preventCollisionReaction [boolean]
 
 
 

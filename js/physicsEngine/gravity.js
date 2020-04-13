@@ -21,6 +21,7 @@ function Particle({position, mass, config = {}}) {
 		}
 	}
 
+
 	this.positionTrace = [];
 	this.addPositionDot = function() {
 		this.positionTrace.push(this.position.copy());
@@ -60,16 +61,9 @@ function GravParticle({mass, position, radius, config = {}}) {
 	
 	this.radius = radius;
 
-	// let prevGravVector = new Vector([0, 0]);
-	// const gravQuality = 4;
-	// let gravUpdateIndex = Math.floor(gravQuality * Math.random());
 
 	this.getGravVector = function() {
 		if (!this.config.gravitySensitive) return new Vector([0, 0]);
-		// if (Game.updates % gravQuality != gravUpdateIndex) return prevGravVector.copy();
-
-		// prevGravVector = this.getFgrav();
-		// return prevGravVector.copy();
 		return this.getFgrav();
 	}
 
@@ -98,9 +92,9 @@ function SpinParticle({mass, position, radius, config = {}}) {
 	this.angularVelocity 	= .01;
 
 	this.applyAngularVelocity = function() {
-		// this.angle += this.angularVelocity;
-		// while (this.angle > Math.PI) this.angle -= Math.PI * 2;
-		// while (this.angle < -Math.PI) this.angle += Math.PI * 2;
+		this.angle += this.angularVelocity;
+		while (this.angle > Math.PI) this.angle -= Math.PI * 2;
+		while (this.angle < -Math.PI) this.angle += Math.PI * 2;
 	}
 }
 

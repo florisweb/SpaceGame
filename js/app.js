@@ -107,7 +107,7 @@ PhysicsEngine.addParticle(sun);
 
 
 {
-let sunConfig2 = {mass: 4018790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0], gravitySensitive: false, collisionSensitive: true, exerciseCollisions: true}};
+let sunConfig2 = {mass: 4188790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0], gravitySensitive: false, collisionSensitive: false, exerciseCollisions: true}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 100}));
 SpinParticle.call(sun2, sunConfig2);
@@ -233,11 +233,7 @@ function createParticleSet(_position, _spread, _count = 20) {
 			exerciseGravity: false,
 			gravitySensitive: true,
 			exerciseCollisions: false,
-			collisionSensitive: true,
-			onCollision: function() {
-				this.remove();
-			},
-			startVelocity: [0, .2],
+			collisionSensitive: false,
 		}};
 		g = new GravParticle(config);
 		CollisionParticle.call(g, config, createMeshFactory({radius: radius}));
