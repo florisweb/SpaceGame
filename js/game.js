@@ -18,11 +18,16 @@ function _Game() {
     this.update();
   }
 
+  this.maxFps = 0;
   this.update = function() {
+    let start = new Date();
     this.updates++;
   	RenderEngine.update(PhysicsEngine.particles);
     PhysicsEngine.update();
     Animator.update();
+
+    this.maxFps = Math.round(1 / (new Date() - start) * 1000);
+
 
     if (!this.running) return;
   	requestAnimationFrame(function () {Game.update()});
