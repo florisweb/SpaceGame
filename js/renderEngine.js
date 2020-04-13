@@ -118,8 +118,8 @@ function _RenderEngine() {
 			this.drawEntity(_entities[i]);
 		}
 
-		let fps = 1 / ((new Date() - lastUpdate) / 1000);
-		this.drawStatistics(fps);
+		let fps = Math.round(1 / ((new Date() - lastUpdate) / 1000));
+		this.drawStatistics(fps + "/" + Game.maxFps);
 		lastUpdate = new Date();
 	}
 
@@ -248,7 +248,7 @@ function _RenderEngine() {
 		ctx.font = '14px arial';
 		ctx.fillStyle = "#eee";
 		ctx.beginPath();
-		ctx.fillText("Fps: " + Math.round(_fps * 10) / 10, 5, 20);
+		ctx.fillText("Fps: " + _fps, 5, 20);
 		ctx.fillText("Particles: " + PhysicsEngine.particles.length, 5, 40);
 		ctx.closePath();
 		ctx.fill();
