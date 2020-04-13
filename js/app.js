@@ -24,6 +24,12 @@ const createMeshFactory = function({radius}) {
 	}
 }
 
+const createMeshFactory3 = function() {
+	return function (_parent) {
+		return new CollisionBox({diagonal: [20, 3]}, _parent);
+	}
+}
+
 const createMeshFactory2 = function() {
 	return function (_parent) {
 		return new function() {
@@ -153,7 +159,45 @@ SpinParticle.call(sun2, sunConfig2);
 sun2.calcPhysics = calcPhysics;
 PhysicsEngine.addParticle(sun2);
 }
-createParticleSet(new Vector([1000, 1000]), 1000, 500);
+// createParticleSet(new Vector([1000, 1000]), 1000, 500);
+
+
+function createBullet(_position, _velocity) {
+	const explosionPower = Math.pow(10, 5);
+	let bulletConfig = {mass: 100, position: _position, config: {
+		startVelocity: _velocity,
+		exerciseCollisions: false,
+		exerciseGravity: false,
+		onCollision: function(_targets) {
+			for (let i = 0; i < _targets.length; i++)
+			{
+				let explosionVector = _targets[i].vector.scale(explosionPower);
+				_targets[i].target.parent.physicsObj.Fres.add(explosionVector);
+			}
+			this.remove();
+			return true;
+		}
+	}};
+	let bullet = new GravParticle(bulletConfig); //mercury
+	CollisionParticle.call(bullet, bulletConfig, createMeshFactory3());
+	SpinParticle.call(bullet, bulletConfig);
+	bullet.calcPhysics = function() {
+		this.physicsObj.Fres.add(this.getGravVector());
+		let collisionData = this.getCollisionData(this.physicsObj.Fres);
+
+		this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
+		this.physicsObj.Fres.add(collisionData.vector);	
+
+		this.angle = this.velocity.getAngle();
+	}
+
+
+	PhysicsEngine.addParticle(bullet);
+}
+
+
+
+
 
 
 // let mercuryConfig = {mass: 50235, position: [500, 1000], radius: 20, config: {startVelocity: [0, .8]}};
