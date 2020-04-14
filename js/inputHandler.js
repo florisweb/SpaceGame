@@ -39,7 +39,6 @@ function _InputHandler() {
 	});
 
 	HTML.canvas.addEventListener('wheel', function(event) {
-	    // console.log(event);
 	    RenderEngine.camera.zoom += event.deltaY * InputHandler.settings.scrollSpeed;
 	    if (RenderEngine.camera.zoom < .1) RenderEngine.camera.zoom = .1;
 	    return false; 

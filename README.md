@@ -29,6 +29,10 @@ Planned features:
 		exerciseGravity: boolean [true]			Whether the particle has any gravitational effect on other particles
 		gravitySensitive: boolean [true] 		Whether other particles have gravitational effect on the particle
 	}
+	particle.calcPhysics(particleIndex) - custom function
+	
+	f: getGravVector(particleIndex)
+	
 
 
 
