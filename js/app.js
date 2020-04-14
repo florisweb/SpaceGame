@@ -51,8 +51,8 @@ const createMeshFactory2 = function() {
 				);
 				lines.push(
 					new CollisionLine({
-						offset: [10, 30],
-						shape: [20, 12],
+						offset: [9, 28],
+						shape: [21, 14],
 					}, this)
 				);
 				lines.push(
@@ -113,7 +113,7 @@ PhysicsEngine.addParticle(sun);
 
 
 {
-let sunConfig2 = {mass: 4018790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0], collisionSensitive: true, exerciseCollisions: true}};
+let sunConfig2 = {mass: 4018790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0], gravitySensitive: false, exerciseGravity: true, collisionSensitive: true, exerciseCollisions: true}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 100}));
 SpinParticle.call(sun2, sunConfig2);

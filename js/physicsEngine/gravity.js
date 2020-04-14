@@ -95,12 +95,12 @@ function GravParticle({mass, position, radius, config = {}}) {
 
 function SpinParticle({mass, position, radius, config = {}}) {
 	Particle.call(this, {position: position, mass: mass, radius: radius, config: config});
-	this.angularVelocity 	= .01;
+	this.angularVelocity 	= 0.01 - Math.random() * .02;
 
 	this.applyAngularVelocity = function() {
-		// this.angle += this.angularVelocity;
-		// while (this.angle > Math.PI) this.angle -= Math.PI * 2;
-		// while (this.angle < -Math.PI) this.angle += Math.PI * 2;
+		this.angle += this.angularVelocity;
+		while (this.angle > Math.PI) this.angle -= Math.PI * 2;
+		while (this.angle < -Math.PI) this.angle += Math.PI * 2;
 	}
 }
 

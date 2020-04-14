@@ -215,6 +215,7 @@ function _RenderEngine() {
 		ctx.stroke();
 
 		_entity.mesh.outerMesh.draw("#f00");
+		_entity.mesh.innerMesh.draw("#00f");
 
 		if (typeof _entity.angle == "number") this.drawVector(_entity.position.copy(), new Vector([0, 0]).setAngle(_entity.angle, 30), "#fff");
 

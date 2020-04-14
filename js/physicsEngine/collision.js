@@ -238,7 +238,7 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 
 	this.getCollisions = function(_outerMesh, _inverted = true) {
-		let meshPosition = this.mesh.parent.position.copy();
+		let meshPosition = this.mesh.parent.position.copy();// getPosition();
 		let collisions = [];
 		for (let l = 0; l < this.lines.length; l++)
 		{
@@ -263,14 +263,13 @@ function InnerMesh(_outerMesh, _meshObject) {
 
 
 	function createLines(This) {
-		const lineCount = 20;
+		const lineCount = 21;
 		const anglePerLine = (2 * Math.PI) / lineCount;
-		
 		let lines = [];
 		for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
 		{
 			let newLine = new CollisionLine({
-				offset: [0, 0],
+				offset: This.mesh.offset.copy().scale(-1).value,
 				shape: new Vector([0, 0]).setAngle(a, This.mesh.meshRange).value
 			}, This.mesh);
 			lines.push(newLine);
@@ -284,7 +283,8 @@ function InnerMesh(_outerMesh, _meshObject) {
 		for (let l = 0; l < collisions.length; l++)
 		{
 			collisions[l].line.shape.setLength(
-				collisions[l].collision.add(This.mesh.offset).getLength()
+				// collisions[l].collision.add(This.mesh.offset.copy().scale(-1)).getLength()
+				collisions[l].collision.getLength()
 			);
 		}
 	}
