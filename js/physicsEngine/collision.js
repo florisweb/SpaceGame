@@ -151,6 +151,7 @@ function MeshObject({meshFactory, offset}, _parent) {
 	}
 
 	this.outerMesh = new OuterMesh({factory: meshFactory}, this);
+	this.offset.add(this.outerMesh.calcCenterOfMassOffset());	
 	this.meshRange = setMeshRange(this.outerMesh.lines);
 	this.innerMesh = new InnerMesh(this.outerMesh, this);
 
@@ -194,6 +195,22 @@ function OuterMesh({factory}, _meshObject) {
 
 	this.draw = function(_color) {
 		for (line of this.lines) line.draw(_color);
+	}
+
+	this.calcCenterOfMassOffset = function() {
+		let curVector = new Vector([0, 0]); 
+		let lengthTillNow = 0;
+		for (let i = 0; i < this.lines.length; i++)
+		{
+			let curLength = this.lines[i].shape.getLength();;
+			lengthTillNow += curLength;
+			let perc = curLength / lengthTillNow;
+			let delta = curVector.difference(
+				this.lines[i].getPosition().add(this.lines[i].getShape().scale(.5))
+			);
+			curVector.add(delta.scale(perc));
+		}
+		return this.mesh.getPosition().difference(curVector).scale(-1);
 	}
 }
 
@@ -393,7 +410,7 @@ function CollisionBox({diagonal}, _parent) {
 		];
 	}
 
-	MeshObject.call(this, {meshFactory: generateMesh, offset: this.diagonal.copy().scale(-.5).value}, _parent);
+	MeshObject.call(this, {meshFactory: generateMesh, offset: [0, 0]}, _parent);
 }
 
 
