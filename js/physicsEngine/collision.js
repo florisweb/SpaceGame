@@ -152,15 +152,15 @@ function MeshObject({meshFactory, offset}, _parent) {
 
 	this.outerMesh = new OuterMesh({factory: meshFactory}, this);
 	this.offset.add(this.outerMesh.calcCenterOfMassOffset());	
-	this.meshRange = setMeshRange(this.outerMesh.lines);
+	this.meshRange = setMeshRange(this.outerMesh.lines, this);
 	this.innerMesh = new InnerMesh(this.outerMesh, this);
 
 
-	function setMeshRange(_lines) {
+	function setMeshRange(_lines, This) {
 		let maxRange = 0;
 		for (let i = 0; i < _lines.length; i++) 
 		{
-			let vector1 = _lines[i].offset.copy();
+			let vector1 = _lines[i].offset.copy().add(This.offset);
 			let vector2 = vector1.copy().add(_lines[i].shape);
 			let range1 = vector1.getLength();
 			let range2 = vector2.getLength();
