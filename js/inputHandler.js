@@ -15,6 +15,7 @@ function _InputHandler() {
 
 	this.settings = new function() {
 		this.dragSpeed = 1;
+		this.scrollSpeed = .005
 	}
 	assignMouseDrager();
 
@@ -36,6 +37,13 @@ function _InputHandler() {
 			break;
 		}
 	});
+
+	HTML.canvas.addEventListener('wheel', function(event) {
+	    // console.log(event);
+	    RenderEngine.camera.zoom += event.deltaY * InputHandler.settings.scrollSpeed;
+	    if (RenderEngine.camera.zoom < .1) RenderEngine.camera.zoom = .1;
+	    return false; 
+	}, false);
 
 
 

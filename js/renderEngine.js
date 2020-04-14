@@ -18,15 +18,15 @@ function _RenderEngine() {
 			followEntity = _entity;
 			if (!followEntity) return;
 			
-			let rScreen = this.getWorldProjectionSize().scale(-.5);
-			this.panTo(followEntity.position.copy().add(rScreen));
+			// let rScreen = this.getWorldProjectionSize().scale(-.5);
+			this.panTo(followEntity.position.copy());//.add(rScreen));
 		}
 
 		this.update = function() {
 			if (!followEntity) return;
 			if (panning) return;
-			let rScreen = this.getWorldProjectionSize().scale(-.5);
-			this.position = followEntity.position.copy().add(rScreen);
+			// let rScreen = this.getWorldProjectionSize().scale(-.5);
+			this.position = followEntity.position.copy();//.add(rScreen);
 		}
 
 
@@ -35,11 +35,11 @@ function _RenderEngine() {
 		}
 
 		this.worldPosToCanvasPos = function(_position) {
-			let rPos = this.position.difference(_position);
+			let rPos = this.position.copy().add(this.getWorldProjectionSize().scale(-.5)).difference(_position);
 			return rPos.scale(1 / this.zoom);
 		}
 		this.canvasPosToWorldPos = function(_position) {
-			let rPos = _position.scale(this.zoom);
+			let rPos = _position.scale(this.zoom).add(this.getWorldProjectionSize().scale(-.5));
 			return this.position.copy().add(rPos); 
 		}
 		
@@ -47,10 +47,10 @@ function _RenderEngine() {
 			let projSize = this.getWorldProjectionSize();
 			let dPos = this.position.difference(_particle.position);
 			if (
-				dPos.value[0] < -_particle.mesh.meshRange || 
-				dPos.value[1] < -_particle.mesh.meshRange) return false;
-			if (dPos.value[0] > projSize.value[0] + _particle.mesh.meshRange || 
-				dPos.value[1] > projSize.value[1] + _particle.mesh.meshRange) return false;
+				dPos.value[0] < -_particle.mesh.meshRange - projSize.value[0] * .5 || 
+				dPos.value[1] < -_particle.mesh.meshRange - projSize.value[1] * .5) return false;
+			if (dPos.value[0] > projSize.value[0] * .5 + _particle.mesh.meshRange || 
+				dPos.value[1] > projSize.value[1] * .5 + _particle.mesh.meshRange) return false;
 			return true;
 		}
 
