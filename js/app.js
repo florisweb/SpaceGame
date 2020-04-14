@@ -84,7 +84,6 @@ const createMeshFactory2 = function() {
 
 
 const calcPhysics = function() {
-	this.physicsObj.Fres.add(this.getGravVector());
 	let collisionData = this.getCollisionData(this.physicsObj.Fres);
 
 	this.physicsObj.positionCorrection.add(collisionData.positionCorrection);
@@ -102,8 +101,8 @@ const calcPhysics = function() {
 
 
 
-// let sunConfig = {mass: 113097.33552923254, position: [1320, 1200], config: {startVelocity: [-3, 2], exerciseCollisions: true}};
-let sunConfig = {mass: 113097.33552923254, position: [1320, 1200], config: {startVelocity: [0, 0], exerciseCollisions: true}};
+let sunConfig = {mass: 113097.33552923254, position: [1320, 1200], config: {startVelocity: [-3, 2], exerciseCollisions: true}};
+// let sunConfig = {mass: 113097.33552923254, position: [1320, 1200], config: {startVelocity: [0, 0]}};
 let sun = new GravParticle(sunConfig); //mercury
 CollisionParticle.call(sun, sunConfig, createMeshFactory2());
 SpinParticle.call(sun, sunConfig);
@@ -113,7 +112,7 @@ PhysicsEngine.addParticle(sun);
 
 
 {
-let sunConfig2 = {mass: 4018790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0], gravitySensitive: false, exerciseGravity: true, collisionSensitive: true, exerciseCollisions: true}};
+let sunConfig2 = {mass: 4188790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0]}};
 let sun2 = new GravParticle(sunConfig2); //mercury
 CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 100}));
 SpinParticle.call(sun2, sunConfig2);
@@ -160,6 +159,8 @@ PhysicsEngine.addParticle(sun2);
 // PhysicsEngine.addParticle(sun2);
 // }
 // createParticleSet(new Vector([1000, 1000]), 1000, 500);
+createParticleSet(new Vector([1000, 1000]), 1000, 500);
+
 
 
 function createBullet(_position, _velocity) {
@@ -269,19 +270,18 @@ function createParticleSet(_position, _spread, _count = 20) {
 
 	for (let i = 0; i < _count; i++) {
 		let radius = 10;
-		let mass = 1; //4/3 * Math.PI * Math.pow(radius, 3);
+		let mass = 4/3 * Math.PI * Math.pow(radius, 3);
 		let config = {position: [
 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
 			_position.value[1] - _spread + 2 * _spread * Math.random()
 		], mass: mass, config: {
-			exerciseGravity: false,
+			exerciseGravity: true,
 			gravitySensitive: true,
 			exerciseCollisions: false,
-			collisionSensitive: true,
+			collisionSensitive: false,
 			onCollision: function() {
 				this.remove();
 			},
-			startVelocity: [0, .2],
 		}};
 		g = new GravParticle(config);
 		CollisionParticle.call(g, config, createMeshFactory({radius: radius}));

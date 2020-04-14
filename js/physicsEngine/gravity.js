@@ -60,27 +60,6 @@ function GravParticle({mass, position, radius, config = {}}) {
 	
 	this.radius = radius;
 
-	// let prevGravVector = new Vector([0, 0]);
-	// const gravQuality = 4;
-	// let gravUpdateIndex = Math.floor(gravQuality * Math.random());
-
-	this.getGravVector = function() {
-		if (!this.config.gravitySensitive) return new Vector([0, 0]);
-		// if (Game.updates % gravQuality != gravUpdateIndex) return prevGravVector.copy();
-
-		// prevGravVector = this.getFgrav();
-		// return prevGravVector.copy();
-		return this.getFgrav();
-	}
-
-	this.calcEGrav = function() {
-		return PhysicsEngine.getTotalGravEnergy(this);
-	}
-
-	this.getFgrav = function() {
-		return PhysicsEngine.getTotalGravVector(this);
-	}
-
 	this.drawVectors = function(_Fgrav, _a) {
 		if (!RenderEngine.settings.renderVectors) return;
 		RenderEngine.drawVector(this.position.copy(), _Fgrav.scale(3), "#00f");

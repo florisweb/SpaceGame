@@ -29,8 +29,8 @@ function _Game() {
     this.maxFps = Math.round(1 / (new Date() - start) * 1000);
 
     if (!this.running) return;
-  	// requestAnimationFrame(function () {Game.update()});
-    setTimeout(function () {Game.update()}, 1000 / 60);
+  	requestAnimationFrame(function () {Game.update()});
+    // setTimeout(function () {Game.update()}, 1000 / 60);
   }
 }
 

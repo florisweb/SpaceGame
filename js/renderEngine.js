@@ -208,18 +208,18 @@ function _RenderEngine() {
 		if (!this.camera.inView(_entity)) return false;
 		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
 
-		ctx.strokeStyle = "#0f0";
-		ctx.beginPath();
-		ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.mesh.meshRange / this.camera.zoom);
-		ctx.closePath();
-		ctx.stroke();
+		// ctx.strokeStyle = "#0f0";
+		// ctx.beginPath();
+		// ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.mesh.meshRange / this.camera.zoom);
+		// ctx.closePath();
+		// ctx.stroke();
 
 		_entity.mesh.outerMesh.draw("#f00");
-		_entity.mesh.innerMesh.draw("#00f");
+		// _entity.mesh.innerMesh.draw("#00f");
 
-		if (typeof _entity.angle == "number") this.drawVector(_entity.position.copy(), new Vector([0, 0]).setAngle(_entity.angle, 30), "#fff");
+		// if (typeof _entity.angle == "number") this.drawVector(_entity.position.copy(), new Vector([0, 0]).setAngle(_entity.angle, 30), "#fff");
 
-		if (_entity.positionTrace && this.settings.renderPositionTrace) this.drawPointList(_entity.positionTrace);
+		// if (_entity.positionTrace && this.settings.renderPositionTrace) this.drawPointList(_entity.positionTrace);
 	}
 
 	this.drawVector = function(_startVector, _relativeVector, _color = "red") {
