@@ -90,7 +90,6 @@ const calcPhysics = function() {
 	this.physicsObj.Fres.add(collisionData.vector);	
 
 	if (this.applyAngularVelocity) this.applyAngularVelocity();
-	if (Game.updates % 10 == 0 && RenderEngine.settings.renderPositionTrace) this.addPositionDot();
 }
 
 
@@ -101,65 +100,54 @@ const calcPhysics = function() {
 
 
 
-let sunConfig = {mass: 113097.33552923254, position: [1320, 1200], config: {startVelocity: [-3, 2], exerciseCollisions: true}};
-// let sunConfig = {mass: 113097.33552923254, position: [1320, 1200], config: {startVelocity: [0, 0]}};
+// let homePlanetConfig = {mass: 113097.33552923254, position: [1500, 2000], config: {startVelocity: [0, -2.5]}};
+let homePlanetConfig = {mass: 113097.33552923254, position: [1500, 2000], config: {startVelocity: [0, -.5]}};
+let homePlanet = new GravParticle(homePlanetConfig); //mercury
+CollisionParticle.call(homePlanet, homePlanetConfig, createMeshFactory2());
+SpinParticle.call(homePlanet, homePlanetConfig);
+homePlanet.calcPhysics = calcPhysics;
+PhysicsEngine.addParticle(homePlanet);
+
+
+
+
+let sunConfig = {mass: 4188790.2047863905, position: [2000, 2000], config: {startVelocity: [0, 0]}};
 let sun = new GravParticle(sunConfig); //mercury
-CollisionParticle.call(sun, sunConfig, createMeshFactory2());
+CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 100}));
 SpinParticle.call(sun, sunConfig);
 sun.calcPhysics = calcPhysics;
 PhysicsEngine.addParticle(sun);
 
 
 
+
+
 {
-let sunConfig2 = {mass: 4188790.2047863905, position: [1150, 1000], config: {startVelocity: [0, 0]}};
-let sun2 = new GravParticle(sunConfig2); //mercury
-CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 100}));
-SpinParticle.call(sun2, sunConfig2);
-sun2.calcPhysics = calcPhysics;
-PhysicsEngine.addParticle(sun2);
+let planetConfig = {mass: 33510.32163829113, position: [1700, 2000], config: {startVelocity: [1, 3]}};
+let planet = new GravParticle(planetConfig); //mercury
+CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 20}));
+SpinParticle.call(planet, planetConfig);
+planet.calcPhysics = calcPhysics;
+PhysicsEngine.addParticle(planet);
+}
+
+
+
+{
+let planetConfig = {mass: 268082.573106329, position: [1000, 2000], config: {startVelocity: [0, 1.5]}};
+let planet = new GravParticle(planetConfig); //mercury
+CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 40}));
+SpinParticle.call(planet, planetConfig);
+planet.calcPhysics = calcPhysics;
+PhysicsEngine.addParticle(planet);
 }
 
 
 
 
-// {
-// let sunConfig2 = {mass: 41790.2047863905, position: [500, 500], config: {startVelocity: [0, 0], gravitySensitive: true, exerciseCollisions: true}};
-// let sun2 = new GravParticle(sunConfig2); //mercury
-// CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 50}));
-// SpinParticle.call(sun2, sunConfig2);
-// sun2.calcPhysics = calcPhysics;
-// PhysicsEngine.addParticle(sun2);
-// }
 
 
-
-// {
-// let sunConfig2 = {mass: 41890.2047863905, position: [1500, 1500], config: {startVelocity: [0, 0], gravitySensitive: true, exerciseCollisions: true}};
-// let sun2 = new GravParticle(sunConfig2); //mercury
-// CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 50}));
-// SpinParticle.call(sun2, sunConfig2);
-// sun2.calcPhysics = calcPhysics;
-// PhysicsEngine.addParticle(sun2);
-// }
-// {
-// let sunConfig2 = {mass: 10890.2047863905, position: [1500, 500], config: {startVelocity: [0, 0], gravitySensitive: true, exerciseCollisions: true}};
-// let sun2 = new GravParticle(sunConfig2); //mercury
-// CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 40}));
-// SpinParticle.call(sun2, sunConfig2);
-// sun2.calcPhysics = calcPhysics;
-// PhysicsEngine.addParticle(sun2);
-// }
-// {
-// let sunConfig2 = {mass: 10890.2047863905, position: [500, 1500], config: {startVelocity: [0, 0], gravitySensitive: true, exerciseCollisions: true}};
-// let sun2 = new GravParticle(sunConfig2); //mercury
-// CollisionParticle.call(sun2, sunConfig2, createMeshFactory({radius: 40}));
-// SpinParticle.call(sun2, sunConfig2);
-// sun2.calcPhysics = calcPhysics;
-// PhysicsEngine.addParticle(sun2);
-// }
 // createParticleSet(new Vector([1000, 1000]), 1000, 500);
-createParticleSet(new Vector([1000, 1000]), 1000, 500);
 
 
 

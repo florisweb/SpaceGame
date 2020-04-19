@@ -84,7 +84,6 @@ function _RenderEngine() {
 				}
 			});
 		}
-
 	}
 
 
@@ -116,11 +115,16 @@ function _RenderEngine() {
 		this.drawWorldGrid();
 
 
+
 		for (let i = 0; i < PhysicsEngine.particles.length; i++)
 		{
 			this.drawEntity(PhysicsEngine.particles[i]);
 		}
 		
+
+		this.drawClientCursors();
+
+
 
 		fpsSum += 1000 / ((new Date() - lastUpdate));
 		if (Game.updates % 20 == 0) {fps = Math.round(fpsSum / 20); fpsSum = 0;}
@@ -261,4 +265,37 @@ function _RenderEngine() {
 	}
 
 
+
+
+
+
+
+
+
+
+
+	this.drawClientCursors = function() {
+		const size = 20;
+		for (let i = 0; i < Server.clients.length; i++)
+		{
+			if (Server.clients[i].isSelf) continue;
+			let mousePosition = Server.clients[i].mousePosition.copy();
+			let pos = this.camera.worldPosToCanvasPos(mousePosition).value;
+			
+			ctx.strokeStyle = "#f00";
+			ctx.moveTo(pos[0], pos[1] - size / 2);
+			ctx.lineTo(pos[0], pos[1] + size / 2);
+
+			ctx.moveTo(pos[0] - size / 2, pos[1]);
+			ctx.lineTo(pos[0] + size / 2, pos[1]);
+			ctx.stroke();
+
+			ctx.fillStyle = "#f00";
+			ctx.fillText(Server.clients[i].id, pos[0], pos[1] + size);
+			ctx.fill();
+		}
+	}
 }
+
+
+

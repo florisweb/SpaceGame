@@ -18,6 +18,8 @@ function _InputHandler() {
 		this.scrollSpeed = .005
 	}
 	assignMouseDrager();
+	assignMouseMoveHandler();
+
 
 
 
@@ -43,6 +45,24 @@ function _InputHandler() {
 	    if (RenderEngine.camera.zoom < .1) RenderEngine.camera.zoom = .1;
 	    return false; 
 	}, false);
+
+
+
+
+
+	function assignMouseMoveHandler() {
+		HTML.canvas.addEventListener("mousemove", 
+		    function (_event) {
+		    	let mousePosition = new Vector([
+					_event.offsetX / HTML.canvas.offsetWidth * HTML.canvas.width, 
+					_event.offsetY / HTML.canvas.offsetHeight * HTML.canvas.height
+				]);
+	    		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
+
+		    	Server.sendPacket(0, worldPosition.value);
+		    }
+		);
+	}
 
 
 

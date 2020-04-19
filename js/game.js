@@ -17,6 +17,8 @@ function _Game() {
     window.onresize();
     this.update();
     RenderEngine.update();
+
+    Server.init();
   }
 
   this.maxFps = 0;
