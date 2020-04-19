@@ -19,6 +19,13 @@ function Vector(_value) {
 		]);
 	}
 
+	this.getPerpendicular = function() {
+		return new Vector([
+			this.value[1],
+			-this.value[0]
+		]);
+	}
+
 	this.scale = function(_scalar) {
 		this.value[0] *= _scalar;
 		this.value[1] *= _scalar;
