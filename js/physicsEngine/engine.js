@@ -25,11 +25,14 @@ function _PhysicsEngine() {
 		this.Egrav = function(_massA, _massB, _radius) {
 			return -PhysicsEngine.constants.G * (_massA * _massB) / _radius;
 		}
+		this.calcEscapeVelocity = function(_sunMass, _sunDistance) {
+			return Math.sqrt(2 * PhysicsEngine.constants.G * _sunMass / _sunDistance);
+		}
 	}
 
 	
 	this.world = new function() {
-		this.size = new Vector([2000, 2000]);
+		this.size = new Vector([5000, 5000]);
 
 		this.inWorld = function(_particle) {
 			if (_particle.position.value[0] < -_particle.mesh.meshRange || 

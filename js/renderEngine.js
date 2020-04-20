@@ -4,7 +4,7 @@ function _RenderEngine() {
 	}
 	this.settings = new function() {
 		this.renderVectors = false;
-		this.renderPositionTrace = false;
+		this.renderPositionTrace = true;
 	}
 
 	this.camera = new function() {
@@ -223,7 +223,7 @@ function _RenderEngine() {
 
 		// if (typeof _entity.angle == "number") this.drawVector(_entity.position.copy(), new Vector([0, 0]).setAngle(_entity.angle, 30), "#fff");
 
-		// if (_entity.positionTrace && this.settings.renderPositionTrace) this.drawPointList(_entity.positionTrace);
+		if (_entity.positionTrace && this.settings.renderPositionTrace) this.drawPointList(_entity.positionTrace);
 	}
 
 	this.drawVector = function(_startVector, _relativeVector, _color = "red") {

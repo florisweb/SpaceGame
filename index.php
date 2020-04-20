@@ -24,12 +24,13 @@
 			$.getScript("js/physicsEngine/gravity.js?antiCache=" 	+ antiCache, function() {});
 			$.getScript("js/physicsEngine/collision.js?antiCache=" 	+ antiCache, function() {});
 			$.getScript("js/physicsEngine/engine.js?antiCache=" 	+ antiCache, function() {});
-
-
 			
 			$.getScript("js/renderEngine.js?antiCache="				+ antiCache, function() {});
 			$.getScript("js/inputHandler.js?antiCache=" 			+ antiCache, function() {});
 			
+
+			$.getScript("js/gameObjects.js?antiCache=" 				+ antiCache, function() {});
+
 			$.getScript("js/server.js?antiCache=" 					+ antiCache, function() {});
 			$.getScript("js/game.js?antiCache="						+ antiCache, function() {});
 			$.getScript("js/app.js?antiCache="						+ antiCache, function() {});

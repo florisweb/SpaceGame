@@ -90,57 +90,66 @@ const calcPhysics = function() {
 	this.physicsObj.Fres.add(collisionData.vector);	
 
 	if (this.applyAngularVelocity) this.applyAngularVelocity();
+
+	if (Game.updates % 10 == 0) this.positionTrace.push(this.position.copy());
 }
 
 
 
 
+let sun = new Sun();
+
+let planet1 = new Planet(1);
+let planet2 = new Planet(2);
+let planet3 = new Planet(3);
+let planet4 = new Planet(4);
+let planet5 = new Planet(5);
 
 
 
 
 
 // let homePlanetConfig = {mass: 113097.33552923254, position: [1500, 2000], config: {startVelocity: [0, -2.5]}};
-let homePlanetConfig = {mass: 113097.33552923254, position: [1500, 2000], config: {startVelocity: [0, -.5]}};
-let homePlanet = new GravParticle(homePlanetConfig); //mercury
-CollisionParticle.call(homePlanet, homePlanetConfig, createMeshFactory2());
-SpinParticle.call(homePlanet, homePlanetConfig);
-homePlanet.calcPhysics = calcPhysics;
-PhysicsEngine.addParticle(homePlanet);
+// let homePlanetConfig = {mass: 113097.33552923254, position: [1000, 1000], config: {startVelocity: [0, 0]}};
+// let homePlanet = new GravParticle(homePlanetConfig); //mercury
+// CollisionParticle.call(homePlanet, homePlanetConfig, createMeshFactory({radius: 50}));
+// SpinParticle.call(homePlanet, homePlanetConfig);
+// homePlanet.calcPhysics = calcPhysics;
+// PhysicsEngine.addParticle(homePlanet);
 
 
 
 
-let sunConfig = {mass: 4188790.2047863905, position: [2000, 2000], config: {startVelocity: [0, 0]}};
-let sun = new GravParticle(sunConfig); //mercury
-CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 100}));
-SpinParticle.call(sun, sunConfig);
-sun.calcPhysics = calcPhysics;
-PhysicsEngine.addParticle(sun);
+// let sunConfig = {mass: 4188790.2047863905, position: [1000, 1000], config: {startVelocity: [0, 0]}};
+// let sun = new GravParticle(sunConfig); //mercury
+// CollisionParticle.call(sun, sunConfig, createMeshFactory({radius: 100}));
+// SpinParticle.call(sun, sunConfig);
+// sun.calcPhysics = calcPhysics;
+// PhysicsEngine.addParticle(sun);
 
 
 
 
 
-{
-let planetConfig = {mass: 33510.32163829113, position: [1700, 2000], config: {startVelocity: [1, 3]}};
-let planet = new GravParticle(planetConfig); //mercury
-CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 20}));
-SpinParticle.call(planet, planetConfig);
-planet.calcPhysics = calcPhysics;
-PhysicsEngine.addParticle(planet);
-}
+// {
+// let planetConfig = {mass: 33510.32163829113, position: [700, 1000], config: {startVelocity: [1, 3]}};
+// let planet = new GravParticle(planetConfig); //mercury
+// CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 20}));
+// SpinParticle.call(planet, planetConfig);
+// planet.calcPhysics = calcPhysics;
+// PhysicsEngine.addParticle(planet);
+// }
 
 
 
-{
-let planetConfig = {mass: 268082.573106329, position: [1000, 2000], config: {startVelocity: [0, 1.5]}};
-let planet = new GravParticle(planetConfig); //mercury
-CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 40}));
-SpinParticle.call(planet, planetConfig);
-planet.calcPhysics = calcPhysics;
-PhysicsEngine.addParticle(planet);
-}
+// {
+// let planetConfig = {mass: 268082.573106329, position: [100, 1000], config: {startVelocity: [0, 1.5]}};
+// let planet = new GravParticle(planetConfig); //mercury
+// CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 40}));
+// SpinParticle.call(planet, planetConfig);
+// planet.calcPhysics = calcPhysics;
+// PhysicsEngine.addParticle(planet);
+// }
 
 
 
