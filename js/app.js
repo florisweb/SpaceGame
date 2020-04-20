@@ -91,7 +91,11 @@ const calcPhysics = function() {
 
 	if (this.applyAngularVelocity) this.applyAngularVelocity();
 
-	if (Game.updates % 10 == 0) this.positionTrace.push(this.position.copy());
+	if (Game.updates % 10 == 0)
+	{
+		if (this.positionTrace.length > 100) this.positionTrace.splice(0, 1);
+		this.positionTrace.push(this.position.copy());
+	} 
 }
 
 
