@@ -16,7 +16,7 @@ const Server = new function() {
 
 
     this.init = function() {
-        this.socket = new WebSocket("ws://localhost:8080", "spaceGame-protocol");
+        this.socket = new WebSocket("ws://tempspacegame.tk:8082", "spaceGame-protocol");
 
         this.socket.onopen = function(_e) {
             reConnectAttempts = 0;

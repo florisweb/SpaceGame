@@ -8,7 +8,7 @@
 
 		<link rel="stylesheet" type="text/css" href="css/component.css?a=1">
 		<link rel="stylesheet" type="text/css" href="css/main.css?a=7">
-		<script type="text/javascript" src="/JS/jQuery.js"></script>
+		<script type="text/javascript" src="js/jQuery.js"></script>
 	</head>	
 	<body>
 		<canvas id="gameCanvas" width="800" height="600"></canvas>

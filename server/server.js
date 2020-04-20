@@ -8,7 +8,7 @@ const http = require('http');
 
 
 var server = http.createServer(function(request, response) {});
-server.listen(8080, function() {});
+server.listen(8082, function() {});
 
 // create the server
 wsServer = new WebSocketServer({
