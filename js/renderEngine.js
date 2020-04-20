@@ -18,15 +18,12 @@ function _RenderEngine() {
 			followEntity = _entity;
 			if (!followEntity) return;
 			
-			// let rScreen = this.getWorldProjectionSize().scale(-.5);
-			this.panTo(followEntity.position.copy());//.add(rScreen));
+			this.panTo(followEntity.position.copy());
 		}
 
 		this.update = function() {
-			if (!followEntity) return;
-			if (panning) return;
-			// let rScreen = this.getWorldProjectionSize().scale(-.5);
-			this.position = followEntity.position.copy();//.add(rScreen);
+			if (!followEntity || panning) return;
+			this.position = followEntity.position.copy();
 		}
 
 
