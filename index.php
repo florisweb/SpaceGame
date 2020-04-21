@@ -7,7 +7,7 @@
 
 
 		<link rel="stylesheet" type="text/css" href="css/component.css?a=1">
-		<link rel="stylesheet" type="text/css" href="css/main.css?a=7">
+		<link rel="stylesheet" type="text/css" href="css/main.css?a=8">
 		<script type="text/javascript" src="js/jQuery.js"></script>
 	</head>	
 	<body>

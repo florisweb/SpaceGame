@@ -71,7 +71,8 @@ function _RenderEngine() {
 
 	this.drawWorldGrid = function() {
 		const gridSize = 50 * Math.ceil(this.camera.zoom);
-		ctx.strokeStyle = "#444";
+		// ctx.strokeStyle = "#444";
+		ctx.strokeStyle = "#282828";
 		
 		
 		for (let dx = gridSize; dx < PhysicsEngine.world.size.value[0]; dx += gridSize)
@@ -112,7 +113,9 @@ function _RenderEngine() {
 	}
 	
 	this.drawWorldBackground = function() {
-		ctx.fillStyle = "#333";
+		// ctx.fillStyle = "#333";
+		ctx.fillStyle = "#1f1f1f";
+
 		ctx.beginPath();	
 
 		fillRect(
