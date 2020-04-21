@@ -41,8 +41,20 @@ function _InputHandler() {
 	});
 
 	HTML.canvas.addEventListener('wheel', function(event) {
+		let mousePosition = new Vector([
+			event.offsetX / HTML.canvas.offsetWidth * HTML.canvas.width, 
+			event.offsetY / HTML.canvas.offsetHeight * HTML.canvas.height
+		]);
+
+		let startWorldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition.copy());
+
 	    RenderEngine.camera.zoom += event.deltaY * InputHandler.settings.scrollSpeed;
 	    if (RenderEngine.camera.zoom < .1) RenderEngine.camera.zoom = .1;
+	    
+
+	    let endWorldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
+	    RenderEngine.camera.position.add(endWorldPosition.difference(startWorldPosition));
+	    
 	    return false; 
 	}, false);
 
@@ -63,6 +75,10 @@ function _InputHandler() {
 		    }
 		);
 	}
+
+
+
+
 
 
 
