@@ -18,7 +18,10 @@ function _Game() {
     this.update();
     RenderEngine.update();
 
-    RenderEngine.camera.zoomTo(4);
+    setTimeout(function () {
+      RenderEngine.camera.zoomTo(4);
+      RenderEngine.camera.follow(PhysicsEngine.particles[Math.floor(PhysicsEngine.particles.length * Math.random())]);
+    }, 10);
 
     // Server.init();
   }
