@@ -18,6 +18,8 @@ function _Game() {
     this.update();
     RenderEngine.update();
 
+    RenderEngine.camera.zoomTo(4);
+
     // Server.init();
   }
 

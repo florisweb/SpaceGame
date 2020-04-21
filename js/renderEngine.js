@@ -72,7 +72,7 @@ function _RenderEngine() {
 	this.drawWorldGrid = function() {
 		const gridSize = 50 * Math.ceil(this.camera.zoom);
 		// ctx.strokeStyle = "#444";
-		ctx.strokeStyle = "#282828";
+		ctx.strokeStyle = "rgba(100, 100, 100, .1)";
 		
 		
 		for (let dx = gridSize; dx < PhysicsEngine.world.size.value[0]; dx += gridSize)
@@ -114,7 +114,19 @@ function _RenderEngine() {
 	
 	this.drawWorldBackground = function() {
 		// ctx.fillStyle = "#333";
-		ctx.fillStyle = "#1f1f1f";
+		let position = this.camera.worldPosToCanvasPos(PhysicsEngine.world.size.copy().scale(.5));
+		var grd = ctx.createRadialGradient(
+			position.value[0],
+			position.value[1],
+			200 / this.camera.zoom,
+			position.value[0],
+			position.value[1],
+			PhysicsEngine.world.size.value[0] / 2 / this.camera.zoom
+		);
+		grd.addColorStop(0, "#352820");
+		grd.addColorStop(1, "#1c1c1c");
+
+		ctx.fillStyle = grd;// "#1f1f1f";
 
 		ctx.beginPath();	
 
@@ -239,8 +251,8 @@ function _RenderEngine() {
 function RenderEngine_Camera() {
 	this.size = new Vector([800, 600]); // canvas
 	
-	this.zoom = 2.4; // percent of the camsize you can see
-	this.position = new Vector([0, 0]); // in world
+	this.zoom = 1000; // percent of the camsize you can see
+	this.position = PhysicsEngine.world.size.copy().scale(.5);
 
 	let followEntity = false;
 	this.follow = function(_entity) {
