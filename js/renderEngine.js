@@ -8,82 +8,7 @@ function _RenderEngine() {
 		this.renderVectors = false;
 		this.renderPositionTrace = false;
 	}
-
-	this.camera = new function() {
-		this.size = new Vector([800, 600]); // canvas
-		
-		this.zoom = 2.4; // percent of the camsize you can see
-		this.position = new Vector([0, 0]); // in world
-
-		let followEntity = false;
-		this.follow = function(_entity) {
-			followEntity = _entity;
-			if (!followEntity) return;
-			
-			this.panTo(followEntity.position.copy());
-		}
-
-		this.update = function() {
-			if (!followEntity || panning) return;
-			this.position = followEntity.position.copy();
-		}
-
-
-		this.getWorldProjectionSize = function() {
-			return this.size.copy().scale(this.zoom);
-		}
-
-		this.worldPosToCanvasPos = function(_position) {
-			let rPos = this.position.copy().add(this.getWorldProjectionSize().scale(-.5)).difference(_position);
-			return rPos.scale(1 / this.zoom);
-		}
-		this.canvasPosToWorldPos = function(_position) {
-			let rPos = _position.copy().scale(this.zoom).add(this.getWorldProjectionSize().scale(-.5));
-			return this.position.copy().add(rPos); 
-		}
-		
-		this.inView = function(_particle) {
-			let projSize = this.getWorldProjectionSize();
-			let dPos = this.position.difference(_particle.position);
-			if (
-				dPos.value[0] < -_particle.mesh.meshRange - projSize.value[0] * .5 || 
-				dPos.value[1] < -_particle.mesh.meshRange - projSize.value[1] * .5) return false;
-			if (dPos.value[0] > projSize.value[0] * .5 + _particle.mesh.meshRange || 
-				dPos.value[1] > projSize.value[1] * .5 + _particle.mesh.meshRange) return false;
-			return true;
-		}
-
-
-		this.zoomTo = function(_targetValue) {
-			Animator.animateValue({
-				start: this.zoom,
-				end: _targetValue,
-				frames: 100,
-				callback: function(_value) {
-					RenderEngine.camera.zoom = _value;
-				}
-			});
-		}
-
-
-		let panning = false;
-		this.panTo = function(_endCoords) {
-			panning = true;
-			const cameraSpeed = 20;
-			let delta = this.position.difference(_endCoords);
-			let startPosition = this.position;
-			Animator.animateValue({
-				start: 0,
-				end: 1,
-				frames: delta.getLength() / cameraSpeed,
-				callback: function(_value, _percentage) {
-					if (_value >= .9) panning = false;
-					let dpos = delta.copy().scale(_value);
-					RenderEngine.camera.position = startPosition.copy().add(dpos);
-				}
-			});
-		}
-	}
+	this.camera = new RenderEngine_Camera();
 
 
 	
@@ -302,3 +227,84 @@ function _RenderEngine() {
 
 
 
+
+
+
+
+
+
+function RenderEngine_Camera() {
+	this.size = new Vector([800, 600]); // canvas
+	
+	this.zoom = 2.4; // percent of the camsize you can see
+	this.position = new Vector([0, 0]); // in world
+
+	let followEntity = false;
+	this.follow = function(_entity) {
+		followEntity = _entity;
+		if (!followEntity) return;
+		
+		this.panTo(followEntity.position.copy());
+	}
+
+	this.update = function() {
+		if (!followEntity || panning) return;
+		this.position = followEntity.position.copy();
+	}
+
+
+	this.getWorldProjectionSize = function() {
+		return this.size.copy().scale(this.zoom);
+	}
+
+	this.worldPosToCanvasPos = function(_position) {
+		let rPos = this.position.copy().add(this.getWorldProjectionSize().scale(-.5)).difference(_position);
+		return rPos.scale(1 / this.zoom);
+	}
+	this.canvasPosToWorldPos = function(_position) {
+		let rPos = _position.copy().scale(this.zoom).add(this.getWorldProjectionSize().scale(-.5));
+		return this.position.copy().add(rPos); 
+	}
+	
+	this.inView = function(_particle) {
+		let projSize = this.getWorldProjectionSize();
+		let dPos = this.position.difference(_particle.position);
+		if (
+			dPos.value[0] < -_particle.mesh.meshRange - projSize.value[0] * .5 || 
+			dPos.value[1] < -_particle.mesh.meshRange - projSize.value[1] * .5) return false;
+		if (dPos.value[0] > projSize.value[0] * .5 + _particle.mesh.meshRange || 
+			dPos.value[1] > projSize.value[1] * .5 + _particle.mesh.meshRange) return false;
+		return true;
+	}
+
+
+	this.zoomTo = function(_targetValue) {
+		Animator.animateValue({
+			start: this.zoom,
+			end: _targetValue,
+			frames: 100,
+			callback: function(_value) {
+				RenderEngine.camera.zoom = _value;
+			}
+		});
+	}
+
+
+	let panning = false;
+	this.panTo = function(_endCoords) {
+		panning = true;
+		const cameraSpeed = 20;
+		let delta = this.position.difference(_endCoords);
+		let startPosition = this.position;
+		Animator.animateValue({
+			start: 0,
+			end: 1,
+			frames: delta.getLength() / cameraSpeed,
+			callback: function(_value, _percentage) {
+				if (_value >= .9) panning = false;
+				let dpos = delta.copy().scale(_value);
+				RenderEngine.camera.position = startPosition.copy().add(dpos);
+			}
+		});
+	}
+}
