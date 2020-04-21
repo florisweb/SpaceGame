@@ -25,6 +25,57 @@ function Sun() {
 	};
 	CelestialBody.call(this, config);
 	
+	let img = document.createElement("img");
+	img.src = "images/sun.png";
+	this.draw = function(ctx) {
+		let center = RenderEngine.camera.worldPosToCanvasPos(this.position);
+		let radius = this.mesh.radius / RenderEngine.camera.zoom;
+
+
+		for (let i = 0; i < 5; i++)
+		{
+			let curRadius = radius - radius * i / 6;
+
+			ctx.fillStyle = "rgb(255, " + ((5 - i) * 20 + 20) + ", 30)";
+			ctx.beginPath();
+			ctx.circle(
+				center.value[0],
+				center.value[1],
+				curRadius,
+				curRadius
+			);
+			ctx.closePath();
+			ctx.fill();
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// let radius = this.mesh.radius / RenderEngine.camera.zoom * 1.2;
+
+		// var x = center.value[0];
+		// var y = center.value[1];
+
+		// ctx.translate(x, y);
+		// ctx.rotate(this.angle);
+		// ctx.drawImage(img, -radius, -radius, radius * 2, radius * 2);
+		// ctx.rotate(-this.angle);
+		// ctx.translate(-x, -y);
+
+
+		// ctx.drawImage(img, center.value[0] - radius, center.value[1] - radius, radius * 2, radius * 2);
+
+
+	}
 }
 
 

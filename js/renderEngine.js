@@ -2,9 +2,11 @@ function _RenderEngine() {
 	let HTML = {
 		canvas: gameCanvas,
 	}
+	this.HTML = HTML;
+
 	this.settings = new function() {
 		this.renderVectors = false;
-		this.renderPositionTrace = true;
+		this.renderPositionTrace = false;
 	}
 
 	this.camera = new function() {
@@ -36,7 +38,7 @@ function _RenderEngine() {
 			return rPos.scale(1 / this.zoom);
 		}
 		this.canvasPosToWorldPos = function(_position) {
-			let rPos = _position.scale(this.zoom).add(this.getWorldProjectionSize().scale(-.5));
+			let rPos = _position.copy().scale(this.zoom).add(this.getWorldProjectionSize().scale(-.5));
 			return this.position.copy().add(rPos); 
 		}
 		
@@ -209,13 +211,17 @@ function _RenderEngine() {
 		if (!this.camera.inView(_entity)) return false;
 		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
 
+
+
+		if (_entity.draw) _entity.draw(ctx); else _entity.mesh.outerMesh.draw("#f00");
+
 		// ctx.strokeStyle = "#0f0";
 		// ctx.beginPath();
 		// ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.mesh.meshRange / this.camera.zoom);
 		// ctx.closePath();
 		// ctx.stroke();
 
-		_entity.mesh.outerMesh.draw("#f00");
+		
 		// _entity.mesh.innerMesh.draw("#00f");
 
 		// if (typeof _entity.angle == "number") this.drawVector(_entity.position.copy(), new Vector([0, 0]).setAngle(_entity.angle, 30), "#fff");
