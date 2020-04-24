@@ -141,3 +141,19 @@ Angle
 			.5 PI
 
 
+
+
+
+
+
+
+
+
+Collision: {
+	normal: Vec - away from self (length = collisiondepth)
+	self,
+	target
+}
+
+
+

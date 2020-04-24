@@ -90,7 +90,7 @@
 
 				let minDepth = -Infinity;
 				let normalAxis = false;
-				let direction = -1;
+				let direction = 1;
 				for (let a = 0; a < 4; a++) 
 				{
 					let ownDomain = box1.getProjectedPoints(axis[a]);
@@ -106,15 +106,16 @@
 					minDepth = distance;
 					normalAxis = axis[a];
 
-					if (distance == distanceA) 
-					{
-						direction = -1;
-					} else direction = 1;
+					if (distance == distanceA) {
+						direction = 1;
+					} else direction = -1;
 				}
 
 
 				return {
-					normal: normalAxis.setLength(minDepth * direction)
+					normal: normalAxis.setLength(minDepth * direction),
+					self: box1,
+					target: box2
 				};
 			}
 
@@ -124,9 +125,13 @@
 				if (distance > circle1.radius + circle2.radius) return false;
 
 				return {
-					normal: delta.setLength(distance - circle1.radius - circle2.radius)
+					normal: delta.setLength(circle1.radius + circle2.radius - distance),
+					self: circle1,
+					target: circle2
 				}
 			}
+
+
 
 			function boxCircle(box, circle) {
 				let axisA = new Vector([0, 1]).setAngle(box.angle).setLength(1);
@@ -137,16 +142,25 @@
 					axisA.getPerpendicular(),
 				];
 
+				// Find closest point on box
+				let minDistance = Infinity;
+				let minAxis;
 				for (let i = 0; i < points.length; i++)
 				{
-					axis.push(points[i].difference(circle.position).setLength(1));
+					let delta = points[i].difference(circle.position);
+					let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
+
+					if (squareDistance > minDistance) continue;
+					minDistance = squareDistance;
+					minAxis = delta.setLength(1);
 				}
+				axis.push(minAxis);
 	
 
 				let minDepth = -Infinity;
 				let normalAxis = false;
-				let direction = -1;
-				for (let a = 0; a < 6; a++) 
+				let direction = 1;
+				for (let a = 0; a < axis.length; a++) 
 				{
 					let boxDomain = box.getProjectedPoints(axis[a]);
 					let circleDomain = circle.getProjectionDomain(axis[a]);
@@ -161,15 +175,15 @@
 					minDepth = distance;
 					normalAxis = axis[a];
 
-					if (distance == distanceA) 
-					{
-						direction = -1;
-					} else direction = 1;
+					if (distance == distanceA) {
+						direction = 1;
+					} else direction = -1;
 				}
 
-
 				return {
-					normal: normalAxis.setLength(minDepth * direction)
+					normal: normalAxis.setLength(minDepth * direction),
+					self: box,
+					target: circle
 				};
 			}
 
@@ -177,7 +191,9 @@
 				let result = boxCircle(box, circle);
 				if (!result) return false;
 				return {
-					normal: result.normal.scale(-1)
+					normal: result.normal.scale(-1),
+					self: circle,
+					target: box
 				}
 			}
 
@@ -197,6 +213,10 @@
 
 		
 			function collides(a, b) {
+				let delta = a.position.difference(b.position);
+				let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
+				if (squareDistance > Math.pow(a.meshRange + b.meshRange, 2)) return;
+
 				return jumpTable[a.constructor.name][b.constructor.name](a, b);
 			}
 
@@ -268,11 +288,11 @@
 
 			gameCanvas.onmousemove = function(_e) {
 				let mousePos = new Vector([_e.layerX, _e.layerY]);
-				// self.position = mousePos;
+				self.position = mousePos;
 			}
 
 			
-			let circle1 = new Circle([490, 385], 50);
+			let circle1 = new Circle([390, 385], 40);
 			let circle2 = new Circle([300, 200], 50);
 
 			let box1 = new Box([300, 390], [50, 20], 0);
@@ -282,30 +302,30 @@
 			let self = circle1;
 
 			let particles = [
+				circle1,
 				box1,
 				box2,
-				circle1,
+				
 				circle2
 			];
 
-			for (let i = 0; i < 100; i++) {
-				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
-				let particle;
-				if (Math.random() > .5)
-				{
-					particle = new Box(position, [Math.random() * 50 + 5, Math.random() * 50 + 5], 2 * Math.PI * Math.random());
-				} else {
-					particle = new Circle(position, Math.random() * 50 + 5);
-				}
-				particles.push(particle);
-			}
+			// for (let i = 0; i < 500; i++) {
+			// 	let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+			// 	let particle;
+			// 	if (Math.random() > .5)
+			// 	{
+			// 		particle = new Box(position, [Math.random() * 50 + 5, Math.random() * 50 + 5], 2 * Math.PI * Math.random());
+			// 	} else {
+			// 		particle = new Circle(position, Math.random() * 50 + 5);
+			// 	}
+			// 	particles.push(particle);
+			// }
 
 
 			let lastRun = new Date();
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-				box2.angle += .01;
 				
 				ctx.strokeStyle = "#f00";
 				for (let s = 0; s < particles.length; s++)
@@ -315,24 +335,19 @@
 					{
 						let _target = particles[t];
 
-						let delta = _self.position.difference(_target.position);
-						let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
-
-						if (squareDistance > Math.pow(_self.meshRange + _target.meshRange, 2)) continue;
-
 						let collider = collides(_self, _target);
 						if (!collider) continue;
-						_target.position.add(collider.normal.copy().scale(-.5));
-						_self.position.add(collider.normal.copy().scale(.5));
+						collider.self.position.add(collider.normal.copy().scale(-.5));
+						collider.target.position.add(collider.normal.copy().scale(.5));
 
-						// ctx.strokeStyle = "#00f";
-						// ctx.beginPath();
-						// ctx.moveTo(_target.position.value[0], _target.position.value[1]);
+						ctx.strokeStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(collider.self.position.value[0], collider.self.position.value[1]);
 						
-						// let pos = _target.position.copy().add(collider.normal);
-						// ctx.lineTo(pos.value[0], pos.value[1]);
-						// ctx.closePath();
-						// ctx.stroke();
+						let pos = collider.self.position.copy().add(collider.normal.copy());
+						ctx.lineTo(pos.value[0], pos.value[1]);
+						ctx.closePath();
+						ctx.stroke();
 					}	
 					particles[s].draw();
 				}
