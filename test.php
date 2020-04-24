@@ -113,18 +113,23 @@
 
 			function boxCircle(box, circle) {
 				let axisA = new Vector([0, 1]).setAngle(box.angle).setLength(1);
-				let delta = box.position.difference(circle.position).setLength(1);
+				let points = box.getPoints();
+
 				let axis = [
 					axisA,
 					axisA.getPerpendicular(),
-					delta
 				];
 
+				for (let i = 0; i < points.length; i++)
+				{
+					axis.push(points[i].difference(circle.position).setLength(1));
+				}
+	
 
 				let minDepth = -Infinity;
 				let normalAxis = false;
 				let direction = -1;
-				for (let a = 0; a < 3; a++) 
+				for (let a = 0; a < 6; a++) 
 				{
 					let boxDomain = box.getProjectedPoints(axis[a]);
 					let circleDomain = circle.getProjectionDomain(axis[a]);
@@ -138,7 +143,7 @@
 					if (distance < minDepth) continue; 
 					minDepth = distance;
 					normalAxis = axis[a];
-
+					
 					if (distance == distanceA) 
 					{
 						direction = -1;
