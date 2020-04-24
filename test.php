@@ -143,7 +143,7 @@
 					if (distance < minDepth) continue; 
 					minDepth = distance;
 					normalAxis = axis[a];
-					
+
 					if (distance == distanceA) 
 					{
 						direction = -1;
@@ -156,25 +156,33 @@
 				};
 			}
 
-			// function boxCircle(box, circle) {
-			// 	let points = box.getPoints();
-			// 	let minDistance = Infinity;
-			// 	let curDelta = false;
-			// 	for (let i = 0; i < points.length; i++)
-			// 	{
-			// 		let delta = points[i].difference(circle.position);
-			// 		let distance = delta.getLength() - circle.radius;
-			// 		if (distance > 0) continue;
-			// 		if (minDistance < distance) continue;
-			// 		minDistance = distance;
-			// 		curDelta = delta;
-			// 	}
-				
-			// 	if (!curDelta) return false;
-			// 	return {
-			// 		normal: curDelta.setLength(-minDistance)
-			// 	}
-			// }
+			function circleBox(circle, box) {
+				let result = boxCircle(box, circle);
+				if (!result) return false;
+				return {
+					normal: result.normal.scale(-1)
+				}
+			}
+
+
+
+
+			let jumpTable = {
+				Box: {
+					Box: boxBox,
+					Circle: boxCircle 
+				},
+				Circle: {
+					Box: circleBox,
+					Circle: circleCircle
+				}
+			}
+
+			
+
+			function collides(a, b) {
+				return jumpTable[a.constructor.name][b.constructor.name](a, b);
+			}
 
 
 
@@ -190,20 +198,6 @@
 						projPos - this.radius,
 						projPos + this.radius
 					];
-				}
-				
-
-
-				this.collides = function(_target) {
-					let type = _target.constructor.name;
-					if (type == "Box") 
-					{
-						let result = boxCircle(_target, this);
-						if (!result) return false;
-						return {normal: result.normal.scale(-1)}
-					}
-
-					return circleCircle(this, _target);
 				}
 			}
 
@@ -244,13 +238,6 @@
 						if (value < min) min = value;
 					}
 					return [min, max];
-				}
-
-
-				this.collides = function(_target) {
-					let type = _target.constructor.name;
-					if (type == "Box") return boxBox(this, _target);
-					return boxCircle(this, _target);
 				}
 			}
 
@@ -293,7 +280,7 @@
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-
+				box2.angle += .002;
 				for (let s = 0; s < particles.length; s++)
 				{
 					for (let t = 0; t < particles.length; t++)
@@ -301,7 +288,7 @@
 						if (s == t) continue;
 						let _self = particles[s];
 						let _target = particles[t];
-						let collider = _self.collides(_target);
+						let collider = collides(_self, _target);
 						
 						if (!collider) continue;
 						_target.position.add(collider.normal.copy().scale(-.5));
