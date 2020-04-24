@@ -113,16 +113,18 @@
 
 			function boxCircle(box, circle) {
 				let axisA = new Vector([0, 1]).setAngle(box.angle).setLength(1);
+				let delta = box.position.difference(circle.position).setLength(1);
 				let axis = [
 					axisA,
-					axisA.getPerpendicular()
+					axisA.getPerpendicular(),
+					delta
 				];
 
 
 				let minDepth = -Infinity;
 				let normalAxis = false;
 				let direction = -1;
-				for (let a = 0; a < 2; a++) 
+				for (let a = 0; a < 3; a++) 
 				{
 					let boxDomain = box.getProjectedPoints(axis[a]);
 					let circleDomain = circle.getProjectionDomain(axis[a]);
@@ -170,18 +172,6 @@
 			// }
 
 
-
-
-
-
-			let circle1 = new Circle([220, 200], 50);
-			let circle2 = new Circle([300, 200], 50);
-
-
-
-
-			let box1 = new Box([300, 390], [50, 20], 0);
-			let box2 = new Box([371, 390], [30, 50], .25 * Math.PI);
 
 
 			function Circle(_position, _radius) {
@@ -275,11 +265,17 @@
 
 			gameCanvas.onmousemove = function(_e) {
 				let mousePos = new Vector([_e.layerX, _e.layerY]);
-				// box2.position = mousePos;
 				self.position = mousePos;
 			}
 
-			let target = box2;
+			
+			let circle1 = new Circle([490, 385], 50);
+			let circle2 = new Circle([300, 200], 50);
+
+			let box1 = new Box([300, 390], [50, 20], 0);
+			let box2 = new Box([371, 390], [30, 200], .25 * Math.PI);
+
+
 			let self = circle1;
 
 			let particles = [
@@ -291,8 +287,7 @@
 
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-				
-			
+
 
 				for (let s = 0; s < particles.length; s++)
 				{
@@ -304,7 +299,7 @@
 						let collider = _self.collides(_target);
 						
 						if (!collider) continue;
-						_target.position.add(collider.normal.copy().scale(-.1));
+						_target.position.add(collider.normal.copy().scale(-.5));
 
 						ctx.strokeStyle = "#00f";
 						ctx.beginPath();
@@ -326,20 +321,6 @@
 				ctx.drawBox(box2);
 				ctx.stroke();
 				requestAnimationFrame(loop);
-
-
-				// let collider = box1.collidesWithBox(box2);
-				// if (!collider) return;
-				// box1.position.add(collider.normal);
-
-				// ctx.strokeStyle = "#00f";
-				// ctx.beginPath();
-				// ctx.moveTo(box2.position.value[0], box2.position.value[1]);
-				
-				// let pos = box2.position.copy().add(collider.normal);
-				// ctx.lineTo(pos.value[0], pos.value[1]);
-				// ctx.closePath();
-				// ctx.stroke();
 			}
 
 			loop();
