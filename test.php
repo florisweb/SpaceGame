@@ -208,6 +208,7 @@
 			function Circle(_position, _radius) {
 				this.position = new Vector(_position);
 				this.radius = _radius;
+				this.meshRange = this.radius;
 
 				this.getProjectionDomain = function(_axis) {
 					let projPos = this.position.dotProduct(_axis);
@@ -227,6 +228,7 @@
 			function Box(_position, _shape, _angle) {
 				this.position = new Vector(_position);
 				this.shape = new Vector(_shape);
+				this.meshRange = this.shape.getLength();
 				this.angle = _angle;
 
 				this.getPoints = function() {
@@ -274,7 +276,7 @@
 			let circle2 = new Circle([300, 200], 50);
 
 			let box1 = new Box([300, 390], [50, 20], 0);
-			let box2 = new Box([371, 390], [30, 200], .25 * Math.PI);
+			let box2 = new Box([371, 390], [5, 200], .25 * Math.PI);
 
 
 			let self = circle1;
@@ -303,7 +305,7 @@
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-				box2.angle += .002;
+				box2.angle += .01;
 				
 				ctx.strokeStyle = "#f00";
 				for (let s = 0; s < particles.length; s++)
@@ -312,8 +314,13 @@
 					for (let t = s + 1; t < particles.length; t++)
 					{
 						let _target = particles[t];
+
+						let delta = _self.position.difference(_target.position);
+						let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
+
+						if (squareDistance > Math.pow(_self.meshRange + _target.meshRange, 2)) continue;
+
 						let collider = collides(_self, _target);
-						
 						if (!collider) continue;
 						_target.position.add(collider.normal.copy().scale(-.5));
 						_self.position.add(collider.normal.copy().scale(.5));
