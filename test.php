@@ -58,6 +58,23 @@
 				ctx.stroke();
 			}
 
+			ctx.drawVector = function(_start, _delta, _color = "#f00") {
+				let end = _start.copy().add(_delta);
+				ctx.strokeStyle = _color;
+				ctx.beginPath();
+				ctx.moveTo(_start.value[0], _start.value[1]);
+				ctx.lineTo(end.value[0], end.value[1]);
+				ctx.closePath();
+				ctx.stroke();
+			}
+
+
+
+
+
+
+
+
 
 			function boxBox(box1, box2) {
 				let axisA = new Vector([0, 1]).setAngle(box1.angle).setLength(1);
@@ -178,11 +195,12 @@
 				}
 			}
 
-			
-
+		
 			function collides(a, b) {
 				return jumpTable[a.constructor.name][b.constructor.name](a, b);
 			}
+
+
 
 
 
@@ -199,15 +217,10 @@
 						projPos + this.radius
 					];
 				}
+				this.draw = function() {
+					ctx.circle(this);
+				}
 			}
-
-
-
-
-
-
-
-
 
 
 
@@ -239,25 +252,21 @@
 					}
 					return [min, max];
 				}
+
+				this.draw = function() {
+					ctx.drawBox(this);
+				}
 			}
 
 
 
 
-			ctx.drawVector = function(_start, _delta, _color = "#f00") {
-				let end = _start.copy().add(_delta);
-				ctx.strokeStyle = _color;
-				ctx.beginPath();
-				ctx.moveTo(_start.value[0], _start.value[1]);
-				ctx.lineTo(end.value[0], end.value[1]);
-				ctx.closePath();
-				ctx.stroke();
-			}
+
 
 
 			gameCanvas.onmousemove = function(_e) {
 				let mousePos = new Vector([_e.layerX, _e.layerY]);
-				self.position = mousePos;
+				// self.position = mousePos;
 			}
 
 			
@@ -275,44 +284,59 @@
 				box2,
 				circle1,
 				circle2
-			]
+			];
 
+			for (let i = 0; i < 100; i++) {
+				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+				let particle;
+				if (Math.random() > .5)
+				{
+					particle = new Box(position, [Math.random() * 50 + 5, Math.random() * 50 + 5], 2 * Math.PI * Math.random());
+				} else {
+					particle = new Circle(position, Math.random() * 50 + 5);
+				}
+				particles.push(particle);
+			}
+
+
+			let lastRun = new Date();
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				box2.angle += .002;
+				
+				ctx.strokeStyle = "#f00";
 				for (let s = 0; s < particles.length; s++)
 				{
-					for (let t = 0; t < particles.length; t++)
+					let _self = particles[s];
+					for (let t = s + 1; t < particles.length; t++)
 					{
-						if (s == t) continue;
-						let _self = particles[s];
 						let _target = particles[t];
 						let collider = collides(_self, _target);
 						
 						if (!collider) continue;
 						_target.position.add(collider.normal.copy().scale(-.5));
+						_self.position.add(collider.normal.copy().scale(.5));
 
-						ctx.strokeStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(_target.position.value[0], _target.position.value[1]);
+						// ctx.strokeStyle = "#00f";
+						// ctx.beginPath();
+						// ctx.moveTo(_target.position.value[0], _target.position.value[1]);
 						
-						let pos = _target.position.copy().add(collider.normal);
-						ctx.lineTo(pos.value[0], pos.value[1]);
-						ctx.closePath();
-						ctx.stroke();
+						// let pos = _target.position.copy().add(collider.normal);
+						// ctx.lineTo(pos.value[0], pos.value[1]);
+						// ctx.closePath();
+						// ctx.stroke();
 					}	
+					particles[s].draw();
 				}
 				
-
-				
-				ctx.strokeStyle = "#f00";
-				ctx.circle(circle1);
-				ctx.circle(circle2);
-				ctx.drawBox(box1);
-				ctx.drawBox(box2);
 				ctx.stroke();
+
 				requestAnimationFrame(loop);
+				ctx.fillStyle = "#f00";
+				ctx.fillText("Fps: " + Math.round(1000 / (new Date() - lastRun)), 10, 20);
+				ctx.fill();
+				lastRun = new Date();
 			}
 
 			loop();
