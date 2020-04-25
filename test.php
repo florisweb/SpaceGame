@@ -543,8 +543,10 @@
 						for (let c = 0; c < collisions.length; c++)
 						{
 							let cur = collisions[c];
-							cur.self.parent.parent.position.add(cur.normal.copy().scale(-.5));
-							cur.target.parent.parent.position.add(cur.normal.copy().scale(.5));
+							let targetMassPerc = cur.self.parent.parent.massData.mass / (cur.self.parent.parent.massData.mass + cur.target.parent.parent.massData.mass);
+
+							cur.self.parent.parent.position.add(cur.normal.copy().scale(-1 + targetMassPerc));
+							cur.target.parent.parent.position.add(cur.normal.copy().scale(targetMassPerc));
 						}	
 
 						// collider.self.position.add(collider.normal.copy().scale(-.8));
