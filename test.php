@@ -18,7 +18,7 @@
 		</style>
 	</head>	
 	<body>
-		<canvas id="gameCanvas" width="1600" height="1200"></canvas>
+		<canvas id="gameCanvas" width="800" height="600"></canvas>
 		
 
 		<script>
@@ -72,7 +72,7 @@
 
 			const PhysicsEngine = new function() {
 				this.world = {
-					size: new Vector([1600, 1200])
+					size: new Vector([800, 600])
 				}
 
 				this.bodies = [];
@@ -100,6 +100,7 @@
 						let cur = this.bodies[s];
 
 						let a = cur.tempValues.force.scale(cur.massData.invMass);
+						ctx.drawVector(cur.position.copy(), a.copy().scale(15), "#f00");
 
 						cur.velocity.add(a);
 						cur.position.add(cur.velocity);
@@ -118,9 +119,9 @@
 							cur.position.value[0] + cur.shape.shapeRange > 0 &&
 							cur.position.value[0] - cur.shape.shapeRange < this.world.size.value[0] &&
 							cur.position.value[1] + cur.shape.shapeRange > 0 &&
-							cur.position.value[1] + cur.shape.shapeRange < this.world.size.value[1]
+							cur.position.value[1] - cur.shape.shapeRange < this.world.size.value[1]
 						) continue;
-						this.bodies.splice(s, 1);
+						this.bodies.splice(s, 1)
 					}
 				}
 
@@ -160,18 +161,32 @@
 					let self = collider.self.parent.parent;
 					let target = collider.target.parent.parent;
 
-					
-
-
-
-
-
 					// PositionOffset
-					let targetMassPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
-					collider.normal.setLength(collider.depth);
+					let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
+					let normal = collider.normal.copy().setLength(collider.depth);
+
+					self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
+					target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
+
+
+
 					
-					self.tempValues.positionOffset.add(collider.normal.copy().scale(1 - targetMassPerc));
-					target.tempValues.positionOffset.add(collider.normal.copy().scale(-targetMassPerc));
+					let relativeVelocity = self.velocity.difference(target.velocity).dotProduct(collider.normal);
+					if (relativeVelocity < 0) return;
+
+
+					let e = Math.min(self.material.restitution, target.material.restitution);
+	
+					let j = -(1 + e) * relativeVelocity;
+
+					j /= self.massData.invMass + target.massData.invMass;
+
+					let impulse = collider.normal.copy().scale(j);
+					if (relativeVelocity > 10) console.warn("RV:", relativeVelocity, impulse, self.massData.invMass + target.massData.invMass);
+
+
+					self.tempValues.force.add(impulse.copy().scale(-1 + massPerc));
+					target.tempValues.force.add(impulse.copy().scale(massPerc));
 				}
 
 
@@ -370,7 +385,8 @@
 
 				this.shape = new Body_Shape(this, shapeFactory);
 				this.material = {
-					density: .1
+					density: .1,
+					restitution: .25//.25
 				}
 
 				this.massData = new function() {
@@ -435,18 +451,21 @@
 
 
 				this.draw = function() {
-					let position = this.getPosition();
-					let size = 3;
-					ctx.fillStyle = "#00f";
-					ctx.beginPath();
-					ctx.fillRect(position.value[0] - size, position.value[1] - size, size * 2, size * 2);
-					ctx.closePath();
-					ctx.fill();
+					// let position = this.getPosition();
+					// let size = 3;
+					// ctx.fillStyle = "#00f";
+					// ctx.beginPath();
+					// ctx.fillRect(position.value[0] - size, position.value[1] - size, size * 2, size * 2);
+					// ctx.closePath();
+					// ctx.fill();
 
-					ctx.circle({
-						radius: this.shapeRange,
-						getPosition: function () {return This.getPosition()}
-					});
+					// ctx.circle({
+					// 	radius: this.shapeRange,
+					// 	getPosition: function () {return This.getPosition()}
+					// });
+
+					ctx.drawVector(this.getPosition(), this.parent.velocity.copy().scale(15), "#f00");
+
 
 					for (let i = 0; i < this.list.length; i++) this.list[i].draw();
 				}
@@ -612,12 +631,10 @@
 
 			
 			let body1 = new Body({
-				position: [300, 300], 
+				position: [300, 200], 
 				shapeFactory: function(_this) {
 					return [
-						new Circle({offset: [0, 0], radius: 40}, _this),
-						new Box({offset: [40 + 5, 0], shape: [10, 20]}, _this),
-						new Box({offset: [40 + 50, 0], shape: [50, 5]}, _this),
+						new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
@@ -625,16 +642,19 @@
 			});
 			
 			let body2 = new Body({
-				position: [200, 200], 
+				position: [300, 370], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [400, 10]}, _this)
+						new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
+						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
+						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
 				}
 			});
-			
 			PhysicsEngine.addBody(body1);
 			PhysicsEngine.addBody(body2);
+			// body1.velocity = new Vector([.5 * 0, 1]);
+			body2.velocity = new Vector([-1 * 0, -4]);
 
 		
 
@@ -646,7 +666,7 @@
 					shapeFactory: function(_this) {
 						return [
 							// new Circle({offset: [30, 0], radius: 10}, _this),
-							new Box({offset: [0, 0], shape: [20, 20], angle: Math.random() * 2 * Math.PI}, _this)
+							new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
 						];
 					}
 				});
@@ -661,7 +681,7 @@
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				body2.angle += .05;
+				// body2.angle += .05;
 
 				PhysicsEngine.update();
 
