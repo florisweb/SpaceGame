@@ -18,7 +18,7 @@
 		</style>
 	</head>	
 	<body>
-		<canvas id="gameCanvas" width="800" height="600"></canvas>
+		<canvas id="gameCanvas" width="1600" height="1200"></canvas>
 		
 
 		<script>
@@ -71,6 +71,10 @@
 
 
 			const PhysicsEngine = new function() {
+				this.world = {
+					size: new Vector([1600, 1200])
+				}
+
 				this.bodies = [];
 				this.addBody = function(_body) {
 					this.bodies.push(_body);
@@ -82,6 +86,8 @@
 
 
 				this.update = function() {
+					this.removeBodiesOutsideWorld();
+
 					this.collision.update();
 
 					this.applyCalculations();
@@ -104,7 +110,19 @@
 					}
 				}
 
-
+				this.removeBodiesOutsideWorld = function() {
+					for (let s = this.bodies.length - 1; s >= 0; s--)
+					{
+						let cur = this.bodies[s];
+						if (
+							cur.position.value[0] + cur.shape.shapeRange > 0 &&
+							cur.position.value[0] - cur.shape.shapeRange < this.world.size.value[0] &&
+							cur.position.value[1] + cur.shape.shapeRange > 0 &&
+							cur.position.value[1] + cur.shape.shapeRange < this.world.size.value[1]
+						) continue;
+						this.bodies.splice(s, 1);
+					}
+				}
 
 			}
 
@@ -612,14 +630,14 @@
 
 		
 
-			for (let i = 0; i < 100; i++) {
+			for (let i = 0; i < 500; i++) {
 				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
 				let body = new Body({
 					position: position,
 					shapeFactory: function(_this) {
 						return [
-							new Circle({offset: [30, 0], radius: 10}, _this),
+							// new Circle({offset: [30, 0], radius: 10}, _this),
 							new Box({offset: [0, 0], shape: [20, 20], angle: Math.random() * 2 * Math.PI}, _this)
 						];
 					}
