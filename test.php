@@ -100,6 +100,7 @@
 						cur.position.add(cur.tempValues.positionOffset.scale(-1));
 
 						cur.tempValues.positionOffset = new Vector([0, 0]);
+						cur.tempValues.force = new Vector([0, 0]);
 					}
 				}
 
@@ -138,8 +139,13 @@
 								let cur = collisions[c];
 								let targetMassPerc = cur.self.parent.parent.massData.mass / (cur.self.parent.parent.massData.mass + cur.target.parent.parent.massData.mass);
 
-								cur.self.parent.parent.tempValues.positionOffset.add(cur.normal.copy().scale(1 - targetMassPerc));
-								cur.target.parent.parent.tempValues.positionOffset.add(cur.normal.copy().scale(-targetMassPerc));
+								let _self = cur.self.parent.parent;
+								let _target = cur.target.parent.parent;
+								_self.tempValues.force.add(cur.normal.copy().scale(-_target.massData.mass * .1));
+								_target.tempValues.force.add(cur.normal.copy().scale(_self.massData.mass * .1));
+
+								_self.tempValues.positionOffset.add(cur.normal.copy().scale(1 - targetMassPerc));
+								_target.tempValues.positionOffset.add(cur.normal.copy().scale(-targetMassPerc));
 							}	
 						}
 					}
@@ -326,7 +332,7 @@
 
 				this.angle 		= 0;
 				this.position 	= new Vector(position);
-				this.velocity 	= new Vector([1, 0]);
+				this.velocity 	= new Vector([0, 0]);
 
 
 				this.tempValues = {
@@ -352,6 +358,7 @@
 
 
 				this.shape.updateCenterOfMass(this.shape.getCenterOfMass());
+				this.shape.calcShapeRange();
 				this.massData.recalcMass();
 			}
 
@@ -360,6 +367,9 @@
 			function Body_Shape(_parent, _shapeFactory) {
 				this.parent = _parent;
 				this.list = _shapeFactory(this);
+				this.shapeRange = 0;
+
+				let This = this;
 
 
 
@@ -373,6 +383,11 @@
 				
 				this.getCollisionData = function(_targetShape) {
 					let collisions = [];
+
+					let delta = this.getPosition().difference(_targetShape.getPosition());
+					let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2) 
+					if (squareDistance > Math.pow(this.shapeRange + _targetShape.shapeRange, 2)) return collisions;
+
 					for (let s = 0; s < this.list.length; s++)
 					{
 						let self = this.list[s];
@@ -400,6 +415,11 @@
 					ctx.fillRect(position.value[0] - size, position.value[1] - size, size * 2, size * 2);
 					ctx.closePath();
 					ctx.fill();
+
+					ctx.circle({
+						radius: this.shapeRange,
+						getPosition: function () {return This.getPosition()}
+					});
 
 					for (let i = 0; i < this.list.length; i++) this.list[i].draw();
 				}
@@ -437,6 +457,24 @@
 					}
 
 					return offset;
+				}
+
+				this.calcShapeRange = function() {
+					this.shapeRange = 0;
+					for (let i = 0; i < this.list.length; i++)
+					{
+						let type = this.list[i].constructor.name;
+						let range = this.list[i].offset.getLength();
+						if (type == "Box") 
+						{
+							range += this.list[i].shape.getLength();
+						} else {
+							range += this.list[i].radius;
+						}	
+						
+						if (range < this.shapeRange) continue;
+						this.shapeRange = range;
+					}
 				}
 
 
@@ -547,7 +585,7 @@
 
 			
 			let body1 = new Body({
-				position: [150, 180], 
+				position: [300, 300], 
 				shapeFactory: function(_this) {
 					return [
 						new Circle({offset: [0, 0], radius: 40}, _this),
@@ -574,24 +612,30 @@
 
 		
 
-			// for (let i = 0; i < 1000; i++) {
-			// 	let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
-			// 	let particle;
-			// 	if (Math.random() > .5)
-			// 	{
-			// 		particle = new Box(position, [Math.random() * 50 + 5, Math.random() * 50 + 5], 2 * Math.PI * Math.random());
-			// 	} else {
-			// 		particle = new Circle(position, Math.random() * 50 + 5);
-			// 	}
-			// 	particles.push(particle);
-			// }
+			for (let i = 0; i < 100; i++) {
+				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+
+				let body = new Body({
+					position: position,
+					shapeFactory: function(_this) {
+						return [
+							new Circle({offset: [30, 0], radius: 10}, _this),
+							new Box({offset: [0, 0], shape: [20, 20], angle: Math.random() * 2 * Math.PI}, _this)
+						];
+					}
+				});
+				
+				PhysicsEngine.addBody(body);
+			}
+
+
 
 			let lastRun = new Date();
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				body1.angle += .01;
+				body1.angle += .05;
 
 				PhysicsEngine.update();
 
