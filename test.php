@@ -136,11 +136,6 @@
 
 
 			function _PhysicsEngine_collision() {
-				this.detector = new _CollisionDetector();
-				this.resolver = {
-
-				};
-
 				this.update = function() {
 					for (let s = 0; s < PhysicsEngine.bodies.length; s++)
 					{
@@ -153,27 +148,37 @@
 							if (!collisions.length) continue;
 
 							for (let c = 0; c < collisions.length; c++)
-							{
-								let cur = collisions[c];
-								let targetMassPerc = cur.self.parent.parent.massData.mass / (cur.self.parent.parent.massData.mass + cur.target.parent.parent.massData.mass);
-
-								let _self = cur.self.parent.parent;
-								let _target = cur.target.parent.parent;
-								_self.tempValues.force.add(cur.normal.copy().scale(-_target.massData.mass * .1));
-								_target.tempValues.force.add(cur.normal.copy().scale(_self.massData.mass * .1));
-
-								_self.tempValues.positionOffset.add(cur.normal.copy().scale(1 - targetMassPerc));
-								_target.tempValues.positionOffset.add(cur.normal.copy().scale(-targetMassPerc));
+							{	
+								this.resolveCollision(collisions[c]);
 							}	
 						}
 					}
 				}
-			}
+
+
+				this.resolveCollision = function(collider) {
+					let self = collider.self.parent.parent;
+					let target = collider.target.parent.parent;
+
+					
 
 
 
 
-			function _CollisionDetector() {
+
+					// PositionOffset
+					let targetMassPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
+					collider.normal.setLength(collider.depth);
+					
+					self.tempValues.positionOffset.add(collider.normal.copy().scale(1 - targetMassPerc));
+					target.tempValues.positionOffset.add(collider.normal.copy().scale(-targetMassPerc));
+				}
+
+
+
+
+
+		
 				const jumpTable = {
 					Box: {
 						Box: boxBox,
@@ -237,7 +242,8 @@
 
 
 					return {
-						normal: normalAxis.setLength(minDepth * direction),
+						normal: normalAxis.scale(direction),
+						depth: minDepth,
 						self: box1,
 						target: box2
 					};
@@ -249,7 +255,8 @@
 					if (distance > circle1.radius + circle2.radius) return false;
 
 					return {
-						normal: delta.setLength(circle1.radius + circle2.radius - distance),
+						normal: delta.scale(-1),
+						depth: distance - circle1.radius - circle2.radius,
 						self: circle1,
 						target: circle2
 					}
@@ -305,7 +312,8 @@
 					}
 
 					return {
-						normal: normalAxis.setLength(minDepth * direction),
+						normal: normalAxis.scale(direction),
+						depth: minDepth,
 						self: box,
 						target: circle
 					};
@@ -316,6 +324,7 @@
 					if (!result) return false;
 					return {
 						normal: result.normal.scale(-1),
+						depth: result.depth,
 						self: circle,
 						target: box
 					}
@@ -413,7 +422,7 @@
 						{
 							let target = _targetShape.list[t];
 
-							let collider = PhysicsEngine.collision.detector.collides(self, target);
+							let collider = PhysicsEngine.collision.collides(self, target);
 							if (!collider) continue;
 
 							collisions.push(collider);
@@ -619,8 +628,7 @@
 				position: [200, 200], 
 				shapeFactory: function(_this) {
 					return [
-						new Circle({offset: [30, 0], radius: 10}, _this),
-						new Box({offset: [0, 0], shape: [20, 20]}, _this)
+						new Box({offset: [0, 0], shape: [400, 10]}, _this)
 					];
 				}
 			});
@@ -630,7 +638,7 @@
 
 		
 
-			for (let i = 0; i < 500; i++) {
+			for (let i = 0; i < 100; i++) {
 				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
 				let body = new Body({
@@ -653,7 +661,7 @@
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				body1.angle += .05;
+				body2.angle += .05;
 
 				PhysicsEngine.update();
 
