@@ -231,6 +231,8 @@
 
 
 			function Body({position, shapeFactory}) {
+				let body = this;
+
 				this.angle 		= 0;
 				this.position 	= new Vector(position);
 				this.velocity 	= new Vector([0, 0]);
@@ -243,26 +245,37 @@
 
 
 				this.shape = new Body_Shape(this, shapeFactory);
-				this.material;
-				this.massData = {
-					calcMass: false,
-					mass: 100,
-					invMass: .01,
+				this.material = {
+					density: .1
+				}
+				this.massData = new function() {
+					this.mass = 100;
+					this.invMass = .01;
+					
+					this.recalcMass = function() {
+						this.mass = body.shape.calcMass();
+						this.invMass = 1 / this.mass;
+					}
 				}
 
+
+				this.shape.updateCenterOfMass(this.shape.getCenterOfMass());
+				this.massData.recalcMass();
 			}
 
 
 
 			function Body_Shape(_parent, _shapeFactory) {
-				let Parent = _parent;
+				this.parent = _parent;
 				this.list = _shapeFactory(this);
 
+
+
 				this.getPosition = function() {
-					return Parent.position.copy();
+					return this.parent.position.copy();
 				}
 				this.getAngle = function() {
-					return Parent.angle;
+					return this.parent.angle;
 				}
 
 				
@@ -288,13 +301,62 @@
 
 
 				this.draw = function() {
+					let position = this.getPosition();
+					let size = 3;
+					ctx.fillStyle = "#00f";
+					ctx.beginPath();
+					ctx.fillRect(position.value[0] - size, position.value[1] - size, size * 2, size * 2);
+					ctx.closePath();
+					ctx.fill();
+
 					for (let i = 0; i < this.list.length; i++) this.list[i].draw();
 				}
 
 
-				this.calcMass = function() {}
-				this.calcCenterOfMass = function() {}
+				this.calcMass = function() {
+					let mass = 0;
+					for (let i = 0; i < this.list.length; i++) mass += calcMassPerItem(this.list[i], this.parent.material.density);
+					return mass;
+				}
+
+
+				let prevCenterOfMass = new Vector([0, 0]);
+				this.updateCenterOfMass = function(_centerOfMass) {
+					for (let i = 0; i < this.list.length; i++)
+					{
+						this.list[i].offset.add(prevCenterOfMass.difference(_centerOfMass).scale(-1));
+					}
+
+					prevCenterOfMass = _centerOfMass;
+				}
+
+				this.getCenterOfMass = function() {
+					let offset = new Vector([0, 0]);
+					let massTillNow = 0;
+
+					for (let i = 0; i < this.list.length; i++)
+					{
+						let cMass = calcMassPerItem(this.list[i], this.parent.material.density);
+						massTillNow += cMass;
+						let perc = cMass / massTillNow;
+
+						let delta = offset.difference(this.list[i].offset);
+						offset.add(delta.scale(perc));
+					}
+
+					return offset;
+				}
+
+
+
+				function calcMassPerItem(_item, _density) {
+					return _item.getVolume() * _density;
+				}
 			}
+
+
+
+
 
 
 
@@ -308,16 +370,6 @@
 					return this.parent.getPosition().add(this.offset.copy().rotate(angle));
 				}
 			}
-
-
-
-
-
-
-
-
-
-
 
 			function Circle({radius, offset}, _parent) {
 				Body_Shape_item.call(this, {offset: offset}, _parent);
@@ -336,7 +388,13 @@
 				this.draw = function() {
 					ctx.circle(this);
 				}
+				
+				this.getVolume = function() {
+					return 4 / 3 * Math.PI * Math.pow(this.radius, 3);
+				}
 			}
+
+
 
 
 
@@ -382,6 +440,11 @@
 				this.draw = function() {
 					ctx.drawBox(this);
 				}
+
+				this.getVolume = function() {
+					let height = this.shape.value[0] + this.shape.value[1];
+					return this.shape.value[0] * this.shape.value[1] * 4 * height;
+				}
 			}
 
 
@@ -392,7 +455,7 @@
 
 			gameCanvas.onmousemove = function(_e) {
 				let mousePos = new Vector([_e.layerX, _e.layerY]);
-				body1.position = mousePos;
+				// body1.position = mousePos;
 			}
 
 			
@@ -401,7 +464,8 @@
 				shapeFactory: function(_this) {
 					return [
 						new Circle({offset: [0, 0], radius: 40}, _this),
-						new Box({offset: [40 + 20, 0], shape: [20, 20]}, _this)
+						new Box({offset: [40 + 5, 0], shape: [10, 20]}, _this),
+						new Box({offset: [40 + 50, 0], shape: [50, 5]}, _this)
 					];
 				}
 			});
@@ -450,6 +514,8 @@
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
+				body1.position.add(body1.position.difference(body2.position).setLength(1));
+				body1.angle += .1;
 
 				// for (let s = particles.length - 1; s >= 0; s--)
 				// {
@@ -473,6 +539,13 @@
 
 						let collisions = self.getCollisionData(target);
 						if (!collisions.length) continue;
+
+						for (let c = 0; c < collisions.length; c++)
+						{
+							let cur = collisions[c];
+							cur.self.parent.parent.position.add(cur.normal.copy().scale(-.5));
+							cur.target.parent.parent.position.add(cur.normal.copy().scale(.5));
+						}	
 
 						// collider.self.position.add(collider.normal.copy().scale(-.8));
 						// collider.target.position.add(collider.normal.copy().scale(.8));
