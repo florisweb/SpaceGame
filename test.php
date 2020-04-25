@@ -70,13 +70,85 @@
 			}
 
 
+			const PhysicsEngine = new function() {
+				this.bodies = [];
+				this.addBody = function(_body) {
+					this.bodies.push(_body);
+				}
+
+				this.collision = new _PhysicsEngine_collision();
+
+
+
+
+				this.update = function() {
+					this.collision.update();
+
+					this.applyCalculations();
+				}
+
+
+				this.applyCalculations = function() {
+					for (let s = 0; s < this.bodies.length; s++)
+					{
+						let cur = this.bodies[s];
+
+						let a = cur.tempValues.force.scale(cur.massData.invMass);
+
+						cur.velocity.add(a);
+						cur.position.add(cur.velocity);
+						cur.position.add(cur.tempValues.positionOffset.scale(-1));
+
+						cur.tempValues.positionOffset = new Vector([0, 0]);
+					}
+				}
+
+
+
+			}
 
 
 
 
 
 
-			const CollisionDetector = new _CollisionDetector();
+
+
+
+
+			function _PhysicsEngine_collision() {
+				this.detector = new _CollisionDetector();
+				this.resolver = {
+
+				};
+
+				this.update = function() {
+					for (let s = 0; s < PhysicsEngine.bodies.length; s++)
+					{
+						let self = PhysicsEngine.bodies[s].shape;
+						for (let t = s + 1; t < PhysicsEngine.bodies.length; t++)
+						{
+							let target = PhysicsEngine.bodies[t].shape;
+
+							let collisions = self.getCollisionData(target);
+							if (!collisions.length) continue;
+
+							for (let c = 0; c < collisions.length; c++)
+							{
+								let cur = collisions[c];
+								let targetMassPerc = cur.self.parent.parent.massData.mass / (cur.self.parent.parent.massData.mass + cur.target.parent.parent.massData.mass);
+
+								cur.self.parent.parent.tempValues.positionOffset.add(cur.normal.copy().scale(1 - targetMassPerc));
+								cur.target.parent.parent.tempValues.positionOffset.add(cur.normal.copy().scale(-targetMassPerc));
+							}	
+						}
+					}
+				}
+			}
+
+
+
+
 			function _CollisionDetector() {
 				const jumpTable = {
 					Box: {
@@ -230,12 +302,31 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			function Body({position, shapeFactory}) {
 				let body = this;
 
 				this.angle 		= 0;
 				this.position 	= new Vector(position);
-				this.velocity 	= new Vector([0, 0]);
+				this.velocity 	= new Vector([1, 0]);
 
 
 				this.tempValues = {
@@ -248,6 +339,7 @@
 				this.material = {
 					density: .1
 				}
+
 				this.massData = new function() {
 					this.mass = 100;
 					this.invMass = .01;
@@ -288,7 +380,7 @@
 						{
 							let target = _targetShape.list[t];
 
-							let collider = CollisionDetector.collides(self, target);
+							let collider = PhysicsEngine.collision.detector.collides(self, target);
 							if (!collider) continue;
 
 							collisions.push(collider);
@@ -353,11 +445,6 @@
 					return _item.getVolume() * _density;
 				}
 			}
-
-
-
-
-
 
 
 
@@ -460,12 +547,14 @@
 
 			
 			let body1 = new Body({
-				position: [100, 100], 
+				position: [150, 180], 
 				shapeFactory: function(_this) {
 					return [
 						new Circle({offset: [0, 0], radius: 40}, _this),
 						new Box({offset: [40 + 5, 0], shape: [10, 20]}, _this),
-						new Box({offset: [40 + 50, 0], shape: [50, 5]}, _this)
+						new Box({offset: [40 + 50, 0], shape: [50, 5]}, _this),
+						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
+						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
 				}
 			});
@@ -480,20 +569,8 @@
 				}
 			});
 			
-
-			let particles = [
-				body1,
-				body2
-			];
-
-			// let circle1 = new Circle([390, 385], 40);
-			// let circle2 = new Circle([300, 200], 50);
-
-			// let box1 = new Box([300, 390], [50, 20], 0);
-			// let box2 = new Box([371, 390], [5, 200], .25 * Math.PI);
-
-
-			// let self = circle1;
+			PhysicsEngine.addBody(body1);
+			PhysicsEngine.addBody(body2);
 
 		
 
@@ -514,54 +591,13 @@
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				body1.position.add(body1.position.difference(body2.position).setLength(1));
-				body1.angle += .1;
+				body1.angle += .01;
 
-				// for (let s = particles.length - 1; s >= 0; s--)
-				// {
-				// 	let c = particles[s];
-				// 	if (
-				// 		c.position.value[0] + c.meshRange > 0 &&
-				// 		c.position.value[0] - c.meshRange < gameCanvas.width &&
-				// 		c.position.value[1] + c.meshRange > 0 &&
-				// 		c.position.value[1] - c.meshRange < gameCanvas.height
-				// 	) continue;
+				PhysicsEngine.update();
 
-				// 	particles.splice(s, 1);
-				// }
-
-				for (let s = 0; s < particles.length; s++)
+				for (let s = 0; s < PhysicsEngine.bodies.length; s++)
 				{
-					let self = particles[s].shape;
-					for (let t = s + 1; t < particles.length; t++)
-					{
-						let target = particles[t].shape;
-
-						let collisions = self.getCollisionData(target);
-						if (!collisions.length) continue;
-
-						for (let c = 0; c < collisions.length; c++)
-						{
-							let cur = collisions[c];
-							let targetMassPerc = cur.self.parent.parent.massData.mass / (cur.self.parent.parent.massData.mass + cur.target.parent.parent.massData.mass);
-
-							cur.self.parent.parent.position.add(cur.normal.copy().scale(-1 + targetMassPerc));
-							cur.target.parent.parent.position.add(cur.normal.copy().scale(targetMassPerc));
-						}	
-
-						// collider.self.position.add(collider.normal.copy().scale(-.8));
-						// collider.target.position.add(collider.normal.copy().scale(.8));
-
-						// ctx.strokeStyle = "#00f";
-						// ctx.beginPath();
-						// ctx.moveTo(collider.self.position.value[0], collider.self.position.value[1]);
-						
-						// let pos = collider.self.position.copy().add(collider.normal);
-						// ctx.lineTo(pos.value[0], pos.value[1]);
-						// ctx.closePath();
-						// ctx.stroke();
-					}	
-					particles[s].shape.draw();
+					PhysicsEngine.bodies[s].shape.draw();
 				}
 				
 				ctx.stroke();
