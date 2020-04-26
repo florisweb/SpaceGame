@@ -98,7 +98,6 @@
 					for (let s = 0; s < this.bodies.length; s++)
 					{
 						let cur = this.bodies[s];
-
 						let a = cur.tempValues.force.scale(cur.massData.invMass);
 						ctx.drawVector(cur.position.copy(), a.copy().scale(15), "#f00");
 
@@ -147,8 +146,7 @@
 
 							let collisions = self.getCollisionData(target);
 							if (!collisions.length) continue;
-							// console.log(collisions);
-							// running = false;
+					
 							for (let c = 0; c < collisions.length; c++)
 							{	
 								this.resolveCollision(collisions[c]);
@@ -170,7 +168,10 @@
 					target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
 
 
-					
+
+
+
+					// Resolve collision
 					let relativeVelocity = -self.velocity.difference(target.velocity).dotProduct(collider.normal);
 					if (relativeVelocity < 0) return;
 
@@ -180,11 +181,57 @@
 					j /= self.massData.invMass + target.massData.invMass;
 
 					let impulse = collider.normal.copy().scale(-j);
-					if (relativeVelocity > 50) console.warn("RV:", relativeVelocity, impulse, self.massData.invMass + target.massData.invMass);
+					let Fself = impulse.copy().scale(-1 + massPerc);
+					let Ftarget = impulse.copy().scale(massPerc);
+
+					self.tempValues.force.add(Fself);
+					target.tempValues.force.add(Ftarget);
+
+					
 
 
-					self.tempValues.force.add(impulse.copy().scale(-1 + massPerc));
-					target.tempValues.force.add(impulse.copy().scale(massPerc));
+
+
+					// Friction
+					let tempSelfVelocity = self.velocity.copy().add(Fself.copy().scale(self.massData.invMass));					
+					let tempTargetVelocity = target.velocity.copy().add(Ftarget.copy().scale(target.massData.invMass));
+
+					let newRV = tempSelfVelocity.difference(tempTargetVelocity);
+
+					let perpendicular = collider.normal.getPerpendicular();
+					let tangent = perpendicular.scale(perpendicular.dotProduct(newRV));
+					tangent.setLength(1);
+
+					let jt = -newRV.dotProduct(tangent);
+					jt /= self.massData.invMass + target.massData.invMass;
+
+
+					let mu = (self.material.staticFriction + target.material.staticFriction) * .5;
+					let frictionImpulse;
+					if (Math.abs(jt) < -j * mu)
+					{
+						frictionImpulse = tangent.copy().scale(jt);
+					} else {
+						let dynamicFriction = (self.material.dynamicFriction + target.material.dynamicFriction) * .5;
+						console.log("no-mu");
+						frictionImpulse = tangent.copy().scale(j * dynamicFriction);
+					}
+
+
+					let Ffric_self = frictionImpulse.copy().scale(-1 + massPerc);
+					let Ffric_target = frictionImpulse.copy().scale(massPerc);
+
+					self.tempValues.force.add(Ffric_self);
+					target.tempValues.force.add(Ffric_target);
+
+
+
+					// console.log(jt);
+					// ctx.drawVector(new Vector([100, 100]), collider.normal.copy().scale(20), "#f00");
+					// ctx.drawVector(new Vector([100, 100]), tangent.copy().scale(20), "#0f0");
+					// ctx.drawVector(new Vector([100, 100]), newRV.copy().scale(20), "#00f");
+
+					// running = false;
 				}
 
 
@@ -384,7 +431,9 @@
 				this.shape = new Body_Shape(this, shapeFactory);
 				this.material = {
 					density: .1,
-					restitution: 1//.25
+					restitution: .25,//.25
+					staticFriction: .5,
+					dynamicFriction: .25,
 				}
 
 				this.massData = new function() {
@@ -628,24 +677,24 @@
 			}
 
 			
-			let body1 = new Body({
-				position: [500, 300], 
-				shapeFactory: function(_this) {
-					return [
-						new Box({offset: [0, 0], shape: [50, 200]}, _this),
-						// new Circle({offset: [0, 0], radius: 40}, _this),
-						// new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
-						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
-						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
-					];
-				}
-			});
+			// let body1 = new Body({
+			// 	position: [500, 300], 
+			// 	shapeFactory: function(_this) {
+			// 		return [
+			// 			new Box({offset: [0, 0], shape: [2, 200]}, _this),
+			// 			new Circle({offset: [0, 0], radius: 40}, _this),
+			// 			new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
+			// 			new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
+			// 			new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
+			// 		];
+			// 	}
+			// });
 			
 			let body2 = new Body({
-				position: [300, 300], 
+				position: [150, 400], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [10, 20]}, _this),
+						// new Box({offset: [0, 0], shape: [10, 20]}, _this),
 						new Circle({offset: [35, 0], radius: 30}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
@@ -656,8 +705,8 @@
 				position: [100, 300], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [20, 300]}, _this),
-						new Circle({offset: [10, 0], radius: 30}, _this),
+						new Box({offset: [0, 0], shape: [10, 100]}, _this),
+						// new Circle({offset: [10, 0], radius: 30}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
@@ -665,10 +714,10 @@
 			});
 
 			PhysicsEngine.addBody(body2);
-			PhysicsEngine.addBody(body1);
+			// PhysicsEngine.addBody(body1);
 			PhysicsEngine.addBody(body3);
-			body1.velocity = new Vector([-.3, 0]);
-			body2.velocity = new Vector([-1, 0]);
+			// body1.velocity = new Vector([-.3, 0]);
+			body2.velocity = new Vector([-.1, -1]);
 
 		
 
@@ -699,10 +748,12 @@
 			let running = true;
 			let lastRun = new Date();
 			function loop() {
+				if (!running) return;
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
 				body2.angle += .05;
+				// body1.angle += -.01;
 
 				PhysicsEngine.update();
 
@@ -713,7 +764,7 @@
 				
 				ctx.stroke();
 
-				if (running) requestAnimationFrame(loop);
+				requestAnimationFrame(loop);
 				
 				let dt = (new Date() - lastRun) / 1000;
 				ctx.fillStyle = "#f00";
