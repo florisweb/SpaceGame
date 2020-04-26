@@ -147,7 +147,8 @@
 
 							let collisions = self.getCollisionData(target);
 							if (!collisions.length) continue;
-
+							// console.log(collisions);
+							// running = false;
 							for (let c = 0; c < collisions.length; c++)
 							{	
 								this.resolveCollision(collisions[c]);
@@ -169,20 +170,17 @@
 					target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
 
 
-
 					
-					let relativeVelocity = self.velocity.difference(target.velocity).dotProduct(collider.normal);
+					let relativeVelocity = -self.velocity.difference(target.velocity).dotProduct(collider.normal);
 					if (relativeVelocity < 0) return;
 
-
-					let e = Math.min(self.material.restitution, target.material.restitution);
-	
+					let e = Math.min(self.material.restitution, target.material.restitution);	
 					let j = -(1 + e) * relativeVelocity;
 
 					j /= self.massData.invMass + target.massData.invMass;
 
-					let impulse = collider.normal.copy().scale(j);
-					if (relativeVelocity > 10) console.warn("RV:", relativeVelocity, impulse, self.massData.invMass + target.massData.invMass);
+					let impulse = collider.normal.copy().scale(-j);
+					if (relativeVelocity > 50) console.warn("RV:", relativeVelocity, impulse, self.massData.invMass + target.massData.invMass);
 
 
 					self.tempValues.force.add(impulse.copy().scale(-1 + massPerc));
@@ -251,14 +249,14 @@
 						normalAxis = axis[a];
 
 						if (distance == distanceA) {
-							direction = 1;
-						} else direction = -1;
+							direction = -1;
+						} else direction = 1;
 					}
 
 
 					return {
 						normal: normalAxis.scale(direction),
-						depth: minDepth,
+						depth: -minDepth,
 						self: box1,
 						target: box2
 					};
@@ -270,8 +268,8 @@
 					if (distance > circle1.radius + circle2.radius) return false;
 
 					return {
-						normal: delta.scale(-1),
-						depth: distance - circle1.radius - circle2.radius,
+						normal: delta.setLength(1),
+						depth: circle1.radius + circle2.radius - distance,
 						self: circle1,
 						target: circle2
 					}
@@ -322,13 +320,13 @@
 						normalAxis = axis[a];
 
 						if (distance == distanceA) {
-							direction = 1;
-						} else direction = -1;
+							direction = -1;
+						} else direction = 1;
 					}
 
 					return {
 						normal: normalAxis.scale(direction),
-						depth: minDepth,
+						depth: -minDepth,
 						self: box,
 						target: circle
 					};
@@ -386,7 +384,7 @@
 				this.shape = new Body_Shape(this, shapeFactory);
 				this.material = {
 					density: .1,
-					restitution: .25//.25
+					restitution: 1//.25
 				}
 
 				this.massData = new function() {
@@ -631,10 +629,12 @@
 
 			
 			let body1 = new Body({
-				position: [300, 200], 
+				position: [500, 300], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
+						new Box({offset: [0, 0], shape: [50, 200]}, _this),
+						// new Circle({offset: [0, 0], radius: 40}, _this),
+						// new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
@@ -642,46 +642,67 @@
 			});
 			
 			let body2 = new Body({
-				position: [300, 370], 
+				position: [300, 300], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
+						new Box({offset: [0, 0], shape: [10, 20]}, _this),
+						new Circle({offset: [35, 0], radius: 30}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
 				}
 			});
-			PhysicsEngine.addBody(body1);
+			let body3 = new Body({
+				position: [100, 300], 
+				shapeFactory: function(_this) {
+					return [
+						new Box({offset: [0, 0], shape: [20, 300]}, _this),
+						new Circle({offset: [10, 0], radius: 30}, _this),
+						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
+						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
+					];
+				}
+			});
+
 			PhysicsEngine.addBody(body2);
-			// body1.velocity = new Vector([.5 * 0, 1]);
-			body2.velocity = new Vector([-1 * 0, -4]);
+			PhysicsEngine.addBody(body1);
+			PhysicsEngine.addBody(body3);
+			body1.velocity = new Vector([-.3, 0]);
+			body2.velocity = new Vector([-1, 0]);
 
 		
 
-			for (let i = 0; i < 100; i++) {
-				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+			// for (let i = 0; i < 500; i++) {
+			// 	let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
-				let body = new Body({
-					position: position,
-					shapeFactory: function(_this) {
-						return [
-							// new Circle({offset: [30, 0], radius: 10}, _this),
-							new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-						];
-					}
-				});
-				
-				PhysicsEngine.addBody(body);
-			}
+			// 	let body = new Body({
+			// 		position: position,
+			// 		shapeFactory: function(_this) {
+			// 			return [
+			// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+			// 			];
+			// 		}
+			// 	});
+			// 	if (Math.random() > .5) body = new Body({
+			// 		position: position,
+			// 		shapeFactory: function(_this) {
+			// 			return [
+			// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+			// 			];
+			// 		}
+			// 	});
+
+			// 	PhysicsEngine.addBody(body);
+			// }
 
 
-
+			let running = true;
 			let lastRun = new Date();
 			function loop() {
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				// body2.angle += .05;
+				body2.angle += .05;
 
 				PhysicsEngine.update();
 
@@ -692,7 +713,7 @@
 				
 				ctx.stroke();
 
-				requestAnimationFrame(loop);
+				if (running) requestAnimationFrame(loop);
 				
 				let dt = (new Date() - lastRun) / 1000;
 				ctx.fillStyle = "#f00";

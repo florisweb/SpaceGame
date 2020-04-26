@@ -150,7 +150,8 @@ Angle
 
 
 Collision: {
-	normal: Vec - away from self (length = collisiondepth)
+	normal: Vec - away from self,
+	depth: 
 	self,
 	target
 }
