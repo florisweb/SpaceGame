@@ -120,7 +120,7 @@
 							cur.position.value[1] + cur.shape.shapeRange > 0 &&
 							cur.position.value[1] - cur.shape.shapeRange < this.world.size.value[1]
 						) continue;
-						this.bodies.splice(s, 1)
+						let body = this.bodies.splice(s, 1)[0];
 					}
 				}
 
@@ -155,7 +155,6 @@
 					}
 				}
 
-
 				this.resolveCollision = function(collider) {
 					let self = collider.self.parent.parent;
 					let target = collider.target.parent.parent;
@@ -166,7 +165,6 @@
 
 					self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
 					target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
-
 
 
 
@@ -187,8 +185,6 @@
 					self.tempValues.force.add(Fself);
 					target.tempValues.force.add(Ftarget);
 
-					
-
 
 
 
@@ -202,6 +198,7 @@
 					let tangent = perpendicular.scale(perpendicular.dotProduct(newRV));
 					tangent.setLength(1);
 
+
 					let jt = -newRV.dotProduct(tangent);
 					jt /= self.massData.invMass + target.massData.invMass;
 
@@ -213,9 +210,9 @@
 						frictionImpulse = tangent.copy().scale(jt);
 					} else {
 						let dynamicFriction = (self.material.dynamicFriction + target.material.dynamicFriction) * .5;
-						console.log("no-mu");
 						frictionImpulse = tangent.copy().scale(j * dynamicFriction);
 					}
+					
 
 
 					let Ffric_self = frictionImpulse.copy().scale(-1 + massPerc);
@@ -224,14 +221,6 @@
 					self.tempValues.force.add(Ffric_self);
 					target.tempValues.force.add(Ffric_target);
 
-
-
-					// console.log(jt);
-					// ctx.drawVector(new Vector([100, 100]), collider.normal.copy().scale(20), "#f00");
-					// ctx.drawVector(new Vector([100, 100]), tangent.copy().scale(20), "#0f0");
-					// ctx.drawVector(new Vector([100, 100]), newRV.copy().scale(20), "#00f");
-
-					// running = false;
 				}
 
 
@@ -713,36 +702,36 @@
 				}
 			});
 
-			PhysicsEngine.addBody(body2);
+			// PhysicsEngine.addBody(body2);
 			// PhysicsEngine.addBody(body1);
-			PhysicsEngine.addBody(body3);
+			// PhysicsEngine.addBody(body3);
 			// body1.velocity = new Vector([-.3, 0]);
-			body2.velocity = new Vector([-.1, -1]);
+			// body2.velocity = new Vector([-.1, -1]);
 
 		
 
-			// for (let i = 0; i < 500; i++) {
-			// 	let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+			for (let i = 0; i < 500; i++) {
+				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
-			// 	let body = new Body({
-			// 		position: position,
-			// 		shapeFactory: function(_this) {
-			// 			return [
-			// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-			// 			];
-			// 		}
-			// 	});
-			// 	if (Math.random() > .5) body = new Body({
-			// 		position: position,
-			// 		shapeFactory: function(_this) {
-			// 			return [
-			// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
-			// 			];
-			// 		}
-			// 	});
+				let body = new Body({
+					position: position,
+					shapeFactory: function(_this) {
+						return [
+							new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+						];
+					}
+				});
+				if (Math.random() > .5) body = new Body({
+					position: position,
+					shapeFactory: function(_this) {
+						return [
+							new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+						];
+					}
+				});
 
-			// 	PhysicsEngine.addBody(body);
-			// }
+				PhysicsEngine.addBody(body);
+			}
 
 
 			let running = true;
@@ -752,7 +741,7 @@
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				body2.angle += .05;
+				// body2.angle += .05;
 				// body1.angle += -.01;
 
 				PhysicsEngine.update();

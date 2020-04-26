@@ -50,7 +50,10 @@ function Vector(_value) {
 	}
 	
 	this.setLength = function(_length) {
-		this.scale(_length / this.getLength());
+		let length = this.getLength();
+		if (length == 0) return this;
+		
+		this.scale(_length / length);
 		return this;
 	}
 
