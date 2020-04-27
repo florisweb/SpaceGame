@@ -145,12 +145,20 @@
 							let target = PhysicsEngine.bodies[t].shape;
 
 							let collisions = self.getCollisionData(target);
-							if (!collisions.length) continue;
 					
 							for (let c = 0; c < collisions.length; c++)
 							{	
+								// console.log(collisions[c]);
+								if (collisions[c].contactPoint) ctx.drawVector(
+										collisions[c].contactPoint.copy(), 
+										collisions[c].normal.copy().setLength(collisions[c].depth).scale(200), 
+										"#0f0"
+									);
+
 								this.resolveCollision(collisions[c]);
-							}	
+							}
+							// if (collisions.length > 0) running = false;
+
 						}
 					}
 				}
@@ -220,7 +228,6 @@
 
 					self.tempValues.force.add(Ffric_self);
 					target.tempValues.force.add(Ffric_target);
-
 				}
 
 
@@ -269,6 +276,7 @@
 					let minDepth = -Infinity;
 					let normalAxis = false;
 					let direction = 1;
+					let lastA = 0;
 					for (let a = 0; a < 4; a++) 
 					{
 						let ownDomain = box1.getProjectedPoints(axis[a]);
@@ -283,16 +291,28 @@
 						if (distance < minDepth) continue; 
 						minDepth = distance;
 						normalAxis = axis[a];
+						lastA = a;
 
 						if (distance == distanceA) {
 							direction = -1;
 						} else direction = 1;
 					}
+					
+					let normal = normalAxis.scale(direction);
+
+					let contactPoint;
+					if (lastA < 2)
+					{
+						contactPoint = box2.getPosition().add(box2.shape.copy().rotate(box2.getAngle() - direction * Math.PI * .5));
+					} else {
+						contactPoint = box1.getPosition().add(box1.shape.copy().rotate(box1.getAngle() - direction * Math.PI * .5));
+					}
 
 
 					return {
-						normal: normalAxis.scale(direction),
+						normal: normal,
 						depth: -minDepth,
+						contactPoint: contactPoint,
 						self: box1,
 						target: box2
 					};
@@ -302,10 +322,12 @@
 					let delta = circle1.getPosition().difference(circle2.getPosition());
 					let distance = delta.getLength();
 					if (distance > circle1.radius + circle2.radius) return false;
+					let depth = circle1.radius + circle2.radius - distance;
 
 					return {
 						normal: delta.setLength(1),
-						depth: circle1.radius + circle2.radius - distance,
+						depth: depth,
+						contactPoint: circle1.getPosition().add(delta.copy().setLength(circle1.radius + depth * .5)),
 						self: circle1,
 						target: circle2
 					}
@@ -336,10 +358,12 @@
 					}
 					axis.push(minAxis);
 		
+					let contactPoint = new Vector([100, 100]);
 
 					let minDepth = -Infinity;
 					let normalAxis = false;
 					let direction = 1;
+					let lastA = 0;
 					for (let a = 0; a < axis.length; a++) 
 					{
 						let boxDomain = box.getProjectedPoints(axis[a]);
@@ -354,15 +378,20 @@
 						if (distance < minDepth) continue; 
 						minDepth = distance;
 						normalAxis = axis[a];
+						lastA = a;
 
 						if (distance == distanceA) {
 							direction = -1;
 						} else direction = 1;
 					}
-
+					
+					let normal = normalAxis.scale(direction);
+					contactPoint = circle.getPosition().add(normal.copy().scale(-circle.radius));
+	
 					return {
-						normal: normalAxis.scale(direction),
+						normal: normal,
 						depth: -minDepth,
+						contactPoint: contactPoint,
 						self: box,
 						target: circle
 					};
@@ -374,6 +403,7 @@
 					return {
 						normal: result.normal.scale(-1),
 						depth: result.depth,
+						contactPoint: result.contactPoint,
 						self: circle,
 						target: box
 					}
@@ -666,51 +696,49 @@
 			}
 
 			
-			// let body1 = new Body({
-			// 	position: [500, 300], 
+			let body1 = new Body({
+				position: [500, 300], 
+				shapeFactory: function(_this) {
+					return [
+						new Box({offset: [0, 0], shape: [30, 30], angle: Math.PI}, _this),
+						// new Circle({offset: [35, 0], radius: 40}, _this),
+					];
+				}
+			});
+			
+			let body2 = new Body({
+				position: [450, 500], 
+				shapeFactory: function(_this) {
+					return [
+						new Box({offset: [0, 0], shape: [50, 30], angle: .2}, _this),
+						// new Circle({offset: [35, 0], radius: 30}, _this),
+						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
+						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
+					];
+				}
+			});
+			// let body3 = new Body({
+			// 	position: [100, 300], 
 			// 	shapeFactory: function(_this) {
 			// 		return [
-			// 			new Box({offset: [0, 0], shape: [2, 200]}, _this),
-			// 			new Circle({offset: [0, 0], radius: 40}, _this),
-			// 			new Box({offset: [40 + 50, 0], shape: [30, 20]}, _this),
-			// 			new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
-			// 			new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
+			// 			new Box({offset: [0, 0], shape: [10, 100]}, _this),
+			// 			// new Circle({offset: [10, 0], radius: 30}, _this),
+			// 			// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
+			// 			// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 			// 		];
 			// 	}
 			// });
-			
-			let body2 = new Body({
-				position: [150, 400], 
-				shapeFactory: function(_this) {
-					return [
-						// new Box({offset: [0, 0], shape: [10, 20]}, _this),
-						new Circle({offset: [35, 0], radius: 30}, _this),
-						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
-						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
-					];
-				}
-			});
-			let body3 = new Body({
-				position: [100, 300], 
-				shapeFactory: function(_this) {
-					return [
-						new Box({offset: [0, 0], shape: [10, 100]}, _this),
-						// new Circle({offset: [10, 0], radius: 30}, _this),
-						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
-						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
-					];
-				}
-			});
 
-			// PhysicsEngine.addBody(body2);
-			// PhysicsEngine.addBody(body1);
+			PhysicsEngine.addBody(body1);
+			PhysicsEngine.addBody(body2);
+			
 			// PhysicsEngine.addBody(body3);
-			// body1.velocity = new Vector([-.3, 0]);
-			// body2.velocity = new Vector([-.1, -1]);
+			body1.velocity = new Vector([0, .6]);
+			body2.velocity = new Vector([0, -.5]);
 
 		
 
-			for (let i = 0; i < 500; i++) {
+			for (let i = 0; i < 150; i++) {
 				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
 				let body = new Body({
@@ -758,7 +786,8 @@
 				let dt = (new Date() - lastRun) / 1000;
 				ctx.fillStyle = "#f00";
 				ctx.beginPath();
-				ctx.fillText("Fps: " + Math.round(1 / dt), 10, 20);
+				ctx.font = "30px Calibri";
+				ctx.fillText("Fps: " + Math.round(1 / dt), 20, 30);
 				ctx.closePath();
 				ctx.fill();
 				
