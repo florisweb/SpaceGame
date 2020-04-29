@@ -157,7 +157,7 @@
 
 								this.resolveCollision(collisions[c]);
 							}
-							// if (collisions.length > 0) running = false;
+							if (collisions.length > 0) running = false;
 
 						}
 					}
@@ -277,13 +277,15 @@
 					let normalAxis = false;
 					let direction = 1;
 					let lastA = 0;
+					let lastOwnDomain;
+					let lastOtherDomain;
 					for (let a = 0; a < 4; a++) 
 					{
 						let ownDomain = box1.getProjectedPoints(axis[a]);
 						let otherDomain = box2.getProjectedPoints(axis[a]);
 
-						let distanceA = ownDomain[0] - otherDomain[1];
-						let distanceB = otherDomain[0] - ownDomain[1]
+						let distanceA = ownDomain.min.value - otherDomain.max.value;
+						let distanceB = otherDomain.min.value - ownDomain.max.value;
 						let distance = Math.max(distanceA, distanceB);
 
 						if (distance >= 0) return false;
@@ -292,26 +294,26 @@
 						minDepth = distance;
 						normalAxis = axis[a];
 						lastA = a;
+						lastOwnDomain = ownDomain;
+						lastOtherDomain = otherDomain;
 
 						if (distance == distanceA) {
 							direction = -1;
 						} else direction = 1;
 					}
 					
-					let normal = normalAxis.scale(direction);
-
+					let ownPoint = lastA > 1;
+					let domain = lastOtherDomain;
+					if (ownPoint) domain = lastOwnDomain;
+				
 					let contactPoint;
-					if (lastA < 2)
-					{
-						contactPoint = box2.getPosition().add(box2.shape.copy().rotate(box2.getAngle() - direction * Math.PI * .5));
-					} else {
-						contactPoint = box1.getPosition().add(box1.shape.copy().rotate(box1.getAngle() - direction * Math.PI * .5));
-					}
-
-
+					if (direction == 1 - 2 * ownPoint) {
+						contactPoint = domain.min.point;
+					} else contactPoint = domain.max.point;
+					
 					return {
-						normal: normal,
-						depth: -minDepth,
+						normal: normalAxis.scale(direction),
+						depth: -minDepth + .1,
 						contactPoint: contactPoint,
 						self: box1,
 						target: box2
@@ -369,8 +371,8 @@
 						let boxDomain = box.getProjectedPoints(axis[a]);
 						let circleDomain = circle.getProjectionDomain(axis[a]);
 
-						let distanceA = boxDomain[0] - circleDomain[1];
-						let distanceB = circleDomain[0] - boxDomain[1]
+						let distanceA = boxDomain.min.value - circleDomain[1];
+						let distanceB = circleDomain[0] - boxDomain.max.value;
 						let distance = Math.max(distanceA, distanceB);
 
 						if (distance >= 0) return false;
@@ -662,16 +664,20 @@
 
 				this.getProjectedPoints = function(_projector) {
 					let ownPoints = this.getPoints();
-					let min = Infinity;
-					let max = -Infinity;
+					let min = {value: Infinity, point: false};
+					let max = {value: -Infinity, point: false};
 
 					for (let i = 0; i < ownPoints.length; i++)
 					{
 						let value = _projector.dotProduct(ownPoints[i]);
-						if (value > max) max = value;
-						if (value < min) min = value;
+						if (value > max.value) {max.value = value; max.point = ownPoints[i];}
+						if (value < min.value) {min.value = value; min.point = ownPoints[i];}
 					}
-					return [min, max];
+					
+					return {
+						min: min,
+						max: max
+					};
 				}
 
 				this.draw = function() {
@@ -697,20 +703,20 @@
 
 			
 			let body1 = new Body({
-				position: [500, 300], 
+				position: [300, 300], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [30, 30], angle: Math.PI}, _this),
+						new Box({offset: [0, 0], shape: [30, 30], angle: .5 * Math.PI}, _this),
 						// new Circle({offset: [35, 0], radius: 40}, _this),
 					];
 				}
 			});
 			
 			let body2 = new Body({
-				position: [450, 500], 
+				position: [500, 300], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [50, 30], angle: .2}, _this),
+						new Box({offset: [0, 0], shape: [50, 30], angle: .4}, _this),
 						// new Circle({offset: [35, 0], radius: 30}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
@@ -733,33 +739,33 @@
 			PhysicsEngine.addBody(body2);
 			
 			// PhysicsEngine.addBody(body3);
-			body1.velocity = new Vector([0, .6]);
-			body2.velocity = new Vector([0, -.5]);
+			body1.velocity = new Vector([.6, 0]);
+			body2.velocity = new Vector([-.5, 0]);
 
 		
 
-			for (let i = 0; i < 150; i++) {
-				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+			// for (let i = 0; i < 150; i++) {
+			// 	let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
-				let body = new Body({
-					position: position,
-					shapeFactory: function(_this) {
-						return [
-							new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-						];
-					}
-				});
-				if (Math.random() > .5) body = new Body({
-					position: position,
-					shapeFactory: function(_this) {
-						return [
-							new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
-						];
-					}
-				});
+			// 	let body = new Body({
+			// 		position: position,
+			// 		shapeFactory: function(_this) {
+			// 			return [
+			// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+			// 			];
+			// 		}
+			// 	});
+			// 	if (Math.random() > .5) body = new Body({
+			// 		position: position,
+			// 		shapeFactory: function(_this) {
+			// 			return [
+			// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+			// 			];
+			// 		}
+			// 	});
 
-				PhysicsEngine.addBody(body);
-			}
+			// 	PhysicsEngine.addBody(body);
+			// }
 
 
 			let running = true;
