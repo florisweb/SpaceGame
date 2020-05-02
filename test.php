@@ -105,8 +105,13 @@
 						cur.position.add(cur.velocity);
 						cur.position.add(cur.tempValues.positionOffset.scale(-1));
 
+						cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia;
+						cur.angle 			+= cur.angularVelocity;
+
+
 						cur.tempValues.positionOffset = new Vector([0, 0]);
 						cur.tempValues.force = new Vector([0, 0]);
+						cur.tempValues.torque = 0;
 					}
 				}
 
@@ -151,14 +156,12 @@
 								// console.log(collisions[c]);
 								if (collisions[c].contactPoint) ctx.drawVector(
 										collisions[c].contactPoint.copy(), 
-										collisions[c].normal.copy().setLength(collisions[c].depth).scale(200), 
+										collisions[c].normal.copy().setLength(collisions[c].depth).scale(1), 
 										"#0f0"
 									);
 
 								this.resolveCollision(collisions[c]);
 							}
-							if (collisions.length > 0) running = false;
-
 						}
 					}
 				}
@@ -177,21 +180,36 @@
 
 
 
-					// Resolve collision
-					let relativeVelocity = -self.velocity.difference(target.velocity).dotProduct(collider.normal);
+					// Resolve collision - translation
+					let deltaVelocity = self.velocity.difference(target.velocity);
+					let relativeVelocity = -deltaVelocity.dotProduct(collider.normal);
 					if (relativeVelocity < 0) return;
+
+					let contactSelf = self.position.difference(collider.contactPoint);
+					let contactTarget = target.position.difference(collider.contactPoint);
+
 
 					let e = Math.min(self.material.restitution, target.material.restitution);	
 					let j = -(1 + e) * relativeVelocity;
 
-					j /= self.massData.invMass + target.massData.invMass;
+					j /= 
+						self.massData.invMass + 
+						target.massData.invMass + 
+						self.massData.invInertia * Math.pow(collider.normal.dotProduct(contactSelf), 2) + 
+						target.massData.invInertia * Math.pow(collider.normal.dotProduct(contactTarget), 2);
+					
 
 					let impulse = collider.normal.copy().scale(-j);
+
 					let Fself = impulse.copy().scale(-1 + massPerc);
 					let Ftarget = impulse.copy().scale(massPerc);
 
 					self.tempValues.force.add(Fself);
 					target.tempValues.force.add(Ftarget);
+
+					self.tempValues.torque += -contactSelf.crossProduct(impulse);
+					target.tempValues.torque += contactTarget.crossProduct(impulse);
+
 
 
 
@@ -222,12 +240,8 @@
 					}
 					
 
-
-					let Ffric_self = frictionImpulse.copy().scale(-1 + massPerc);
-					let Ffric_target = frictionImpulse.copy().scale(massPerc);
-
-					self.tempValues.force.add(Ffric_self);
-					target.tempValues.force.add(Ffric_target);
+					self.tempValues.force.add(frictionImpulse.copy().scale(-1 + massPerc));
+					target.tempValues.force.add(frictionImpulse.copy().scale(massPerc));
 				}
 
 
@@ -438,21 +452,24 @@
 			function Body({position, shapeFactory}) {
 				let body = this;
 
-				this.angle 		= 0;
-				this.position 	= new Vector(position);
-				this.velocity 	= new Vector([0, 0]);
+				this.angle 				= 0;
+				this.angularVelocity 	= .0;
+
+				this.position 			= new Vector(position);
+				this.velocity 			= new Vector([0, 0]);
 
 
 				this.tempValues = {
 					force: new Vector([0, 0]),
-					positionOffset: new Vector([0, 0])
+					positionOffset: new Vector([0, 0]),
+					torque: 0
 				}
 
 
 				this.shape = new Body_Shape(this, shapeFactory);
 				this.material = {
 					density: .1,
-					restitution: .25,//.25
+					restitution: .25,
 					staticFriction: .5,
 					dynamicFriction: .25,
 				}
@@ -460,10 +477,18 @@
 				this.massData = new function() {
 					this.mass = 100;
 					this.invMass = .01;
+
+					this.inertia = 1000000;
+					this.invInertia = 1 / this.inertia;
+
 					
 					this.recalcMass = function() {
 						this.mass = body.shape.calcMass();
 						this.invMass = 1 / this.mass;
+					}
+					this.recalcInertia = function() {
+						this.inertia = body.shape.calcInertia();
+						this.invInertia = 1 / this.inertia;
 					}
 				}
 
@@ -471,6 +496,7 @@
 				this.shape.updateCenterOfMass(this.shape.getCenterOfMass());
 				this.shape.calcShapeRange();
 				this.massData.recalcMass();
+				this.massData.recalcInertia();
 			}
 
 
@@ -536,6 +562,17 @@
 
 
 					for (let i = 0; i < this.list.length; i++) this.list[i].draw();
+				}
+
+
+				this.calcInertia = function() {
+					let inertia = 0;
+					for (let i = 0; i < this.list.length; i++) 
+					{
+						inertia += this.list[i].getInertia(calcMassPerItem(this.list[i], this.parent.material.density));
+					}
+
+					return inertia;
 				}
 
 
@@ -631,6 +668,11 @@
 				this.getVolume = function() {
 					return 4 / 3 * Math.PI * Math.pow(this.radius, 3);
 				}
+
+				this.getInertia = function(_mass) {
+					let ownInertia = _mass * Math.pow(this.radius, 2);
+					return ownInertia + _mass * this.offset.getLength();
+				}
 			}
 
 
@@ -688,6 +730,14 @@
 					let height = this.shape.value[0] + this.shape.value[1];
 					return this.shape.value[0] * this.shape.value[1] * 4 * height;
 				}
+
+				this.getInertia = function(_mass) {
+					let w = this.shape.value[0] * 2;
+					let h = this.shape.value[1] * 2;
+					
+					let ownInertia = 1 / 12 * _mass * (w * w + h * h);
+					return ownInertia + _mass * Math.pow(this.offset.getLength(), 2);
+				}
 			}
 
 
@@ -706,66 +756,55 @@
 				position: [300, 300], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [30, 30], angle: .5 * Math.PI}, _this),
+						new Box({offset: [0, 0], shape: [10, 60], angle: .1}, _this),
 						// new Circle({offset: [35, 0], radius: 40}, _this),
 					];
 				}
 			});
 			
 			let body2 = new Body({
-				position: [500, 300], 
+				position: [500, 230], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [50, 30], angle: .4}, _this),
-						// new Circle({offset: [35, 0], radius: 30}, _this),
+						// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
+						new Circle({offset: [35, 0], radius: 30}, _this),
 						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
 						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
 					];
 				}
 			});
-			// let body3 = new Body({
-			// 	position: [100, 300], 
-			// 	shapeFactory: function(_this) {
-			// 		return [
-			// 			new Box({offset: [0, 0], shape: [10, 100]}, _this),
-			// 			// new Circle({offset: [10, 0], radius: 30}, _this),
-			// 			// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
-			// 			// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
-			// 		];
-			// 	}
-			// });
+		
 
 			PhysicsEngine.addBody(body1);
 			PhysicsEngine.addBody(body2);
 			
-			// PhysicsEngine.addBody(body3);
-			body1.velocity = new Vector([.6, 0]);
-			body2.velocity = new Vector([-.5, 0]);
+			body1.velocity = new Vector([1, 0]);
+			body2.velocity = new Vector([-1, 0]);
 
 		
 
-			// for (let i = 0; i < 150; i++) {
-			// 	let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
+			for (let i = 0; i < 50; i++) {
+				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
 
-			// 	let body = new Body({
-			// 		position: position,
-			// 		shapeFactory: function(_this) {
-			// 			return [
-			// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-			// 			];
-			// 		}
-			// 	});
-			// 	if (Math.random() > .5) body = new Body({
-			// 		position: position,
-			// 		shapeFactory: function(_this) {
-			// 			return [
-			// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
-			// 			];
-			// 		}
-			// 	});
+				let body = new Body({
+					position: position,
+					shapeFactory: function(_this) {
+						return [
+							new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+						];
+					}
+				});
+				if (Math.random() > .5) body = new Body({
+					position: position,
+					shapeFactory: function(_this) {
+						return [
+							new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+						];
+					}
+				});
 
-			// 	PhysicsEngine.addBody(body);
-			// }
+				PhysicsEngine.addBody(body);
+			}
 
 
 			let running = true;
@@ -775,8 +814,6 @@
 				ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
 				ctx.strokeStyle = "#f00";
-				// body2.angle += .05;
-				// body1.angle += -.01;
 
 				PhysicsEngine.update();
 
