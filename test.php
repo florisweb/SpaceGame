@@ -666,7 +666,7 @@
 				}
 				
 				this.getVolume = function() {
-					return 4 / 3 * Math.PI * Math.pow(this.radius, 3);
+					return Math.PI * Math.pow(this.radius, 2);
 				}
 
 				this.getInertia = function(_mass) {
@@ -727,8 +727,7 @@
 				}
 
 				this.getVolume = function() {
-					let height = this.shape.value[0] + this.shape.value[1];
-					return this.shape.value[0] * this.shape.value[1] * 4 * height;
+					return this.shape.value[0] * this.shape.value[1] * 4;
 				}
 
 				this.getInertia = function(_mass) {
@@ -757,7 +756,7 @@
 				shapeFactory: function(_this) {
 					return [
 						new Box({offset: [0, 0], shape: [10, 60], angle: .1}, _this),
-						// new Circle({offset: [35, 0], radius: 40}, _this),
+						new Circle({offset: [35, 0], radius: 40}, _this),
 					];
 				}
 			});
@@ -768,8 +767,17 @@
 					return [
 						// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
 						new Circle({offset: [35, 0], radius: 30}, _this),
-						// new Box({offset: [35 + 100, 45], shape: [5, 40]}, _this),
-						// new Box({offset: [40 + 50, 90], shape: [50, 5]}, _this),
+						new Box({offset: [45, 45], shape: [5, 40]}, _this),
+						new Box({offset: [100, 85], shape: [60, 2]}, _this),
+					];
+				}
+			});
+
+			let body3 = new Body({
+				position: [10, 300], 
+				shapeFactory: function(_this) {
+					return [
+						new Box({offset: [0, 0], shape: [20, 300]}, _this),
 					];
 				}
 			});
@@ -777,8 +785,9 @@
 
 			PhysicsEngine.addBody(body1);
 			PhysicsEngine.addBody(body2);
+			PhysicsEngine.addBody(body3);
 			
-			body1.velocity = new Vector([1, 0]);
+			body1.velocity = new Vector([.1, 0]);
 			body2.velocity = new Vector([-1, 0]);
 
 		

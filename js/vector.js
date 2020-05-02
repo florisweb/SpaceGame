@@ -11,6 +11,11 @@ function Vector(_value) {
 		return 	this.value[0] * _vector.value[0] + 
 				this.value[1] * _vector.value[1];
 	}
+
+	this.crossProduct = function(_vector) {
+		return this.value[0] * _vector.value[1] - this.value[1] * _vector.value[0];
+	}
+
 	
 	this.difference = function(_vector) {
 		return new Vector([
