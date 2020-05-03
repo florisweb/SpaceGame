@@ -4,7 +4,7 @@ const fps = 60;
 
 function _PhysicsEngine() {
 	this.world = {
-		size: new Vector([5000, 5000])
+		size: new Vector([20000, 20000])
 	}
 	this.constants = new function() {
 		this.G = 6.674 * Math.pow(10, -11 + 6 + 1.5);

@@ -63,25 +63,39 @@ function _Game() {
   let startPosition;
 
   this.handleBuildClick = function(_position) {
-    if (!this.editBody) return false;
+    if (!this.editBody) {startPosition = false; return false;}
     if (!startPosition)
     {
       startPosition = this.editBody.position.difference(_position);
-      console.log("StartPoint", startPosition);
       return;
     }
 
+    
     let stopPosition = this.editBody.position.difference(_position);
-    let delta = startPosition.difference(stopPosition);
+    let start = new Vector([
+      Math.min(stopPosition.value[0], startPosition.value[0]),
+      Math.min(stopPosition.value[1], startPosition.value[1])
+    ]);
+    let stop = new Vector([
+      Math.max(stopPosition.value[0], startPosition.value[0]),
+      Math.max(stopPosition.value[1], startPosition.value[1])
+    ]);
+    
+
+    let delta = start.difference(stop);
+    console.log(delta.value);
+
+    let angle = delta.getAngle();
+    let shape = new Vector([delta.getLength(), 2]);
+    let offset = startPosition.add(shape.scale(.5)).rotate(this.editBody.angle);
 
     let box = new Box({
-      offset: startPosition.add(delta.scale(.5)).value,
-      shape: delta.value,
-      angle: 0,
+      offset: offset.value,
+      shape: shape.value,
+      angle: angle - this.editBody.angle,
     }, this.editBody.shape);
-    console.log("build", box);
     
-    this.editBody.shape.list.push(box);
+    this.editBody.shape.addShape(box);
     startPosition = false;
   }
 

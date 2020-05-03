@@ -3,7 +3,7 @@ function Sun() {
 		position: PhysicsEngine.world.size.copy().scale(.5).value,
 		shapeFactory: function(_this) {
 			return [
-				new Circle({offset: [0, 0], radius: 100}, _this),
+				new Circle({offset: [0, 0], radius: 500}, _this),
 			];
 		},
 		config: {
@@ -69,8 +69,8 @@ function Sun() {
 function Planet(_ring) {
 	let ring = _ring; 
 
-	let distance = Math.pow(ring, 1.3) * 400;
-	let radius = Math.random() * 30 + 10;
+	let distance = Math.pow(ring, 1.3) * 1500;
+	let radius = Math.random() * 100 + 40;
 	let startVelocity = PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, distance) * .7;
 
 	let config = {
@@ -88,6 +88,8 @@ function Planet(_ring) {
 
 	Body.call(this, config);
 	this.velocity.add(new Vector([0, startVelocity]));
+	// this.angularVelocity = -.05 + .1 * Math.random();
+	// this.angle = .3;
 
 	
 

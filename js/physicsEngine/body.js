@@ -45,10 +45,7 @@ function Body({position, shapeFactory, config = {}}) {
 	}
 
 
-	this.shape.updateCenterOfMass(this.shape.getCenterOfMass());
-	this.shape.calcShapeRange();
-	this.massData.recalcMass();
-	this.massData.recalcInertia();
+	this.shape.update();
 }
 
 
@@ -59,6 +56,19 @@ function Body_Shape(_parent, _shapeFactory) {
 	this.shapeRange = 0;
 
 	let This = this;
+	
+	this.addShape = function(_shape) {
+		this.list.push(_shape);
+		this.update();
+	}
+
+
+	this.update = function() {
+		this.updateCenterOfMass(this.getCenterOfMass());
+		this.calcShapeRange();
+		_parent.massData.recalcMass();
+		_parent.massData.recalcInertia();
+	}
 
 
 
