@@ -219,14 +219,15 @@ function _RenderEngine() {
 
 
 	this.drawCircle = function(circle) {
-		let position = circle.getPosition();
+		let position = this.camera.worldPosToCanvasPos(circle.getPosition());
+		let radius = circle.radius / this.camera.zoom;
 		ctx.strokeStyle = "#000";
 		ctx.beginPath();
 		ctx.ellipse(
 			position.value[0],
 			position.value[1],
-			circle.radius,
-			circle.radius,
+			radius,
+			radius,
 			0,
 			0,
 			2 * Math.PI
@@ -237,6 +238,11 @@ function _RenderEngine() {
 
 	this.drawBox = function(box) {
 		let points = box.getPoints();
+		for (let p = 0; p < points.length; p++) 
+		{
+			points[p] = this.camera.worldPosToCanvasPos(points[p]);
+		}
+
 
 		ctx.strokeStyle = "#000";
 		ctx.beginPath();
@@ -248,17 +254,6 @@ function _RenderEngine() {
 		ctx.closePath();
 		ctx.stroke();
 	}
-
-	this.drawVector = function(_start, _delta, _color = "#f00") {
-		let end = _start.copy().add(_delta);
-		ctx.strokeStyle = _color;
-		ctx.beginPath();
-		ctx.moveTo(_start.value[0], _start.value[1]);
-		ctx.lineTo(end.value[0], end.value[1]);
-		ctx.closePath();
-		ctx.stroke();
-	}
-
 
 
 
