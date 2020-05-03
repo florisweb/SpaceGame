@@ -36,7 +36,7 @@ function _Game() {
     this.maxFps = Math.round(1000 / dt);
 
     let performance = dt / (1000 / fps);
-    if (performance < 1) performance = 1;
+    if (performance < 1 || performance > 50) performance = 1;
     window.performance = performance;
     
     PhysicsEngine.update(performance);
