@@ -24,8 +24,8 @@ let body1 = new Body({
 	position: [300, 300], 
 	shapeFactory: function(_this) {
 		return [
-			new Box({offset: [0, 0], shape: [10, 60], angle: .1}, _this),
-			new Circle({offset: [35, 0], radius: 40}, _this),
+			new Box({offset: [0, 0], shape: [15, 15], angle: .1}, _this),
+			// new Circle({offset: [35, 0], radius: 40}, _this),
 		];
 	}
 });
@@ -35,9 +35,9 @@ let body2 = new Body({
 	shapeFactory: function(_this) {
 		return [
 			// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
-			new Circle({offset: [35, 0], radius: 30}, _this),
-			new Box({offset: [45, 45], shape: [5, 40]}, _this),
-			new Box({offset: [100, 85], shape: [60, 2]}, _this),
+			new Circle({offset: [0, 0], radius: 10}, _this),
+			// new Box({offset: [45, 45], shape: [5, 40]}, _this),
+			// new Box({offset: [100, 85], shape: [60, 2]}, _this),
 		];
 	}
 });
@@ -46,7 +46,7 @@ let body3 = new Body({
 	position: [10, 300], 
 	shapeFactory: function(_this) {
 		return [
-			new Box({offset: [0, 0], shape: [20, 300]}, _this),
+			new Box({offset: [0, 0], shape: [10, 10]}, _this),
 		];
 	}
 });
