@@ -98,6 +98,22 @@ function Planet(_ring) {
 			exerciseGravity: true,
 		}
 	};
-	console.log(ring, config, config.config.startVelocity);
+	
+	this.buildings = [];
+
+	this.addBuilding = function() {
+		let building = {
+
+		}
+		
+		building.mesh = new CollisionBox({diagonal: [8, 5], offset: [0, this.radius]}, this);
+
+		this.buildings.push(building);
+	}
+
+
+
 	CelestialBody.call(this, config);
 }
+
+

@@ -133,18 +133,18 @@ let planet5 = new Planet(5);
 
 
 
-
-
 // {
+
+
 // let planetConfig = {mass: 33510.32163829113, position: [700, 1000], config: {startVelocity: [1, 3]}};
 // let planet = new GravParticle(planetConfig); //mercury
 // CollisionParticle.call(planet, planetConfig, createMeshFactory({radius: 20}));
 // SpinParticle.call(planet, planetConfig);
 // planet.calcPhysics = calcPhysics;
 // PhysicsEngine.addParticle(planet);
+
+
 // }
-
-
 
 // {
 // let planetConfig = {mass: 268082.573106329, position: [100, 1000], config: {startVelocity: [0, 1.5]}};
@@ -270,7 +270,7 @@ function createParticleSet(_position, _spread, _count = 20) {
 	// }
 
 	for (let i = 0; i < _count; i++) {
-		let radius = 10;
+		let radius = 5;
 		let mass = 4/3 * Math.PI * Math.pow(radius, 3);
 		let config = {position: [
 			_position.value[0] - _spread + 2 * _spread * Math.random(), 
@@ -278,11 +278,11 @@ function createParticleSet(_position, _spread, _count = 20) {
 		], mass: mass, config: {
 			exerciseGravity: true,
 			gravitySensitive: true,
-			exerciseCollisions: false,
-			collisionSensitive: false,
-			onCollision: function() {
-				this.remove();
-			},
+			exerciseCollisions: true,
+			collisionSensitive: true,
+			// onCollision: function() {
+			// 	this.remove();
+			// },
 		}};
 		g = new GravParticle(config);
 		CollisionParticle.call(g, config, createMeshFactory({radius: radius}));

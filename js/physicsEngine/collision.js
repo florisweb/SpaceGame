@@ -243,7 +243,8 @@ function InnerMesh(_outerMesh, _meshObject) {
 		for (let l = 0; l < this.lines.length; l++)
 		{
 			let intersections = this.lines[l].getIntersectionsFromLineList(_outerMesh.lines);
-			if (!intersections || !intersections.length) continue;																													// if (intersections.length > 1) console.warn("Problems sir:", intersections); !!!!!!!! TODO
+			if (!intersections || !intersections.length) continue;																											// if (intersections.length > 1) console.warn("Problems sir:", intersections); !!!!!!!! TODO
+
 
 			let collision = meshPosition.difference(intersections[0]);
 			if (_inverted) 
@@ -398,7 +399,7 @@ function CollisionLine({offset, shape}, _meshObject) {
 
 
 
-function CollisionBox({diagonal}, _parent) {
+function CollisionBox({diagonal, offset}, _parent) {
 	this.diagonal = new Vector(diagonal);
 	
 	function generateMesh() {
@@ -410,7 +411,7 @@ function CollisionBox({diagonal}, _parent) {
 		];
 	}
 
-	MeshObject.call(this, {meshFactory: generateMesh, offset: [0, 0]}, _parent);
+	MeshObject.call(this, {meshFactory: generateMesh, offset: offset}, _parent);
 }
 
 
