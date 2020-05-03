@@ -3,7 +3,7 @@ function _PhysicsEngine() {
 		size: new Vector([1600, 1200])
 	}
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 6 + 3);
+		this.G = 6.674 * Math.pow(10, -11 + 6 + 1.5);
 	}
 
 
@@ -34,9 +34,12 @@ function _PhysicsEngine() {
 		{
 			let cur = this.bodies[s];
 			let a = cur.tempValues.force.scale(cur.massData.invMass);
-			RenderEngine.drawVector(cur.position.copy(), a.copy().scale(15), "#f00");
+			RenderEngine.drawVector(cur.position.copy(), a.copy().scale(1000), "#fa0");
+
+			if (cur == sun) window.a = a.getLength();
 
 			cur.velocity.add(a);
+			if (cur == sun) window.v = cur.velocity.getLength();
 			cur.position.add(cur.velocity);
 			cur.position.add(cur.tempValues.positionOffset.scale(-1));
 

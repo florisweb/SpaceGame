@@ -56,8 +56,8 @@ function _RenderEngine() {
 		this.drawStatistics(fps + "/" + Game.maxFps);
 		lastUpdate = new Date();
 
-		if (!Game.running) return;
-		requestAnimationFrame(function () {RenderEngine.update()});
+		// if (!Game.running) return;
+		// requestAnimationFrame(function () {RenderEngine.update()});
 	}
 
 
@@ -211,6 +211,8 @@ function _RenderEngine() {
 		ctx.beginPath();
 		ctx.fillText("Fps: " + _fps, 5, 20);
 		ctx.fillText("Particles: " + PhysicsEngine.bodies.length, 5, 40);
+		ctx.fillText("Sun a: " + window.a, 5, 60);
+		ctx.fillText("Sun v: " + window.v, 5, 80);
 		ctx.closePath();
 		ctx.fill();
 	}

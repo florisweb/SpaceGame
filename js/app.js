@@ -24,14 +24,18 @@ let body1 = new Body({
 	position: [300, 300], 
 	shapeFactory: function(_this) {
 		return [
-			new Box({offset: [0, 0], shape: [15, 15], angle: .1}, _this),
+			new Box({offset: [0, 0], shape: [10, 10], angle: .1}, _this),
 			// new Circle({offset: [35, 0], radius: 40}, _this),
 		];
+	},
+	config: {
+		gravitySensitive: true,
+		exerciseGravity: true,
 	}
 });
 
 let body2 = new Body({
-	position: [500, 230], 
+	position: [800, 300], 
 	shapeFactory: function(_this) {
 		return [
 			// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
@@ -39,15 +43,23 @@ let body2 = new Body({
 			// new Box({offset: [45, 45], shape: [5, 40]}, _this),
 			// new Box({offset: [100, 85], shape: [60, 2]}, _this),
 		];
+	},
+	config: {
+		gravitySensitive: true,
+		exerciseGravity: true,
 	}
 });
 
 let body3 = new Body({
-	position: [10, 300], 
+	position: [100, 300], 
 	shapeFactory: function(_this) {
 		return [
 			new Box({offset: [0, 0], shape: [10, 10]}, _this),
 		];
+	},
+	config: {
+		gravitySensitive: true,
+		exerciseGravity: true,
 	}
 });
 
@@ -57,6 +69,10 @@ let sun = new Body({
 		return [
 			new Circle({offset: [0, 0], radius: 60}, _this),
 		];
+	},
+	config: {
+		gravitySensitive: false,
+		exerciseGravity: true,
 	}
 });
 
@@ -67,7 +83,7 @@ PhysicsEngine.addBody(body3);
 
 
 // body1.velocity = new Vector([.1, 0]);
-// body2.velocity = new Vector([-1, 0]);
+body2.velocity = new Vector([.8, 0]);
 
 
 // for (let i = 0; i < 250; i++) {

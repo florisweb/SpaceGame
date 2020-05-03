@@ -7,6 +7,9 @@ function _PhysicsEngine_gravity() {
 		this.calcEscapeVelocity = function(_sunMass, _sunDistance) {
 			return Math.sqrt(2 * PhysicsEngine.constants.G * _sunMass / _sunDistance);
 		}
+		this.calcMassInfluence = function(_massA, _massB) {
+			return _massA / (_massA + _massB);
+		}
 	}
 
 
@@ -18,20 +21,24 @@ function _PhysicsEngine_gravity() {
 			for (let t = p + 1; t < PhysicsEngine.bodies.length; t++) 
 			{
 				let target = PhysicsEngine.bodies[t];
-				// if (
-				// 	!(particle.config.gravitySensitive && target.config.exerciseGravity) && 
-				// 	!(target.config.gravitySensitive && particle.config.exerciseGravity)
-				// ) continue;
+				if (
+					!(self.config.gravitySensitive && target.config.exerciseGravity) && 
+					!(target.config.gravitySensitive && self.config.exerciseGravity)
+				) continue;
+
 
 				let gravVector = this.getGravitationVector(self, target);
-				// console.log(gravVector.getLength());
-				// if (particle.config.gravitySensitive && target.config.exerciseGravity) 
-				self.tempValues.force.add(gravVector);
-				RenderEngine.drawVector(self.position.copy(), gravVector.copy(), "#00f");
+				if (self.config.gravitySensitive && target.config.exerciseGravity) 
+				{
+					self.tempValues.force.add(gravVector);
+					RenderEngine.drawVector(self.position.copy(), gravVector.copy().scale(10), "#00f");
+				}
 
-				// if (target.config.gravitySensitive && particle.config.exerciseGravity) 
-				target.tempValues.force.add(gravVector.scale(-1));
-				RenderEngine.drawVector(target.position.copy(), gravVector.copy(), "#00f");
+				if (target.config.gravitySensitive && self.config.exerciseGravity) 
+				{
+					target.tempValues.force.add(gravVector.scale(-1));
+					RenderEngine.drawVector(target.position.copy(), gravVector.copy().scale(10), "#00f");
+				}
 			}
 		}
 	}

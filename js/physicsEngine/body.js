@@ -1,6 +1,7 @@
 
-function Body({position, shapeFactory}) {
+function Body({position, shapeFactory, config = {}}) {
 	let body = this;
+	this.config = config;
 
 	this.angle 				= 0;
 	this.angularVelocity 	= .0;
@@ -19,7 +20,7 @@ function Body({position, shapeFactory}) {
 	this.shape = new Body_Shape(this, shapeFactory);
 	this.material = {
 		density: .1,
-		restitution: .25,
+		restitution: .0, //.25
 		staticFriction: .4,
 		dynamicFriction: .25,
 	}
@@ -216,7 +217,8 @@ function Circle({radius, offset}, _parent) {
 	}
 	
 	this.getVolume = function() {
-		return Math.PI * Math.pow(this.radius, 2);
+		// return Math.PI * Math.pow(this.radius, 2);
+		return 4 / 3 * Math.PI * Math.pow(this.radius, 3);
 	}
 
 	this.getInertia = function(_mass) {
@@ -277,7 +279,7 @@ function Box({offset, shape, angle = 0}, _parent) {
 	}
 
 	this.getVolume = function() {
-		return this.shape.value[0] * this.shape.value[1] * 4;
+		return this.shape.value[0] * this.shape.value[1] * this.shape.value[1] * 8;
 	}
 
 	this.getInertia = function(_mass) {

@@ -10,17 +10,7 @@ function _PhysicsEngine_collision() {
 
 				let collisions = self.getCollisionData(target);
 		
-				for (let c = 0; c < collisions.length; c++)
-				{	
-					// console.log(collisions[c]);
-					if (collisions[c].contactPoint) RenderEngine.drawVector(
-							collisions[c].contactPoint.copy(), 
-							collisions[c].normal.copy().setLength(collisions[c].depth).scale(1), 
-							"#0f0"
-						);
-
-					this.resolveCollision(collisions[c]);
-				}
+				for (let c = 0; c < collisions.length; c++) this.resolveCollision(collisions[c]);
 			}
 		}
 	}

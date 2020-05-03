@@ -31,7 +31,7 @@ function _Game() {
   this.update = function() {
     let start = new Date();
     this.updates++;
-    
+    RenderEngine.update();
     PhysicsEngine.update();
 
     this.maxFps = Math.round(1 / (new Date() - start) * 1000);
