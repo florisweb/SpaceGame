@@ -153,7 +153,10 @@ function _RenderEngine() {
 
 
 
-		// if (_entity.draw) _entity.draw(ctx); else {_entity.mesh.outerMesh.draw("#f00");_entity.mesh.innerMesh.draw("#00f");}
+		if (_entity.draw) _entity.draw(ctx); 
+		// else 
+		_entity.shape.draw();
+
 		// if (_entity.buildings) 
 		// 	for (let i = 0; i < _entity.buildings.length; i++)
 		// 	{
@@ -161,7 +164,7 @@ function _RenderEngine() {
 		// 		_entity.buildings[i].mesh.innerMesh.draw("#0f0");
 		// 	}
 
-		_entity.shape.draw();
+
 
 		// ctx.strokeStyle = "#0f0";
 		// ctx.beginPath();

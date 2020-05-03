@@ -19,105 +19,50 @@ App.setup();
 
 
 
+let sun = new Sun();
+let planet1 = new Planet(1);
+let planet2 = new Planet(2);
+let planet3 = new Planet(3);
 
-let body1 = new Body({
-	position: [300, 1000], 
-	shapeFactory: function(_this) {
-		return [
-			new Box({offset: [0, 0], shape: [10, 10], angle: .1}, _this),
-			// new Circle({offset: [35, 0], radius: 40}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: true,
-		exerciseGravity: true,
-	}
-});
 
-let body2 = new Body({
-	position: [700, 1000], 
-	shapeFactory: function(_this) {
-		return [
-			// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
-			new Circle({offset: [0, 0], radius: 10}, _this),
-			// new Box({offset: [45, 45], shape: [5, 40]}, _this),
-			// new Box({offset: [100, 85], shape: [60, 2]}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: true,
-		exerciseGravity: true,
-	}
-});
-
-let body3 = new Body({
-	position: [100, 1000], 
-	shapeFactory: function(_this) {
-		return [
-			new Box({offset: [0, 0], shape: [10, 10]}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: true,
-		exerciseGravity: true,
-	}
-});
-
-let sun = new Body({
-	position: [1000, 1000], 
-	shapeFactory: function(_this) {
-		return [
-			new Circle({offset: [0, 0], radius: 60}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: false,
-		exerciseGravity: true,
-	}
-});
 
 PhysicsEngine.addBody(sun);
-PhysicsEngine.addBody(body1);
-PhysicsEngine.addBody(body2);
-PhysicsEngine.addBody(body3);
-
-
-body1.velocity = new Vector([0, PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, body1.position.difference(sun.position).getLength()) * .7]);
-body2.velocity = new Vector([0, -PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, body2.position.difference(sun.position).getLength()) * .7]);
-body3.velocity = new Vector([0, PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, body3.position.difference(sun.position).getLength()) * .7]);
+PhysicsEngine.addBody(planet1);
+PhysicsEngine.addBody(planet2);
+PhysicsEngine.addBody(planet3);
 
 
 
-for (let i = 0; i < 500; i++) {
-	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];
+// for (let i = 0; i < 200; i++) {
+// 	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];
 
-	let body = new Body({
-		position: position,
-		shapeFactory: function(_this) {
-			return [
-				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-			];
-		},
-		config: {
-			gravitySensitive: true,
-			exerciseGravity: true,
-		}
-	});
-	if (Math.random() > .5) body = new Body({
-		position: position,
-		shapeFactory: function(_this) {
-			return [
-				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
-			];
-		},
-		config: {
-			gravitySensitive: true,
-			exerciseGravity: true,
-		}
-	});
+// 	let body = new Body({
+// 		position: position,
+// 		shapeFactory: function(_this) {
+// 			return [
+// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+// 			];
+// 		},
+// 		config: {
+// 			gravitySensitive: true,
+// 			exerciseGravity: true,
+// 		}
+// 	});
+// 	if (Math.random() > .5) body = new Body({
+// 		position: position,
+// 		shapeFactory: function(_this) {
+// 			return [
+// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+// 			];
+// 		},
+// 		config: {
+// 			gravitySensitive: true,
+// 			exerciseGravity: true,
+// 		}
+// 	});
 
-	PhysicsEngine.addBody(body);
-}
+// 	PhysicsEngine.addBody(body);
+// }
 
 
 

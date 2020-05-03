@@ -1,36 +1,25 @@
-
-function CelestialBody(_config) {
-	GravParticle.call(this, _config);
-	CollisionParticle.call(this, _config, createMeshFactory({radius: _config.radius}));
-	SpinParticle.call(this, _config);
-	
-	this.calcPhysics = calcPhysics;
-	PhysicsEngine.addParticle(this);
-}
-
-
-
 function Sun() {
 	let config = {
-		mass: 4188790.2047863905, 
-		position: [
-			PhysicsEngine.world.size.value[0] / 2,
-			PhysicsEngine.world.size.value[1] / 2
-		], 
-		radius: 100,
+		position: PhysicsEngine.world.size.copy().scale(.5).value,
+		shapeFactory: function(_this) {
+			return [
+				new Circle({offset: [0, 0], radius: 60}, _this),
+			];
+		},
 		config: {
-			collisionSensitive: false,
 			gravitySensitive: false,
+			exerciseGravity: true,
 		}
 	};
-	CelestialBody.call(this, config);
+	Body.call(this, config);
+
+	
 	
 	let img = document.createElement("img");
 	img.src = "images/sun.png";
 	this.draw = function(ctx) {
 		let center = RenderEngine.camera.worldPosToCanvasPos(this.position);
-		let radius = this.mesh.radius / RenderEngine.camera.zoom;
-
+		let radius = this.shape.shapeRange / RenderEngine.camera.zoom;
 
 		for (let i = 0; i < 5; i++)
 		{
@@ -47,9 +36,6 @@ function Sun() {
 			ctx.closePath();
 			ctx.fill();
 		}
-
-
-
 
 
 
@@ -85,20 +71,26 @@ function Planet(_ring) {
 
 	let distance = Math.pow(ring, 1.3) * 400;
 	let radius = Math.random() * 30 + 10;
-
-	let startVelocity = PhysicsEngine.formulas.calcEscapeVelocity(sun.mass, distance) * .7;
+	let startVelocity = PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, distance) * .7;
 
 	let config = {
-		mass: 4 / 3 * Math.PI * Math.pow(radius, 3),
-		position: [PhysicsEngine.world.size.value[0] / 2 - distance, 2500], 
-		radius: radius,
+		position: [PhysicsEngine.world.size.value[0] / 2 - distance, PhysicsEngine.world.size.value[1] / 2],
+		shapeFactory: function(_this) {
+			return [
+				new Circle({offset: [0, 0], radius: radius}, _this),
+			];
+		},
 		config: {
-			startVelocity: [0, startVelocity * (1 - 2 * Math.round(Math.random()))],
-			exerciseCollisions: true,
+			gravitySensitive: true,
 			exerciseGravity: true,
 		}
 	};
+
+	Body.call(this, config);
+	this.velocity.add(new Vector([0, startVelocity]));
+
 	
+
 	this.buildings = [];
 
 	this.addBuilding = function() {
@@ -110,10 +102,6 @@ function Planet(_ring) {
 
 		this.buildings.push(building);
 	}
-
-
-
-	CelestialBody.call(this, config);
 }
 
 
