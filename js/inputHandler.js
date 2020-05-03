@@ -34,7 +34,7 @@ function _InputHandler() {
 		for (entity of PhysicsEngine.bodies) 
 		{
 			let distance = worldPosition.difference(entity.position).getLength();
-			if (distance > entity.mesh.meshRange) continue;
+			if (distance > entity.shape.shapeRange) continue;
 			RenderEngine.camera.follow(entity);
 			break;
 		}
