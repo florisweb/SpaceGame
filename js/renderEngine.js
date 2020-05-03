@@ -6,7 +6,7 @@ function _RenderEngine() {
 
 	this.settings = new function() {
 		this.renderVectors = false;
-		this.renderPositionTrace = false;
+		this.renderPositionTrace = true;
 	}
 	this.camera = new RenderEngine_Camera();
 

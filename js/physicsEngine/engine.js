@@ -1,6 +1,6 @@
 function _PhysicsEngine() {
 	this.world = {
-		size: new Vector([1600, 1200])
+		size: new Vector([2000, 2000])
 	}
 	this.constants = new function() {
 		this.G = 6.674 * Math.pow(10, -11 + 6 + 1.5);
@@ -50,6 +50,11 @@ function _PhysicsEngine() {
 			cur.tempValues.positionOffset = new Vector([0, 0]);
 			cur.tempValues.force = new Vector([0, 0]);
 			cur.tempValues.torque = 0;
+
+			
+			if (Game.updates % 20 != 0) continue;
+			cur.positionTrace.push(cur.position.copy());
+			if (cur.positionTrace.length > 200) cur.positionTrace = cur.positionTrace.splice(1, 200);
 		}
 	}
 

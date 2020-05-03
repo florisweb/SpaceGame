@@ -9,6 +9,7 @@ function Body({position, shapeFactory, config = {}}) {
 	this.position 			= new Vector(position);
 	this.velocity 			= new Vector([0, 0]);
 
+	this.positionTrace 		= [];
 
 	this.tempValues = {
 		force: new Vector([0, 0]),

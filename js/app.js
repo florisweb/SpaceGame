@@ -21,7 +21,7 @@ App.setup();
 
 
 let body1 = new Body({
-	position: [300, 300], 
+	position: [300, 1000], 
 	shapeFactory: function(_this) {
 		return [
 			new Box({offset: [0, 0], shape: [10, 10], angle: .1}, _this),
@@ -35,7 +35,7 @@ let body1 = new Body({
 });
 
 let body2 = new Body({
-	position: [800, 300], 
+	position: [700, 1000], 
 	shapeFactory: function(_this) {
 		return [
 			// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
@@ -51,7 +51,7 @@ let body2 = new Body({
 });
 
 let body3 = new Body({
-	position: [100, 300], 
+	position: [100, 1000], 
 	shapeFactory: function(_this) {
 		return [
 			new Box({offset: [0, 0], shape: [10, 10]}, _this),
@@ -64,7 +64,7 @@ let body3 = new Body({
 });
 
 let sun = new Body({
-	position: [800, 600], 
+	position: [1000, 1000], 
 	shapeFactory: function(_this) {
 		return [
 			new Circle({offset: [0, 0], radius: 60}, _this),
@@ -82,8 +82,10 @@ PhysicsEngine.addBody(body2);
 PhysicsEngine.addBody(body3);
 
 
-// body1.velocity = new Vector([.1, 0]);
-body2.velocity = new Vector([.8, 0]);
+body1.velocity = new Vector([0, PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, body1.position.difference(sun.position).getLength()) * .7]);
+body2.velocity = new Vector([0, -PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, body2.position.difference(sun.position).getLength()) * .7]);
+body3.velocity = new Vector([0, PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, body3.position.difference(sun.position).getLength()) * .7]);
+
 
 
 // for (let i = 0; i < 250; i++) {
