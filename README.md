@@ -5,6 +5,8 @@ Version 1.0
 Planned features:
 
 
+project SpaceDust
+
 
 
 
@@ -158,3 +160,23 @@ Collision: {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+Formula's:
+
+moment of inertia: rotational intertia
+dMomentum = dV * m
+I = mr^2
+
+
+F -> torque t
+m -> I
