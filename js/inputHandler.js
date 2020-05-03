@@ -31,14 +31,30 @@ function _InputHandler() {
 
 		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
-		for (entity of PhysicsEngine.bodies) 
-		{
-			let distance = worldPosition.difference(entity.position).getLength();
-			if (distance > entity.shape.shapeRange) continue;
-			RenderEngine.camera.follow(entity);
-			break;
-		}
+		
+		if (Game.editBody) return Game.handleBuildClick(worldPosition);
+
+		handleClickEntity(worldPosition);
 	});
+
+	function handleClickEntity(_worldPosition) {
+		for (let i = 0; i < PhysicsEngine.bodies.length; i++) 
+		{
+			let distance = _worldPosition.difference(PhysicsEngine.bodies[i].position).getLength();
+			if (distance > PhysicsEngine.bodies[i].shape.shapeRange) continue;
+			Game.editBody = PhysicsEngine.bodies[i];
+
+			RenderEngine.camera.follow(PhysicsEngine.bodies[i]);
+			return true;
+		}
+
+		Game.editBody = false;
+		return false;
+	}
+
+
+
+
 
 	HTML.canvas.addEventListener('wheel', function(event) {
 		let mousePosition = new Vector([

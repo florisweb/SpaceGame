@@ -153,9 +153,7 @@ function _RenderEngine() {
 
 
 
-		if (_entity.draw) _entity.draw(ctx); 
-		// else 
-		_entity.shape.draw();
+		if (_entity.draw) _entity.draw(ctx); else _entity.shape.draw();
 
 		// if (_entity.buildings) 
 		// 	for (let i = 0; i < _entity.buildings.length; i++)

@@ -3,7 +3,7 @@ function Sun() {
 		position: PhysicsEngine.world.size.copy().scale(.5).value,
 		shapeFactory: function(_this) {
 			return [
-				new Circle({offset: [0, 0], radius: 60}, _this),
+				new Circle({offset: [0, 0], radius: 100}, _this),
 			];
 		},
 		config: {

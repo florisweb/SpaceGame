@@ -48,6 +48,45 @@ function _Game() {
     setTimeout(function () {Game.update()}, nextFrame);
     prevFrame = new Date();
   }
+
+
+
+
+
+
+
+
+
+
+  this.editBody = false;
+  
+  let startPosition;
+
+  this.handleBuildClick = function(_position) {
+    if (!this.editBody) return false;
+    if (!startPosition)
+    {
+      startPosition = this.editBody.position.difference(_position);
+      console.log("StartPoint", startPosition);
+      return;
+    }
+
+    let stopPosition = this.editBody.position.difference(_position);
+    let delta = startPosition.difference(stopPosition);
+
+    let box = new Box({
+      offset: startPosition.add(delta.scale(.5)).value,
+      shape: delta.value,
+      angle: 0,
+    }, this.editBody.shape);
+    console.log("build", box);
+    
+    this.editBody.shape.list.push(box);
+    startPosition = false;
+  }
+
+
+
 }
 
 
@@ -59,8 +98,6 @@ window.onresize = function() {
     gameCanvas.width,
     gameCanvas.height
   ]);
-
-
 }
 
 
