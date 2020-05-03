@@ -21,6 +21,7 @@
 			$.getScript("js/vector.js?antiCache=" 					+ antiCache, function() {});
 			$.getScript("js/animator.js?antiCache=" 				+ antiCache, function() {});
 				
+			$.getScript("js/physicsEngine/body.js?antiCache=" 		+ antiCache, function() {});
 			$.getScript("js/physicsEngine/gravity.js?antiCache=" 	+ antiCache, function() {});
 			$.getScript("js/physicsEngine/collision.js?antiCache=" 	+ antiCache, function() {});
 			$.getScript("js/physicsEngine/engine.js?antiCache=" 	+ antiCache, function() {});

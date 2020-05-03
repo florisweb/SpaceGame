@@ -1,440 +1,286 @@
 
-function _CollisionEngine() {
-	this.settings = new function() {
-		this.useCache = true;
-		this.collisionVelocityTransfer = .5; // bouncyness
-	}
-
-	this.update = function() {}
-
-	this.getCollisionVectors = function(_item) {
-		let vectors = [];
-		let particleCount = PhysicsEngine.particles.length;
-		for (let i = 0; i < particleCount; i++) 
+function _PhysicsEngine_collision() {
+	this.update = function() {
+		for (let s = 0; s < PhysicsEngine.bodies.length; s++)
 		{
-			let curParticle = PhysicsEngine.particles[i]; 
-			if (!curParticle || !curParticle.config.exerciseCollisions || !curParticle.mesh) continue;
-			let curMesh = curParticle.mesh;
-
-			if (_item.parent.position.difference(curParticle.position).getLength() > _item.meshRange + curMesh.meshRange) continue;
-			if (_item.id == curMesh.id) continue;
-
-			let vector = _item.innerMesh.getCollisionVector(curMesh);
-			if (!vector) continue;
-			
-			vectors.push({
-				vector: vector, 
-				target: PhysicsEngine.particles[i].mesh
-			});
-		}
-		
-		return vectors;
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-function CollisionParticle({mass, position, config = {}}, _meshFactory) {
-	if (config.exerciseCollisions === undefined) config.exerciseCollisions = true;
-	if (config.collisionSensitive === undefined) config.collisionSensitive = true;
-	Particle.call(this, {position: position, mass: mass, config: config});
-
-	this.mesh = _meshFactory(this);
-	this.angle = 0;
-
-
-	this.getCollisionData = function() {
-		if (!config.collisionSensitive) return {
-			positionCorrection: new Vector([0, 0]),
-			vector: new Vector([0, 0])
-		}
-
-		let vectors = this.mesh.getCollisionVectors();
-
-		if (vectors.length)
-		{
-			Fcollision = createCollisionAngleVector(vectors);
-
-			let preventCollisionReaction = false;
-			if (this.config.onCollision) try {// Handle onCollision-event
-				preventCollisionReaction = this.config.onCollision.call(this, vectors, Fcollision);
-			} catch (e) {};
-
-			if (!preventCollisionReaction) return collisionHandler.call(this, vectors, Fcollision);
-		}
-
-		return {
-			positionCorrection: new Vector([0, 0]),
-			vector: new Vector([0, 0])
-		}
-	}
-
-	function createCollisionAngleVector(_vectors) {
-		let angleVector = new Vector([0, 0]);
-		for (let v = 0; v < _vectors.length; v++)
-		{
-			angleVector.add(_vectors[v].vector);
-		}
-		return angleVector.setLength(.01 / PhysicsEngine.settings.roundError);// Small energy loss here
-	}
-
-
-	function collisionHandler(vectors, Fcollision) {
-		let collisionAngle = Fcollision.getAngle();
-		let positionCorrectionVector = new Vector([0, 0]);
-
-		let velocityProjection1 = Fcollision.getProjection(this.velocity);
-		let u1 = velocityProjection1.getLength() * (1 - (collisionAngle - velocityProjection1.getAngle()) / Math.PI * 2);
-
-		for (let v = 0; v < vectors.length; v++)
-		{
-			let target = vectors[v].target.parent;
-			
-			let collisionPercentage = PhysicsEngine.formulas.calcMassInfluence(this.mass, target.mass);
-			positionCorrectionVector.add(
-				vectors[v].vector.copy().scale(1 - collisionPercentage)
-			);
-
-			let velocityProjection2 = Fcollision.getProjection(target.velocity);
-			let u2 = velocityProjection2.getLength() * (1 - (collisionAngle - velocityProjection2.getAngle()) / Math.PI * 2);
-			
-			// Thank you buddy: https://en.wikipedia.org/wiki/Elastic_collision
-			let deltaVelocity = (
-									(this.mass - target.mass) / (this.mass + target.mass) * u1 
-									+ 2 * target.mass / (this.mass + target.mass) * u2
-								) - u1;
-	
-			let deltaVelocityVector = Fcollision.copy().setLength(deltaVelocity * CollisionEngine.settings.collisionVelocityTransfer);
-		
-			let FspeedChange = deltaVelocityVector.scale(-this.mass);
-			Fcollision.add(FspeedChange);
-		}
-
-		positionCorrectionVector.scale(1 / vectors.length);
-
-		return {
-			positionCorrection: positionCorrectionVector.scale(-1),
-			vector: Fcollision.scale(-1),
-		}
-	}
-}
-
-
-
-
-
-
-function MeshObject({meshFactory, offset}, _parent) {
-	this.offset	= new Vector(offset);
-	this.parent = _parent;
-	this.id = newId();
-	
-	this.angle = 0;
-	this.getAngle = function() {
-		return this.parent.angle + this.angle;
-	}
-
-	this.getPosition = function() {
-		return this.parent.position.copy().add(
-			this.offset.copy().rotate(this.parent.angle)
-		);
-	}
-
-	this.outerMesh = new OuterMesh({factory: meshFactory}, this);
-	this.offset.add(this.outerMesh.calcCenterOfMassOffset());	
-	this.meshRange = setMeshRange(this.outerMesh.lines, this);
-	this.innerMesh = new InnerMesh(this.outerMesh, this);
-
-
-	function setMeshRange(_lines, This) {
-		let maxRange = 0;
-		for (let i = 0; i < _lines.length; i++) 
-		{
-			let vector1 = _lines[i].offset.copy().add(This.offset);
-			let vector2 = vector1.copy().add(_lines[i].shape);
-			let range1 = vector1.getLength();
-			let range2 = vector2.getLength();
-			let range = range1 > range2 ? range1 : range2;
-
-			if (range < maxRange) continue;
-			maxRange = range;
-		}
-		return maxRange;
-	}
-
-	this.getCollisionVectors = function() {
-		return CollisionEngine.getCollisionVectors(this);
-	}
-
-	this.draw = function() {
-		if (this.parent.config.exerciseCollisions) this.outerMesh.draw("#f00");
-		this.innerMesh.draw("rgba(0, 0, 255, .5)");
-	}
-}
-
-
-
-
-
-
-
-
-function OuterMesh({factory}, _meshObject) {
-	this.mesh = _meshObject;
-	this.lines = factory.call(this.mesh);
-
-	this.draw = function(_color) {
-		for (line of this.lines) line.draw(_color);
-	}
-
-	this.calcCenterOfMassOffset = function() {
-		let curVector = new Vector([0, 0]); 
-		let lengthTillNow = 0;
-		for (let i = 0; i < this.lines.length; i++)
-		{
-			let curLength = this.lines[i].shape.getLength();;
-			lengthTillNow += curLength;
-			let perc = curLength / lengthTillNow;
-			let delta = curVector.difference(
-				this.lines[i].getPosition().add(this.lines[i].getShape().scale(.5))
-			);
-			curVector.add(delta.scale(perc));
-		}
-		return this.mesh.getPosition().difference(curVector).scale(-1);
-	}
-}
-
-
-
-
-function InnerMesh(_outerMesh, _meshObject) {
-	this.mesh = _meshObject;
-	this.lines = createLines(this);
-
-	this.draw = function(_color) {
-		for (line of this.lines) line.draw(_color);
-	}
-
-
-	this.getCollisionVector = function(_meshObject) {
-		let vector = new Vector([0, 0]);
-		let collisions = this.getCollisions(_meshObject.outerMesh, true);
-		if (collisions.length == 0) return false;
-		
-		for (let c = 0; c < collisions.length; c++) vector.add(collisions[c].collision);
-
-		return vector.scale(1 / collisions.length);
-	}
-
-
-	this.getCollisions = function(_outerMesh, _inverted = true) {
-		let meshPosition = this.mesh.parent.position.copy();// getPosition();
-		let collisions = [];
-		for (let l = 0; l < this.lines.length; l++)
-		{
-			let intersections = this.lines[l].getIntersectionsFromLineList(_outerMesh.lines);
-			if (!intersections || !intersections.length) continue;																											// if (intersections.length > 1) console.warn("Problems sir:", intersections); !!!!!!!! TODO
-
-
-			let collision = meshPosition.difference(intersections[0]);
-			if (_inverted) 
+			let self = PhysicsEngine.bodies[s].shape;
+			for (let t = s + 1; t < PhysicsEngine.bodies.length; t++)
 			{
-				collision.setLength(this.lines[l].shape.getLength() - collision.getLength());
-			}
+				let target = PhysicsEngine.bodies[t].shape;
 
-			collisions.push({
-				line: this.lines[l],
-				collision: collision
-			})
-		}
-
-		return collisions;
-	}
-
-
-
-	function createLines(This) {
-		const lineCount = 21;
-		const anglePerLine = (2 * Math.PI) / lineCount;
-		let lines = [];
-		for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
-		{
-			let newLine = new CollisionLine({
-				offset: This.mesh.offset.copy().scale(-1).value,
-				shape: new Vector([0, 0]).setAngle(a, This.mesh.meshRange).value
-			}, This.mesh);
-			lines.push(newLine);
-		}
-		return lines;
-	}
-
-	
-	function setLineLength(This) {
-		let collisions = This.getCollisions(This.mesh.outerMesh, false);
-		for (let l = 0; l < collisions.length; l++)
-		{
-			collisions[l].line.shape.setLength(
-				// collisions[l].collision.add(This.mesh.offset.copy().scale(-1)).getLength()
-				collisions[l].collision.getLength()
-			);
-		}
-	}
-	setLineLength(this);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function CollisionLine({offset, shape}, _meshObject) {
-	this.offset 	= new Vector(offset);
-	this.shape 	 	= new Vector(shape);
-	this.mesh 		= _meshObject;
-
-	this.getPosition = function() {
-		return this.mesh.getPosition().copy().add(
-			this.offset.copy().rotate(this.mesh.getAngle())
-		);
-	}
-	this.getShape = function() {
-		return this.shape.copy().rotate(this.mesh.getAngle());
-	}
-
-	this.getIntersectionsFromLineList = function(_lineList) {
-		let intersections = [];
-		for (let l = 0; l < _lineList.length; l++)
-		{
-			let intersection = this.getIntersection(_lineList[l]);
-			if (!intersection) continue;
-			intersections.push(intersection);
-		}
-
-		return intersections;
-	}
-
-	this.getIntersection = function(_line) {
-		let a = this.getShape().getAngle();
-		let b = _line.getShape().getAngle();
-		let posA = this.getPosition();
-		let posB = _line.getPosition();
-
-		let intersectX = 	(
-								Math.tan(a) * posA.value[0] 
-								- Math.tan(b) * posB.value[0] 
-								- posA.value[1] 
-								+ posB.value[1]
-							) / ( 
-								Math.tan(a) - Math.tan(b)
-							);
-		let intersectY = 	(
-								Math.tan(b) * posA.value[1]
-								- Math.tan(a) * posB.value[1]
-								+ (posB.value[0] - posA.value[0]) * Math.tan(a) * Math.tan(b)
-							) / (
-								Math.tan(b) - Math.tan(a)
-							);
-		if (
-			!this.xOnDomain(intersectX) || !_line.xOnDomain(intersectX) ||
-			!this.yOnDomain(intersectY) || !_line.yOnDomain(intersectY)
-		) return false;
-
-		return new Vector([
-			intersectX,
-			intersectY,
-		]);
-	}
-
-	const marge = 0.0001;
-	this.xOnDomain = function(_x) {
-		let position = this.getPosition();
-		let endX = position.copy().add(this.getShape()).value[0];
-		let min = Math.min(position.value[0], endX);
-		let max = Math.max(position.value[0], endX);
-		return min - marge <= _x && _x <= max + marge;
-	}
-	this.yOnDomain = function(_y) {
-		let position = this.getPosition();
-		let endY = position.copy().add(this.getShape()).value[1];
-		let min = Math.min(position.value[1], endY);
-		let max = Math.max(position.value[1], endY);
-		return min - marge <= _y && _y <= max + marge;
-	}
-
-	this.draw = function(_color) {
-		RenderEngine.drawVector(this.getPosition().copy(), this.getShape().copy(), _color);
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-function CollisionBox({diagonal, offset}, _parent) {
-	this.diagonal = new Vector(diagonal);
-	
-	function generateMesh() {
-		return [
-			new CollisionLine({offset: [0, 0], 						shape: [this.diagonal.value[0], 0]},	this),
-			new CollisionLine({offset: [0, 0], 						shape: [0, this.diagonal.value[1]]}, 	this),
-			new CollisionLine({offset: this.diagonal.copy().value, 	shape: [-this.diagonal.value[0], 0]},	this),
-			new CollisionLine({offset: this.diagonal.copy().value, 	shape: [0, -this.diagonal.value[1]]},	this),
-		];
-	}
-
-	MeshObject.call(this, {meshFactory: generateMesh, offset: offset}, _parent);
-}
-
-
-function CollisionCircle({radius, lineCount}, _parent) {
-	this.radius = radius;
-	
-	function generateMesh() {
-		let lines = [];
-
-		const anglePerLine = (2 * Math.PI) / lineCount;
-		const length = Math.sin(anglePerLine * .5) * this.radius * 2;
+				let collisions = self.getCollisionData(target);
 		
-		for (let a = 0; a < Math.PI * 2; a += anglePerLine) 
-		{
-			let deltaPos = new Vector([0, 0]).setAngle(a, this.radius);
-			let newLine = new CollisionLine({
-				offset: deltaPos.value, 
-				shape: new Vector([0, 0]).setAngle(a + (anglePerLine + Math.PI) * .5, length).value
-			}, this);
-			lines.push(newLine);
+				for (let c = 0; c < collisions.length; c++)
+				{	
+					// console.log(collisions[c]);
+					if (collisions[c].contactPoint) RenderEngine.drawVector(
+							collisions[c].contactPoint.copy(), 
+							collisions[c].normal.copy().setLength(collisions[c].depth).scale(1), 
+							"#0f0"
+						);
+
+					this.resolveCollision(collisions[c]);
+				}
+			}
 		}
-		return lines;
 	}
 
-	MeshObject.call(this, {meshFactory: generateMesh, offset: [0, 0]}, _parent);
+	this.resolveCollision = function(collider) {
+		let self = collider.self.parent.parent;
+		let target = collider.target.parent.parent;
+
+		// PositionOffset
+		let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
+		let normal = collider.normal.copy().setLength(collider.depth);
+
+		self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
+		target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
+
+
+
+
+		// Resolve collision - translation
+		let deltaVelocity = self.velocity.difference(target.velocity);
+		let relativeVelocity = -deltaVelocity.dotProduct(collider.normal);
+		if (relativeVelocity < 0) return;
+
+		let contactSelf = self.position.difference(collider.contactPoint);
+		let contactTarget = target.position.difference(collider.contactPoint);
+
+
+		let e = Math.min(self.material.restitution, target.material.restitution);	
+		let j = -(1 + e) * relativeVelocity;
+
+		j /= 
+			self.massData.invMass + 
+			target.massData.invMass + 
+			self.massData.invInertia * Math.pow(collider.normal.dotProduct(contactSelf), 2) + 
+			target.massData.invInertia * Math.pow(collider.normal.dotProduct(contactTarget), 2);
+		
+
+		let impulse = collider.normal.copy().scale(-j);
+
+		let Fself = impulse.copy().scale(-1 + massPerc);
+		let Ftarget = impulse.copy().scale(massPerc);
+
+		self.tempValues.force.add(Fself);
+		target.tempValues.force.add(Ftarget);
+
+		self.tempValues.torque += -contactSelf.crossProduct(impulse);
+		target.tempValues.torque += contactTarget.crossProduct(impulse);
+
+
+
+
+
+		// Friction
+		let tempSelfVelocity = self.velocity.copy().add(Fself.copy().scale(self.massData.invMass));					
+		let tempTargetVelocity = target.velocity.copy().add(Ftarget.copy().scale(target.massData.invMass));
+
+		let newRV = tempSelfVelocity.difference(tempTargetVelocity);
+
+		let perpendicular = collider.normal.getPerpendicular();
+		let tangent = perpendicular.scale(perpendicular.dotProduct(newRV));
+		tangent.setLength(1);
+
+
+		let jt = -newRV.dotProduct(tangent);
+		jt /= self.massData.invMass + target.massData.invMass;
+
+
+		let mu = (self.material.staticFriction + target.material.staticFriction) * .5;
+		let frictionImpulse;
+		if (Math.abs(jt) < -j * mu)
+		{
+			frictionImpulse = tangent.copy().scale(jt);
+		} else {
+			let dynamicFriction = (self.material.dynamicFriction + target.material.dynamicFriction) * .5;
+			frictionImpulse = tangent.copy().scale(j * dynamicFriction);
+		}
+		
+
+		self.tempValues.force.add(frictionImpulse.copy().scale(-1 + massPerc));
+		target.tempValues.force.add(frictionImpulse.copy().scale(massPerc));
+	}
+
+
+
+
+
+
+	const jumpTable = {
+		Box: {
+			Box: boxBox,
+			Circle: boxCircle 
+		},
+		Circle: {
+			Box: circleBox,
+			Circle: circleCircle
+		}
+	}
+
+
+	this.collides = function(a, b) {
+		let aPosition = a.getPosition();
+		let bPosition = b.getPosition();
+
+		let delta = aPosition.difference(bPosition);
+		let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
+		if (squareDistance > Math.pow(a.meshRange + b.meshRange, 2)) return;
+
+		return jumpTable[a.constructor.name][b.constructor.name](a, b);
+	}
+
+
+
+
+	function boxBox(box1, box2) {
+		let axisA = new Vector([0, 1]).setAngle(box1.getAngle()).setLength(1);
+		let axisC = new Vector([0, 1]).setAngle(box2.getAngle()).setLength(1);
+		let axis = [
+			axisA,
+			axisA.getPerpendicular(),
+			axisC,
+			axisC.getPerpendicular(),
+		];
+
+		let distance = box1.getPosition().difference(box2.getPosition()).getLength();
+
+		let minDepth = -Infinity;
+		let normalAxis = false;
+		let direction = 1;
+		let lastA = 0;
+		let lastOwnDomain;
+		let lastOtherDomain;
+		for (let a = 0; a < 4; a++) 
+		{
+			let ownDomain = box1.getProjectedPoints(axis[a]);
+			let otherDomain = box2.getProjectedPoints(axis[a]);
+
+			let distanceA = ownDomain.min.value - otherDomain.max.value;
+			let distanceB = otherDomain.min.value - ownDomain.max.value;
+			let distance = Math.max(distanceA, distanceB);
+
+			if (distance >= 0) return false;
+				
+			if (distance < minDepth) continue; 
+			minDepth = distance;
+			normalAxis = axis[a];
+			lastA = a;
+			lastOwnDomain = ownDomain;
+			lastOtherDomain = otherDomain;
+
+			if (distance == distanceA) {
+				direction = -1;
+			} else direction = 1;
+		}
+		
+		let ownPoint = lastA > 1;
+		let domain = lastOtherDomain;
+		if (ownPoint) domain = lastOwnDomain;
+	
+		let contactPoint;
+		if (direction == 1 - 2 * ownPoint) {
+			contactPoint = domain.min.point;
+		} else contactPoint = domain.max.point;
+		
+		return {
+			normal: normalAxis.scale(direction),
+			depth: -minDepth + .1,
+			contactPoint: contactPoint,
+			self: box1,
+			target: box2
+		};
+	}
+
+	function circleCircle(circle1, circle2) {
+		let delta = circle1.getPosition().difference(circle2.getPosition());
+		let distance = delta.getLength();
+		if (distance > circle1.radius + circle2.radius) return false;
+		let depth = circle1.radius + circle2.radius - distance;
+
+		return {
+			normal: delta.setLength(1),
+			depth: depth,
+			contactPoint: circle1.getPosition().add(delta.copy().setLength(circle1.radius + depth * .5)),
+			self: circle1,
+			target: circle2
+		}
+	}
+
+
+
+	function boxCircle(box, circle) {
+		let axisA = new Vector([0, 1]).setAngle(box.getAngle()).setLength(1);
+		let points = box.getPoints();
+
+		let axis = [
+			axisA,
+			axisA.getPerpendicular(),
+		];
+
+		// Find closest point on box
+		let minDistance = Infinity;
+		let minAxis;
+		for (let i = 0; i < points.length; i++)
+		{
+			let delta = points[i].difference(circle.getPosition());
+			let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
+
+			if (squareDistance > minDistance) continue;
+			minDistance = squareDistance;
+			minAxis = delta.setLength(1);
+		}
+		axis.push(minAxis);
+
+		let contactPoint = new Vector([100, 100]);
+
+		let minDepth = -Infinity;
+		let normalAxis = false;
+		let direction = 1;
+		let lastA = 0;
+		for (let a = 0; a < axis.length; a++) 
+		{
+			let boxDomain = box.getProjectedPoints(axis[a]);
+			let circleDomain = circle.getProjectionDomain(axis[a]);
+
+			let distanceA = boxDomain.min.value - circleDomain[1];
+			let distanceB = circleDomain[0] - boxDomain.max.value;
+			let distance = Math.max(distanceA, distanceB);
+
+			if (distance >= 0) return false;
+				
+			if (distance < minDepth) continue; 
+			minDepth = distance;
+			normalAxis = axis[a];
+			lastA = a;
+
+			if (distance == distanceA) {
+				direction = -1;
+			} else direction = 1;
+		}
+		
+		let normal = normalAxis.scale(direction);
+		contactPoint = circle.getPosition().add(normal.copy().scale(-circle.radius));
+
+		return {
+			normal: normal,
+			depth: -minDepth,
+			contactPoint: contactPoint,
+			self: box,
+			target: circle
+		};
+	}
+
+	function circleBox(circle, box) {
+		let result = boxCircle(box, circle);
+		if (!result) return false;
+		return {
+			normal: result.normal.scale(-1),
+			depth: result.depth,
+			contactPoint: result.contactPoint,
+			self: circle,
+			target: box
+		}
+	}
 }

@@ -1,187 +1,62 @@
-const CollisionEngine = new _CollisionEngine();
-window.stats = {
-	count: 0,
-	time: 0
-}
-
 function _PhysicsEngine() {
-	this.particles = [];
-
-	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 6 + 1);
+	this.world = {
+		size: new Vector([800, 600])
 	}
 
-	this.settings = new function() {
-		this.roundError = Math.pow(10, 4);
+	this.bodies = [];
+	this.addBody = function(_body) {
+		this.bodies.push(_body);
 	}
 
-	this.formulas = new function() {
-		this.gravitation = function(_massA, _massB, _radius) {
-			return PhysicsEngine.constants.G * (_massA * _massB) / (_radius * _radius);
-		}
-		this.calcMassInfluence = function(_massA, _massB) {
-			return _massA / (_massA + _massB);
-		}
-		this.Egrav = function(_massA, _massB, _radius) {
-			return -PhysicsEngine.constants.G * (_massA * _massB) / _radius;
-		}
-		this.calcEscapeVelocity = function(_sunMass, _sunDistance) {
-			return Math.sqrt(2 * PhysicsEngine.constants.G * _sunMass / _sunDistance);
-		}
-	}
-
-	
-	this.world = new function() {
-		this.size = new Vector([5000, 5000]);
-
-		this.inWorld = function(_particle) {
-			if (_particle.position.value[0] < -_particle.mesh.meshRange || 
-				_particle.position.value[1] < -_particle.mesh.meshRange) return false;
-			if (_particle.position.value[0] > this.size.value[0] + _particle.mesh.meshRange || 
-				_particle.position.value[1] > this.size.value[1] + _particle.mesh.meshRange) return false;
-			return true;
-		}
-	}
+	this.collision = new _PhysicsEngine_collision();
 
 
 
-	
 
 	this.update = function() {
-		CollisionEngine.update();
-		
-		// Remove particles that are outside this world
-		for (let p = this.particles.length - 1; p >= 0; p--)
+		this.removeBodiesOutsideWorld();
+
+		this.collision.update();
+
+		this.applyCalculations();
+	}
+
+
+	this.applyCalculations = function() {
+		for (let s = 0; s < this.bodies.length; s++)
 		{
-			if (!this.world.inWorld(this.particles[p])) 
-			{
-				this.particles[p].remove();
-				continue;
-			}
-		}
-		
+			let cur = this.bodies[s];
+			let a = cur.tempValues.force.scale(cur.massData.invMass);
+			RenderEngine.drawVector(cur.position.copy(), a.copy().scale(15), "#f00");
 
-		// Calculate Fres
-		this.calcFgrav();
-		for (let p = 0; p < this.particles.length; p++)
-		{	
-			this.particles[p].calcPhysics();
-		}
+			cur.velocity.add(a);
+			cur.position.add(cur.velocity);
+			cur.position.add(cur.tempValues.positionOffset.scale(-1));
+
+			cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia;
+			cur.angle 			+= cur.angularVelocity;
 
 
-		// Apply Fres
-		for (let p = 0; p < this.particles.length; p++)
-		{	
-			this.particles[p].applyPhysics(this.particles[p].physicsObj);
+			cur.tempValues.positionOffset = new Vector([0, 0]);
+			cur.tempValues.force = new Vector([0, 0]);
+			cur.tempValues.torque = 0;
 		}
 	}
 
-
-	this.addParticle = function(_particle) {
-		this.particles.push(_particle);
-	}
-
-
-	this.totalCalcs = 0;
-	this.maxCalcs = 0;
-	this.calcFgrav = function() {
-		for (let p = 0; p < this.particles.length; p++) 
+	this.removeBodiesOutsideWorld = function() {
+		for (let s = this.bodies.length - 1; s >= 0; s--)
 		{
-			let particle = this.particles[p];
-			for (let t = p + 1; t < this.particles.length; t++) 
-			{
-				let target = this.particles[t];
-				if (
-					!(particle.config.gravitySensitive && target.config.exerciseGravity) && 
-					!(target.config.gravitySensitive && particle.config.exerciseGravity)
-				) continue;
-
-				let gravVector = this.getGravitationVector(particle, target);
-				this.totalCalcs++;
-				if (particle.config.gravitySensitive && target.config.exerciseGravity) particle.physicsObj.Fres.add(gravVector);
-				if (target.config.gravitySensitive && particle.config.exerciseGravity) target.physicsObj.Fres.add(gravVector.scale(-1));
-			}
+			let cur = this.bodies[s];
+			if (
+				cur.position.value[0] + cur.shape.shapeRange > 0 &&
+				cur.position.value[0] - cur.shape.shapeRange < this.world.size.value[0] &&
+				cur.position.value[1] + cur.shape.shapeRange > 0 &&
+				cur.position.value[1] - cur.shape.shapeRange < this.world.size.value[1]
+			) continue;
+			let body = this.bodies.splice(s, 1)[0];
 		}
-		this.maxCalcs += this.particles.length * (this.particles.length - 1);
-	}
-
-
-	this.getGravitationVector = function(_particleA, _particleB) {
-		let dVector = _particleA.position.difference(_particleB.position);
-		let gravitation = PhysicsEngine.formulas.gravitation(
-			_particleA.mass, 
-			_particleB.mass,
-			dVector.getLength()
-		);
-
-		return new Vector([0, 0])
-				.setAngle(dVector.getAngle())
-				.setLength(gravitation);
-	}
-
-
-	this.getGravEnergy = function(_particleA, _particleB) {
-		let dVector = _particleA.position.difference(_particleB.position);
-		let gravitation = PhysicsEngine.formulas.Egrav(
-			_particleA.mass, 
-			_particleB.mass,
-			dVector.getLength()
-		);
-
-		return new Vector([0, 0])
-				.setAngle(dVector.getAngle())
-				.setLength(gravitation);
-	}
-
-	this.getTotalGravEnergy = function(_particle) {
-		let curVector = new Vector([0, 0]);
-		for (let i = 0; i < this.particles.length; i++) 
-		{
-			let curParticle = this.particles[i];
-			if (!curParticle.config.exerciseGravity) continue;
-			if (curParticle.id == _particle.id) continue;
-			
-			curVector.add(
-				this.getGravEnergy(_particle, curParticle)
-			);
-		}
-		return curVector;
-	}
-
-
-
-	this.getCenterOfMass = function(_particles) {
-		let curVector = new Vector([0, 0]); 
-		let massTillNow = 0;
-		for (let i = 0; i < _particles.length; i++)
-		{
-			massTillNow += _particles[i].mass;
-			let perc = _particles[i].mass / massTillNow;
-			let delta = curVector.difference(_particles[i].position);
-			curVector.add(delta.scale(perc));
-		}
-		return curVector
 	}
 }
 
 
 
-// function GravCache() {
-//   let cache = [];
-
-//   this.set = function(_aId, _bId, _vector) {
-//     if (cache[_aId + "-" + _bId]) {
-//     	cache[_aId + "-" + _bId] = _vector.copy(); 
-//     	return;
-//     }
-//     cache[_bId + "-" + _aId] = _vector.copy().scale(-1);
-//   }
-//   this.get = function(_aId, _bId) {
-//     if (cache[_aId + "-" + _bId]) return cache[_aId + "-" + _bId].copy();
-//     if (!cache[_bId + "-" + _aId]) return false;
-//     return cache[_bId + "-" + _aId].copy().scale(-1);
-//   }
-//   this.clear = function() {
-//     cache = [];
-//   }
-// }

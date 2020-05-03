@@ -40,9 +40,9 @@ function _RenderEngine() {
 
 
 
-		for (let i = 0; i < PhysicsEngine.particles.length; i++)
+		for (let i = 0; i < PhysicsEngine.bodies.length; i++)
 		{
-			this.drawEntity(PhysicsEngine.particles[i]);
+			this.drawEntity(PhysicsEngine.bodies[i]);
 		}
 		
 
@@ -153,15 +153,15 @@ function _RenderEngine() {
 
 
 
-		if (_entity.draw) _entity.draw(ctx); else {_entity.mesh.outerMesh.draw("#f00");_entity.mesh.innerMesh.draw("#00f");}
-		if (_entity.buildings) 
-			for (let i = 0; i < _entity.buildings.length; i++)
-			{
-				_entity.buildings[i].mesh.outerMesh.draw("#f00"); 
-				_entity.buildings[i].mesh.innerMesh.draw("#0f0");
-			}
+		// if (_entity.draw) _entity.draw(ctx); else {_entity.mesh.outerMesh.draw("#f00");_entity.mesh.innerMesh.draw("#00f");}
+		// if (_entity.buildings) 
+		// 	for (let i = 0; i < _entity.buildings.length; i++)
+		// 	{
+		// 		_entity.buildings[i].mesh.outerMesh.draw("#f00"); 
+		// 		_entity.buildings[i].mesh.innerMesh.draw("#0f0");
+		// 	}
 
-		
+		_entity.shape.draw();
 
 		// ctx.strokeStyle = "#0f0";
 		// ctx.beginPath();
@@ -210,7 +210,7 @@ function _RenderEngine() {
 		ctx.fillStyle = "#eee";
 		ctx.beginPath();
 		ctx.fillText("Fps: " + _fps, 5, 20);
-		ctx.fillText("Particles: " + PhysicsEngine.particles.length, 5, 40);
+		ctx.fillText("Particles: " + PhysicsEngine.bodies.length, 5, 40);
 		ctx.closePath();
 		ctx.fill();
 	}
@@ -218,6 +218,46 @@ function _RenderEngine() {
 
 
 
+	this.drawCircle = function(circle) {
+		let position = circle.getPosition();
+		ctx.strokeStyle = "#000";
+		ctx.beginPath();
+		ctx.ellipse(
+			position.value[0],
+			position.value[1],
+			circle.radius,
+			circle.radius,
+			0,
+			0,
+			2 * Math.PI
+		);
+		ctx.closePath();
+		ctx.stroke();
+	}
+
+	this.drawBox = function(box) {
+		let points = box.getPoints();
+
+		ctx.strokeStyle = "#000";
+		ctx.beginPath();
+		ctx.moveTo(points[0].value[0], points[0].value[1]);
+		ctx.lineTo(points[1].value[0], points[1].value[1]);
+		ctx.lineTo(points[2].value[0], points[2].value[1]);
+		ctx.lineTo(points[3].value[0], points[3].value[1]);
+		ctx.lineTo(points[0].value[0], points[0].value[1]);
+		ctx.closePath();
+		ctx.stroke();
+	}
+
+	this.drawVector = function(_start, _delta, _color = "#f00") {
+		let end = _start.copy().add(_delta);
+		ctx.strokeStyle = _color;
+		ctx.beginPath();
+		ctx.moveTo(_start.value[0], _start.value[1]);
+		ctx.lineTo(end.value[0], end.value[1]);
+		ctx.closePath();
+		ctx.stroke();
+	}
 
 
 
@@ -293,10 +333,10 @@ function RenderEngine_Camera() {
 		let projSize = this.getWorldProjectionSize();
 		let dPos = this.position.difference(_particle.position);
 		if (
-			dPos.value[0] < -_particle.mesh.meshRange - projSize.value[0] * .5 || 
-			dPos.value[1] < -_particle.mesh.meshRange - projSize.value[1] * .5) return false;
-		if (dPos.value[0] > projSize.value[0] * .5 + _particle.mesh.meshRange || 
-			dPos.value[1] > projSize.value[1] * .5 + _particle.mesh.meshRange) return false;
+			dPos.value[0] < -_particle.shape.shapeRange - projSize.value[0] * .5 || 
+			dPos.value[1] < -_particle.shape.shapeRange - projSize.value[1] * .5) return false;
+		if (dPos.value[0] > projSize.value[0] * .5 + _particle.shape.shapeRange || 
+			dPos.value[1] > projSize.value[1] * .5 + _particle.shape.shapeRange) return false;
 		return true;
 	}
 

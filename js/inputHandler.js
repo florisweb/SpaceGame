@@ -31,7 +31,7 @@ function _InputHandler() {
 
 		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
-		for (entity of PhysicsEngine.particles) 
+		for (entity of PhysicsEngine.bodies) 
 		{
 			let distance = worldPosition.difference(entity.position).getLength();
 			if (distance > entity.mesh.meshRange) continue;

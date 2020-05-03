@@ -28,7 +28,7 @@
 			
 
 			const ctx = gameCanvas.getContext("2d");
-			ctx.constructor.prototype.circle = function(circle) {
+			ctx.constructor.prototype.drawCircle = function(circle) {
 				let position = circle.getPosition();
 				ctx.strokeStyle = "#000";
 				ctx.beginPath();
@@ -128,7 +128,6 @@
 						let body = this.bodies.splice(s, 1)[0];
 					}
 				}
-
 			}
 
 
