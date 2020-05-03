@@ -1,14 +1,19 @@
 function _PhysicsEngine() {
 	this.world = {
-		size: new Vector([800, 600])
+		size: new Vector([1600, 1200])
 	}
+	this.constants = new function() {
+		this.G = 6.674 * Math.pow(10, -11 + 6 + 3);
+	}
+
 
 	this.bodies = [];
 	this.addBody = function(_body) {
 		this.bodies.push(_body);
 	}
 
-	this.collision = new _PhysicsEngine_collision();
+	this.collision 	= new _PhysicsEngine_collision();
+	this.gravity 	= new _PhysicsEngine_gravity();
 
 
 
@@ -16,7 +21,9 @@ function _PhysicsEngine() {
 	this.update = function() {
 		this.removeBodiesOutsideWorld();
 
+		this.gravity.update();
 		this.collision.update();
+
 
 		this.applyCalculations();
 	}

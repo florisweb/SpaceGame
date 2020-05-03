@@ -20,7 +20,7 @@ function Body({position, shapeFactory}) {
 	this.material = {
 		density: .1,
 		restitution: .25,
-		staticFriction: .5,
+		staticFriction: .4,
 		dynamicFriction: .25,
 	}
 

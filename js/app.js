@@ -51,14 +51,47 @@ let body3 = new Body({
 	}
 });
 
+let sun = new Body({
+	position: [800, 600], 
+	shapeFactory: function(_this) {
+		return [
+			new Circle({offset: [0, 0], radius: 60}, _this),
+		];
+	}
+});
 
+PhysicsEngine.addBody(sun);
 PhysicsEngine.addBody(body1);
 PhysicsEngine.addBody(body2);
 PhysicsEngine.addBody(body3);
 
-body1.velocity = new Vector([.1, 0]);
-body2.velocity = new Vector([-1, 0]);
 
+// body1.velocity = new Vector([.1, 0]);
+// body2.velocity = new Vector([-1, 0]);
+
+
+// for (let i = 0; i < 250; i++) {
+// 	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];
+
+// 	let body = new Body({
+// 		position: position,
+// 		shapeFactory: function(_this) {
+// 			return [
+// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+// 			];
+// 		}
+// 	});
+// 	if (Math.random() > .5) body = new Body({
+// 		position: position,
+// 		shapeFactory: function(_this) {
+// 			return [
+// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+// 			];
+// 		}
+// 	});
+
+// 	PhysicsEngine.addBody(body);
+// }
 
 
 
