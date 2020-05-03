@@ -31,13 +31,13 @@ function _PhysicsEngine_gravity() {
 				if (self.config.gravitySensitive && target.config.exerciseGravity) 
 				{
 					self.tempValues.force.add(gravVector);
-					RenderEngine.drawVector(self.position.copy(), gravVector.copy().scale(10), "#00f");
+					if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(self.position.copy(), gravVector.copy().scale(10), "#00f");
 				}
 
 				if (target.config.gravitySensitive && self.config.exerciseGravity) 
 				{
 					target.tempValues.force.add(gravVector.scale(-1));
-					RenderEngine.drawVector(target.position.copy(), gravVector.copy().scale(10), "#00f");
+					if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(target.position.copy(), gravVector.copy().scale(10), "#00f");
 				}
 			}
 		}

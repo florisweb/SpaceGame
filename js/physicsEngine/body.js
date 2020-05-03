@@ -110,7 +110,7 @@ function Body_Shape(_parent, _shapeFactory) {
 		// 	getPosition: function () {return This.getPosition()}
 		// });
 
-		RenderEngine.drawVector(this.getPosition(), this.parent.velocity.copy().scale(15), "#f00");
+		if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(this.getPosition(), this.parent.velocity.copy().scale(15), "#f00");
 
 
 		for (let i = 0; i < this.list.length; i++) this.list[i].draw();

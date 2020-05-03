@@ -28,17 +28,25 @@ function _Game() {
   }
 
   this.maxFps = 0;
+  let prevFrame = new Date();
   this.update = function() {
-    let start = new Date();
     this.updates++;
-    RenderEngine.update();
-    PhysicsEngine.update();
 
-    this.maxFps = Math.round(1 / (new Date() - start) * 1000);
+    let dt = new Date() - prevFrame;
+    this.maxFps = Math.round(1000 / dt);
 
-    if (!this.running) return;
-  	requestAnimationFrame(function () {Game.update()});
-    // setTimeout(function () {Game.update()}, 1000 / 60);
+    let performance = dt / (1000 / fps);
+    if (performance < 1) performance = 1;
+    window.performance = performance;
+    
+    PhysicsEngine.update(performance);
+
+    if (!this.running) return;    
+
+    let nextFrame = 1000 / fps - dt;
+    window.nextFrame = nextFrame;
+    setTimeout(function () {Game.update()}, nextFrame);
+    prevFrame = new Date();
   }
 }
 

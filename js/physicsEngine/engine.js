@@ -1,6 +1,10 @@
+
+const fps = 60;
+
+
 function _PhysicsEngine() {
 	this.world = {
-		size: new Vector([2000, 2000])
+		size: new Vector([5000, 5000])
 	}
 	this.constants = new function() {
 		this.G = 6.674 * Math.pow(10, -11 + 6 + 1.5);
@@ -16,35 +20,33 @@ function _PhysicsEngine() {
 	this.gravity 	= new _PhysicsEngine_gravity();
 
 
+	const dt = 1000 / fps;
+	let lastUpdate = new Date();
+	let accumulator = 0;
+	let maxAccumulator = dt * 5;
 
-
-	this.update = function() {
+	this.update = function(_dt) {
 		this.removeBodiesOutsideWorld();
-
+		
 		this.gravity.update();
 		this.collision.update();
 
-
-		this.applyCalculations();
+		this.applyCalculations(_dt);	
 	}
 
-
-	this.applyCalculations = function() {
+	this.applyCalculations = function(_dt) {
 		for (let s = 0; s < this.bodies.length; s++)
 		{
 			let cur = this.bodies[s];
-			let a = cur.tempValues.force.scale(cur.massData.invMass);
-			RenderEngine.drawVector(cur.position.copy(), a.copy().scale(1000), "#fa0");
-
-			if (cur == sun) window.a = a.getLength();
+			let a = cur.tempValues.force.scale(cur.massData.invMass * _dt);
+			if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(cur.position.copy(), a.copy().scale(1000), "#fa0");
 
 			cur.velocity.add(a);
-			if (cur == sun) window.v = cur.velocity.getLength();
-			cur.position.add(cur.velocity);
+			cur.position.add(cur.velocity.copy().scale(_dt));
 			cur.position.add(cur.tempValues.positionOffset.scale(-1));
 
-			cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia;
-			cur.angle 			+= cur.angularVelocity;
+			cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia * _dt;
+			cur.angle 			+= cur.angularVelocity * _dt;
 
 
 			cur.tempValues.positionOffset = new Vector([0, 0]);
@@ -54,7 +56,7 @@ function _PhysicsEngine() {
 			
 			if (Game.updates % 20 != 0) continue;
 			cur.positionTrace.push(cur.position.copy());
-			if (cur.positionTrace.length > 200) cur.positionTrace = cur.positionTrace.splice(1, 200);
+			if (cur.positionTrace.length > 500) cur.positionTrace = cur.positionTrace.splice(1, 500);
 		}
 	}
 

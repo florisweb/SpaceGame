@@ -88,28 +88,36 @@ body3.velocity = new Vector([0, PhysicsEngine.gravity.formulas.calcEscapeVelocit
 
 
 
-// for (let i = 0; i < 250; i++) {
-// 	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];
+for (let i = 0; i < 500; i++) {
+	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];
 
-// 	let body = new Body({
-// 		position: position,
-// 		shapeFactory: function(_this) {
-// 			return [
-// 				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-// 			];
-// 		}
-// 	});
-// 	if (Math.random() > .5) body = new Body({
-// 		position: position,
-// 		shapeFactory: function(_this) {
-// 			return [
-// 				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
-// 			];
-// 		}
-// 	});
+	let body = new Body({
+		position: position,
+		shapeFactory: function(_this) {
+			return [
+				new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
+			];
+		},
+		config: {
+			gravitySensitive: true,
+			exerciseGravity: true,
+		}
+	});
+	if (Math.random() > .5) body = new Body({
+		position: position,
+		shapeFactory: function(_this) {
+			return [
+				new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
+			];
+		},
+		config: {
+			gravitySensitive: true,
+			exerciseGravity: true,
+		}
+	});
 
-// 	PhysicsEngine.addBody(body);
-// }
+	PhysicsEngine.addBody(body);
+}
 
 
 
