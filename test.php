@@ -848,6 +848,22 @@
 
 			loop();
 
+
+
+
+
+
+
+
+			/* SOURCES 
+				https://www.khanacademy.org/science/physics/torque-angular-momentum/torque-tutorial/a/rotational-inertia
+				https://gamedevelopment.tutsplus.com/series/how-to-create-a-custom-physics-engine--gamedev-12715
+				https://www.codeproject.com/Articles/1215961/Making-a-D-Physics-Engine-Mass-Inertia-and-Forces
+				https://stackoverflow.com/questions/36784456/calculating-angular-velocity-after-a-collision
+				https://gamedev.stackexchange.com/questions/26501/how-does-a-collision-engine-work
+			*/
+
+
 			
 		</script>
 <!-- 
