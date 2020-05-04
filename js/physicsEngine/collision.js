@@ -1,32 +1,37 @@
 
 function _PhysicsEngine_collision() {
-	this.update = function() {
-		for (let s = 0; s < PhysicsEngine.bodies.length; s++)
+	this.update = function(_list = PhysicsEngine.bodies) {
+		for (let s = 0; s < _list.length; s++)
 		{
-			let self = PhysicsEngine.bodies[s].shape;
-			for (let t = s + 1; t < PhysicsEngine.bodies.length; t++)
+			let self = _list[s].shape;
+			for (let t = s + 1; t < _list.length; t++)
 			{
-				let target = PhysicsEngine.bodies[t].shape;
-
+				let target = _list[t].shape;
 				let collisions = self.getCollisionData(target);
 		
 				for (let c = 0; c < collisions.length; c++) 
 				{
+					let resolveCollision = true;
 					try {
-						self.onCollision(collisions[c], collisions[c].self);
-						target.onCollision(collisions[c], collisions[c].target);
+						if (
+							self.onCollision(collisions[c], collisions[c].self) || 
+							target.onCollision(collisions[c], collisions[c].target)
+						) resolveCollision = false;
 					} catch (e) {};
 
-					this.resolveCollision(collisions[c]);
+					if (!resolveCollision) continue;
+
+					this.resolveCollision(
+						collisions[c],
+						collisions[c].self.parent.parent,
+						collisions[c].target.parent.parent
+					);
 				}
 			}
 		}
 	}
 
-	this.resolveCollision = function(collider) {
-		let self = collider.self.parent.parent;
-		let target = collider.target.parent.parent;
-
+	this.resolveCollision = function(collider, self, target) {
 		// PositionOffset
 		let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
 		let normal = collider.normal.copy().setLength(collider.depth);

@@ -1,5 +1,4 @@
 function BodyGroup({position, config = {}}) {
-	
 	Body.call(this, {
 		position: position,
 		shapeFactory: function() {return [];}, 
@@ -10,30 +9,21 @@ function BodyGroup({position, config = {}}) {
 
 
 	this.bodies = [];
-	this.shape.getList = function() {
-		let list = Object.assign([], this.list);
-		for (let b = 0; b < body.bodies.length; b++)
-		{
-			list = list.concat(body.bodies[b].shape.list);
-		}
-		return list;
-	}
-
-	
-	this.shape.onCollision = function(_e, _shapeItem) {
-		console.log("bodygroup has been hit", _e, _shapeItem.parent.bodyParent.id);
-		setTimeout(function () {
-			body.removeBody(_shapeItem.parent.bodyParent);
-		}, 100);
-	};
-
-
 	this.addBody = function(_body) {
 		_body.shape.getPosition = function() {
 			return body.position.copy().add(_body.position.copy().rotate(body.angle));
 		}
 		_body.shape.parent = this;
 		_body.shape.bodyParent = _body;
+		_body.shape.onCollision = function(_e, _shapeItem) {
+			if (_e.self != _shapeItem) return;
+			PhysicsEngine.collision.resolveCollision(
+				_e, 
+				_e.self.parent.bodyParent,
+				_e.target.parent.bodyParent,
+			);
+			return true;
+		}
 
 
 		this.bodies.push(_body);
@@ -49,6 +39,38 @@ function BodyGroup({position, config = {}}) {
 			this.shape.update();
 			return;
 		}
+	}
+
+	
+
+
+
+
+	this.shape.getList = function() {
+		let list = Object.assign([], this.list);
+		for (let b = 0; b < body.bodies.length; b++)
+		{
+			list = list.concat(body.bodies[b].shape.list);
+		}
+		return list;
+	}
+
+	
+	this.shape.onCollision = function(_e, _shapeItem) {
+		console.log("bodygroup has been hit", _e, _shapeItem.parent.bodyParent.id);
+		// setTimeout(function () {
+		// 	body.removeBody(_shapeItem.parent.bodyParent);
+		// }, 100);
+	};
+
+
+
+
+	this.update = function(_dt) {
+		PhysicsEngine.gravity.update(this.bodies);
+		PhysicsEngine.collision.update(this.bodies);
+		
+		PhysicsEngine.applyCalculations(_dt, this.bodies);
 	}
 
 }

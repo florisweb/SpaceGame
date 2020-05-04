@@ -50,12 +50,12 @@ let planet = new Body({
 	},
 	config: {
 		gravitySensitive: false,
-		exerciseGravity: false,
+		exerciseGravity: true,
 	}
 });
 
 let building = new Body({
-	position: [115, 0],
+	position: [115 - 20, 0],
 	shapeFactory: function(_this) {
 		return [
 			new Box({offset: [15, 0], shape: [15, 30]}, _this),

@@ -28,16 +28,17 @@ function _PhysicsEngine() {
 	this.update = function(_dt) {
 		this.removeBodiesOutsideWorld();
 		
+		this.updateBodies(_dt);
 		this.gravity.update();
 		this.collision.update();
 
-		this.applyCalculations(_dt);	
+		this.applyCalculations(_dt);
 	}
 
-	this.applyCalculations = function(_dt) {
-		for (let s = 0; s < this.bodies.length; s++)
+	this.applyCalculations = function(_dt, _list = this.bodies) {
+		for (let s = 0; s < _list.length; s++)
 		{
-			let cur = this.bodies[s];
+			let cur = _list[s];
 			let a = cur.tempValues.force.scale(cur.massData.invMass * _dt);
 			if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(cur.position.copy(), a.copy().scale(1000), "#fa0");
 
@@ -71,6 +72,16 @@ function _PhysicsEngine() {
 				cur.position.value[1] - cur.shape.shapeRange < this.world.size.value[1]
 			) continue;
 			let body = this.bodies.splice(s, 1)[0];
+		}
+	}
+
+	this.updateBodies = function(_dt) {
+		for (let i = 0; i < this.bodies.length; i++)
+		{
+			if (!this.bodies[i].update) continue;
+			try {
+				this.bodies[i].update(_dt);
+			} catch(e) {}
 		}
 	}
 }

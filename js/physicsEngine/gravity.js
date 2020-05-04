@@ -14,13 +14,13 @@ function _PhysicsEngine_gravity() {
 
 
 
-	this.update = function() {
-		for (let p = 0; p < PhysicsEngine.bodies.length; p++) 
+	this.update = function(_list = PhysicsEngine.bodies) {
+		for (let p = 0; p < _list.length; p++) 
 		{
-			let self = PhysicsEngine.bodies[p];
-			for (let t = p + 1; t < PhysicsEngine.bodies.length; t++) 
+			let self = _list[p];
+			for (let t = p + 1; t < _list.length; t++) 
 			{
-				let target = PhysicsEngine.bodies[t];
+				let target = _list[t];
 				if (
 					!(self.config.gravitySensitive && target.config.exerciseGravity) && 
 					!(target.config.gravitySensitive && self.config.exerciseGravity)
