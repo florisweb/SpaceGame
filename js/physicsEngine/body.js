@@ -1,14 +1,33 @@
-function BodyGroup({position, shapeFactory, config = {}}) {
-	Body.call(this, {position, shapeFactory, config});
+function BodyGroup({position, config = {}}) {
+	
+	Body.call(this, {
+		position: position,
+		shapeFactory: function() {return [];}, 
+		config: config
+	});
+	let body = this;
+	
+
 
 	this.bodies = [];
 	this.shape.getList = function() {
-		let list = Object.assign([], this.shape.list);
-		for (let b = 0; b < this.bodies.length; b++)
+		let list = Object.assign([], this.list);
+		for (let b = 0; b < body.bodies.length; b++)
 		{
-			list = list.concat(this.bodies[b].shape.list);
+			list = list.concat(body.bodies[b].shape.list);
 		}
 		return list;
+	}
+
+	this.addBody = function(_body) {
+		_body.shape.getPosition = function() {
+			return body.position.copy().add(_body.position.copy().rotate(body.angle));
+		}
+		_body.shape.parent = this;
+		_body.shape.bodyParent = _body;
+
+		this.bodies.push(_body);
+		this.shape.update();
 	}
 
 }
@@ -48,7 +67,7 @@ function Body({position, shapeFactory, config = {}}) {
 	this.shape = new Body_Shape(this, shapeFactory);
 	this.material = {
 		density: .1,
-		restitution: .0, //.25
+		restitution: .25, //.25
 		staticFriction: .4,
 		dynamicFriction: .25,
 	}
@@ -117,10 +136,11 @@ function Body_Shape(_parent, _shapeFactory) {
 
 		let ownList = this.getList();
 
-		for (let s = 0; s < this.list.length; s++)
+		for (let s = 0; s < ownList.length; s++)
 		{
-			let self = this.list[s];
+			let self = ownList[s];
 			let targetList = _targetShape.getList();
+
 			for (let t = 0; t < targetList.length; t++)
 			{
 				let target = targetList[t];
@@ -152,8 +172,8 @@ function Body_Shape(_parent, _shapeFactory) {
 
 		if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(this.getPosition(), this.parent.velocity.copy().scale(15), "#f00");
 
-
-		for (let i = 0; i < this.list.length; i++) this.list[i].draw();
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++) list[i].draw();
 	}
 
 

@@ -353,7 +353,7 @@ function RenderEngine_Camera() {
 	let panning = false;
 	this.panTo = function(_endCoords) {
 		panning = true;
-		const cameraSpeed = 20;
+		const cameraSpeed = 200;
 		let delta = this.position.difference(_endCoords);
 		let startPosition = this.position;
 		Animator.animateValue({

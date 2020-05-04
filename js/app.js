@@ -20,18 +20,58 @@ App.setup();
 
 
 let sun = new Sun();
-let planet1 = new Planet(1);
-let planet2 = new Planet(2);
-let planet3 = new Planet(3);
+// let planet1 = new Planet(1);
+// let planet2 = new Planet(2);
+// let planet3 = new Planet(3);
 
 
 
 PhysicsEngine.addBody(sun);
-PhysicsEngine.addBody(planet1);
-PhysicsEngine.addBody(planet2);
-PhysicsEngine.addBody(planet3);
+// PhysicsEngine.addBody(planet1);
+// PhysicsEngine.addBody(planet2);
+// PhysicsEngine.addBody(planet3);
 
 
+let bodyG = new BodyGroup({
+	position: [7000, 7000],
+	config: {
+		gravitySensitive: true,
+		exerciseGravity: true,
+	}
+});
+bodyG.material.restitution = 1.5;
+
+let planet = new Body({
+	position: [0, 0],
+	shapeFactory: function(_this) {
+		return [
+			new Circle({offset: [0, 0], radius: 100}, _this),
+		];
+	},
+	config: {
+		gravitySensitive: false,
+		exerciseGravity: false,
+	}
+});
+
+let building = new Body({
+	position: [115, 0],
+	shapeFactory: function(_this) {
+		return [
+			new Box({offset: [15, 0], shape: [15, 30]}, _this),
+			new Box({offset: [35, 10], shape: [5, 10]}, _this),
+		];
+	},
+	config: {
+		gravitySensitive: false,
+		exerciseGravity: false,
+	}
+});
+
+
+bodyG.addBody(planet);
+bodyG.addBody(building);
+PhysicsEngine.addBody(bodyG);
 
 // for (let i = 0; i < 200; i++) {
 // 	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];

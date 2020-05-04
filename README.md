@@ -15,98 +15,19 @@ project SpaceDust
 
 
 
-- Particle: 
-	id
-	mass
-	position
-	velocity
-	config: {
-		startVelocity: array [0, 0]
-	}
-
-
-- GravParticle extends Particle
-	radius
-	config: {
-		exerciseGravity: boolean [true]			Whether the particle has any gravitational effect on other particles
-		gravitySensitive: boolean [true] 		Whether other particles have gravitational effect on the particle
-	}
-	particle.calcPhysics(particleIndex) - custom function
-	
-	f: getGravVector(particleIndex)
-	
 
 
 
-- SpinParticle extends Particle
-	angle: 					float [-Math.PI, Math.PI]
-	angularVelocity: 		float
+Body
+- shape 
+- tempValues: {force, positionOffset, torque}
+- material
+- massData {mass, invMass, invInertia}
 
 
-
-- CollisionParticle extends Particle
-	config: {
-		exerciseCollisions: boolean [true]
-		collisionSensitive: boolean [true]
-		onCollision - see \/
-	}
-	
-	
-	f: 	onCollision(vectors, Fcollision)
-	p:	vectors: [{
-		vector:	new Vector: own indent vector 
-		target: the collision-target's mesh-object
-	}]
-	r: preventCollisionReaction [boolean]
-
-
-
-
-
-
-
-
-PhysicsEngine:
-
-f: 	getTotalGravVector(particle)
-p:	particle 		GravParticle object (or extender of which)
-r:	2d-vector
-
-
-f: 	getCenterOfMass(particles)
-p:  particle-array of type GravParticle
-r: 	2d-vector
-Note: if the particle-array stays the same and the particles only interect with eachother the center of mass will not change, since all particles will deviate to it evenly
-
-
-
-
-
-
-CollisionEngine:
-
-f: 	MeshObject.getCollisionVectors
-r:	[{
-	vector: new Vector 		CollisionPosition relative to mesh.parent.getPosition()
-	target: MeshObject
-}]
-
-
-f: 	CollisionParticle.getCollisionData
-r:	{
-	vector: new Vector: Fcollision
-	positionCorrection: new Vector
-}
-
-
-
-?
-f:	CollisionMesh.getCollisionVector
-r:	2d-vector: percentage of how far another mesh is inside the current mesh (1 = center, 0 = not at all)
-?
-
-
-
+BodyGroup extends Body
+- shape
+- bodies: []
 
 
 
