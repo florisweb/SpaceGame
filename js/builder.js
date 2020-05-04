@@ -38,8 +38,8 @@ function _Builder() {
 
     let angle = delta.getAngle();
     let shape = new Vector([delta.getLength(), 2]);
-    let offset = Builder.startPosition.add(delta.copy().scale(.5)).rotate(Builder.buildBody.angle);
-    
+    let offset = Builder.startPosition.add(delta.copy().scale(.5)).rotate(-Builder.buildBody.angle);
+
     let config = {
       position: offset.value,
       shapeFactory: function(_this) {
@@ -62,7 +62,6 @@ function _Builder() {
     };
 
     let lineBody = new Body(config);
-    console.log(lineBody);
     Builder.buildBody.addBody(lineBody);
   }
 
