@@ -161,6 +161,12 @@ function _RenderEngine() {
 			ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.shape.shapeRange / this.camera.zoom);
 			ctx.closePath();
 			ctx.stroke();
+
+			if (Game.startPosition)
+			{
+				this.drawVector(_entity.position.copy().add(Game.startPosition), new Vector([10, 10]), "#00f");
+			}
+
 		}
 
 		// if (_entity.buildings) 

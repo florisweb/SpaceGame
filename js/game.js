@@ -69,28 +69,17 @@ function _Game() {
     if (!startPosition)
     {
       startPosition = this.editBody.position.difference(_position);
+      this.startPosition = startPosition;
       return;
     }
 
     
     let stopPosition = this.editBody.position.difference(_position);
-    let start = new Vector([
-      Math.min(stopPosition.value[0], startPosition.value[0]),
-      Math.min(stopPosition.value[1], startPosition.value[1])
-    ]);
-
-    let stop = new Vector([
-      Math.max(stopPosition.value[0], startPosition.value[0]),
-      Math.max(stopPosition.value[1], startPosition.value[1])
-    ]);
-    
-
-    let delta = start.difference(stop);
-    console.log(delta.value);
+    let delta = startPosition.difference(stopPosition);
 
     let angle = delta.getAngle();
     let shape = new Vector([delta.getLength(), 2]);
-    let offset = startPosition.add(shape.scale(.5)).rotate(this.editBody.angle);
+    let offset = startPosition.add(delta.copy().scale(.5)).rotate(this.editBody.angle);
 
   
     
@@ -100,13 +89,13 @@ function _Game() {
         return [
           new Box({
             offset: [0, 0],
-            shape: shape.value,
+            shape: shape.scale(.5).value,
             angle: angle - Game.editBody.angle,
           }, _this)
         ]
       },
       config: {
-        gravitySensitive: true,
+        gravitySensitive: false,
         exerciseGravity: false,
       }
     });
