@@ -30,8 +30,7 @@ function Body({position, shapeFactory, config = {}}) {
 		this.mass = 100;
 		this.invMass = .01;
 
-		this.inertia = 1000000;
-		this.invInertia = 1 / this.inertia;
+		this.invInertia = 1;
 
 		
 		this.recalcMass = function() {
@@ -39,8 +38,7 @@ function Body({position, shapeFactory, config = {}}) {
 			this.invMass = 1 / this.mass;
 		}
 		this.recalcInertia = function() {
-			this.inertia = body.shape.calcInertia();
-			this.invInertia = 1 / this.inertia;
+			this.invInertia = 1 / body.shape.calcInertia();
 		}
 	}
 
