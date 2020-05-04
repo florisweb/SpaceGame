@@ -154,6 +154,14 @@ function _RenderEngine() {
 
 
 		if (_entity.draw) _entity.draw(ctx); else _entity.shape.draw();
+		if (Game.editBody == _entity) 
+		{
+			ctx.strokeStyle = "#0f0";
+			ctx.beginPath();
+			ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.shape.shapeRange / this.camera.zoom);
+			ctx.closePath();
+			ctx.stroke();
+		}
 
 		// if (_entity.buildings) 
 		// 	for (let i = 0; i < _entity.buildings.length; i++)

@@ -71,6 +71,8 @@ function BodyGroup({position, config = {}}) {
 		PhysicsEngine.collision.update(this.bodies);
 		
 		PhysicsEngine.applyCalculations(_dt, this.bodies);
+
+		this.shape.calcShapeRange();
 	}
 
 }
