@@ -101,8 +101,8 @@ function BodyGroup({position, config = {}}) {
 
 
 	this.update = function(_dt) {
-		PhysicsEngine.gravity.update(this.bodies);
-		PhysicsEngine.collision.update(this.bodies);
+		// PhysicsEngine.gravity.update(this.bodies);
+		// PhysicsEngine.collision.update(this.bodies);
 		
 		PhysicsEngine.applyCalculations(_dt, this.bodies);
 

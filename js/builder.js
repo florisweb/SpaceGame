@@ -31,8 +31,11 @@ function _Builder() {
     }
 
     buildBody();
-      
+    
+    let stop = Builder.stopPosition.copy();
     this.cancelBuild();
+    
+    this.handleClick(stop.add(this.buildBody.position));
   }
 
 
@@ -83,7 +86,7 @@ function BuildLine({offset, length, angle}, _parent) {
   this.length = length;
   Box.call(this, {
     offset: offset, 
-    shape: [length / 2, 5], 
+    shape: [length / 2, 2], 
     angle: angle
   }, _parent);
 }
