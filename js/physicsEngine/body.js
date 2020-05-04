@@ -70,6 +70,26 @@ function BodyGroup({position, config = {}}) {
 		}
 		return list;
 	}
+	this.shape.calcShapeRange = function() {
+		this.shapeRange = 0;
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++)
+		{
+			let type = list[i].constructor.name;
+			let offset = list[i].parent.bodyParent.position;
+			let range = list[i].offset.getLength() + offset.getLength(); 
+			if (type == "Box") 
+			{
+				
+				range += offset.getProjection(list[i].shape).getLength();
+			} else {
+				range += list[i].radius;
+			}	
+			
+			if (range < this.shapeRange) continue;
+			this.shapeRange = range;
+		}
+	}
 
 	
 	this.shape.onCollision = function(_e, _shapeItem) {
@@ -294,7 +314,7 @@ function Body_Shape(_parent, _shapeFactory) {
 		for (let i = 0; i < list.length; i++)
 		{
 			let type = list[i].constructor.name;
-			let range = list[i].offset.getLength();
+			let range = list[i].offset.getLength(); 
 			if (type == "Box") 
 			{
 				range += list[i].shape.getLength();
