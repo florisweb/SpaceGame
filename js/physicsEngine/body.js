@@ -19,6 +19,15 @@ function BodyGroup({position, config = {}}) {
 		return list;
 	}
 
+	
+	this.shape.onCollision = function(_e, _shapeItem) {
+		console.log("bodygroup has been hit", _e, _shapeItem.parent.bodyParent.id);
+		setTimeout(function () {
+			body.removeBody(_shapeItem.parent.bodyParent);
+		}, 100);
+	};
+
+
 	this.addBody = function(_body) {
 		_body.shape.getPosition = function() {
 			return body.position.copy().add(_body.position.copy().rotate(body.angle));
@@ -26,8 +35,20 @@ function BodyGroup({position, config = {}}) {
 		_body.shape.parent = this;
 		_body.shape.bodyParent = _body;
 
+
 		this.bodies.push(_body);
 		this.shape.update();
+	}
+
+	this.removeBody = function(_body) {
+		for (let i = this.bodies.length - 1; i >= 0; i--)
+		{
+			if (this.bodies[i].id != _body.id) continue;
+			this.bodies.splice(i, 1);
+
+			this.shape.update();
+			return;
+		}
 	}
 
 }
@@ -48,6 +69,7 @@ function BodyGroup({position, config = {}}) {
 function Body({position, shapeFactory, config = {}}) {
 	let body = this;
 	this.config = config;
+	this.id = newId();
 
 	this.angle 				= 0;
 	this.angularVelocity 	= .0;
@@ -108,6 +130,8 @@ function Body_Shape(_parent, _shapeFactory) {
 	this.getList = function() {
 		return this.list;
 	}
+
+	this.onCollision = function() {}
 
 
 	this.update = function() {

@@ -12,6 +12,11 @@ function _PhysicsEngine_collision() {
 		
 				for (let c = 0; c < collisions.length; c++) 
 				{
+					try {
+						self.onCollision(collisions[c], collisions[c].self);
+						target.onCollision(collisions[c], collisions[c].target);
+					} catch (e) {};
+
 					this.resolveCollision(collisions[c]);
 				}
 			}
@@ -21,7 +26,6 @@ function _PhysicsEngine_collision() {
 	this.resolveCollision = function(collider) {
 		let self = collider.self.parent.parent;
 		let target = collider.target.parent.parent;
-		console.log(target);
 
 		// PositionOffset
 		let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);

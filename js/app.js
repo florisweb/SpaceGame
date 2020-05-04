@@ -39,7 +39,7 @@ let bodyG = new BodyGroup({
 		exerciseGravity: true,
 	}
 });
-bodyG.material.restitution = 1.5;
+bodyG.material.restitution = 1;
 
 let planet = new Body({
 	position: [0, 0],
