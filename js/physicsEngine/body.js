@@ -1,3 +1,30 @@
+function BodyGroup({position, shapeFactory, config = {}}) {
+	Body.call(this, {position, shapeFactory, config});
+
+	this.bodies = [];
+	this.shape.getList = function() {
+		let list = Object.assign([], this.shape.list);
+		for (let b = 0; b < this.bodies.length; b++)
+		{
+			list = list.concat(this.bodies[b].shape.list);
+		}
+		return list;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function Body({position, shapeFactory, config = {}}) {
 	let body = this;
@@ -31,7 +58,6 @@ function Body({position, shapeFactory, config = {}}) {
 		this.invMass = .01;
 
 		this.invInertia = 1;
-
 		
 		this.recalcMass = function() {
 			this.mass = body.shape.calcMass();
@@ -59,6 +85,10 @@ function Body_Shape(_parent, _shapeFactory) {
 		this.list.push(_shape);
 		this.update();
 	}
+	
+	this.getList = function() {
+		return this.list;
+	}
 
 
 	this.update = function() {
@@ -85,13 +115,15 @@ function Body_Shape(_parent, _shapeFactory) {
 		let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2) 
 		if (squareDistance > Math.pow(this.shapeRange + _targetShape.shapeRange, 2)) return collisions;
 
+		let ownList = this.getList();
+
 		for (let s = 0; s < this.list.length; s++)
 		{
 			let self = this.list[s];
-			for (let t = 0; t < _targetShape.list.length; t++)
+			let targetList = _targetShape.getList();
+			for (let t = 0; t < targetList.length; t++)
 			{
-				let target = _targetShape.list[t];
-
+				let target = targetList[t];
 				let collider = PhysicsEngine.collision.collides(self, target);
 				if (!collider) continue;
 
@@ -127,9 +159,10 @@ function Body_Shape(_parent, _shapeFactory) {
 
 	this.calcInertia = function() {
 		let inertia = 0;
-		for (let i = 0; i < this.list.length; i++) 
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++) 
 		{
-			inertia += this.list[i].getInertia(calcMassPerItem(this.list[i], this.parent.material.density));
+			inertia += list[i].getInertia(calcMassPerItem(list[i], this.parent.material.density));
 		}
 
 		return inertia;
@@ -138,18 +171,19 @@ function Body_Shape(_parent, _shapeFactory) {
 
 	this.calcMass = function() {
 		let mass = 0;
-		for (let i = 0; i < this.list.length; i++) mass += calcMassPerItem(this.list[i], this.parent.material.density);
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++) mass += calcMassPerItem(list[i], this.parent.material.density);
 		return mass;
 	}
 
 
 	let prevCenterOfMass = new Vector([0, 0]);
 	this.updateCenterOfMass = function(_centerOfMass) {
-		for (let i = 0; i < this.list.length; i++)
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++)
 		{
-			this.list[i].offset.add(prevCenterOfMass.difference(_centerOfMass).scale(-1));
+			list[i].offset.add(prevCenterOfMass.difference(_centerOfMass).scale(-1));
 		}
-
 		prevCenterOfMass = _centerOfMass;
 	}
 
@@ -157,13 +191,14 @@ function Body_Shape(_parent, _shapeFactory) {
 		let offset = new Vector([0, 0]);
 		let massTillNow = 0;
 
-		for (let i = 0; i < this.list.length; i++)
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++)
 		{
-			let cMass = calcMassPerItem(this.list[i], this.parent.material.density);
+			let cMass = calcMassPerItem(list[i], this.parent.material.density);
 			massTillNow += cMass;
 			let perc = cMass / massTillNow;
 
-			let delta = offset.difference(this.list[i].offset);
+			let delta = offset.difference(list[i].offset);
 			offset.add(delta.scale(perc));
 		}
 
@@ -172,15 +207,16 @@ function Body_Shape(_parent, _shapeFactory) {
 
 	this.calcShapeRange = function() {
 		this.shapeRange = 0;
-		for (let i = 0; i < this.list.length; i++)
+		let list = this.getList();
+		for (let i = 0; i < list.length; i++)
 		{
-			let type = this.list[i].constructor.name;
-			let range = this.list[i].offset.getLength();
+			let type = list[i].constructor.name;
+			let range = list[i].offset.getLength();
 			if (type == "Box") 
 			{
-				range += this.list[i].shape.getLength();
+				range += list[i].shape.getLength();
 			} else {
-				range += this.list[i].radius;
+				range += list[i].radius;
 			}	
 			
 			if (range < this.shapeRange) continue;

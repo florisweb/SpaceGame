@@ -71,7 +71,7 @@ function Planet(_ring) {
 
 	let distance = Math.pow(ring, 1.3) * 1500;
 	let radius = Math.random() * 100 + 40;
-	let startVelocity = PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, distance) * .7;
+	let startVelocity = PhysicsEngine.gravity.formulas.calcEscapeVelocity(sun.massData.mass, distance) * .1//7;
 
 	let config = {
 		position: [PhysicsEngine.world.size.value[0] / 2 - distance, PhysicsEngine.world.size.value[1] / 2],
