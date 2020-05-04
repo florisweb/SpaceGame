@@ -75,12 +75,10 @@ function BodyGroup({position, config = {}}) {
 		let list = this.getList();
 		for (let i = 0; i < list.length; i++)
 		{
-			let type = list[i].constructor.name;
 			let offset = list[i].parent.bodyParent.position;
 			let range = list[i].offset.getLength() + offset.getLength(); 
-			if (type == "Box") 
+			if (list[i].type == "Box") 
 			{
-				
 				range += offset.getProjection(list[i].shape).getLength();
 			} else {
 				range += list[i].radius;
@@ -313,9 +311,8 @@ function Body_Shape(_parent, _shapeFactory) {
 		let list = this.getList();
 		for (let i = 0; i < list.length; i++)
 		{
-			let type = list[i].constructor.name;
 			let range = list[i].offset.getLength(); 
-			if (type == "Box") 
+			if (list[i].name == "Box") 
 			{
 				range += list[i].shape.getLength();
 			} else {
@@ -347,6 +344,7 @@ function Body_Shape_item({offset}, _parent) {
 }
 
 function Circle({radius, offset}, _parent) {
+	this.type = "Circle";
 	Body_Shape_item.call(this, {offset: offset}, _parent);
 
 	this.radius = radius;
@@ -380,6 +378,7 @@ function Circle({radius, offset}, _parent) {
 
 
 function Box({offset, shape, angle = 0}, _parent) {
+	this.type = "Box";
 	Body_Shape_item.call(this, {offset: offset}, _parent);
 
 	this.shape = new Vector(shape);

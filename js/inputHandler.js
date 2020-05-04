@@ -32,7 +32,7 @@ function _InputHandler() {
 		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
 		
-		Builder.handleClick(worldPosition);
+		if (Builder.buildBody) return Builder.handleClick(worldPosition);
 		handleClickEntity(worldPosition);
 	});
 
@@ -41,13 +41,13 @@ function _InputHandler() {
 		{
 			let distance = _worldPosition.difference(PhysicsEngine.bodies[i].position).getLength();
 			if (distance > PhysicsEngine.bodies[i].shape.shapeRange) continue;
-			Game.editBody = PhysicsEngine.bodies[i];
+			Builder.setBuildBody(PhysicsEngine.bodies[i]);
 
 			RenderEngine.camera.follow(PhysicsEngine.bodies[i]);
 			return true;
 		}
 
-		Game.editBody = false;
+		Builder.buildBody = false;
 		return false;
 	}
 
@@ -133,3 +133,68 @@ function _InputHandler() {
 	}
 
 }
+
+
+
+
+document.body.addEventListener("keydown", function(_e) {
+	KeyHandler.keys[_e.key] = true;
+	KeyHandler.handleKeys(_e);
+});
+
+document.body.addEventListener("keyup", function(_e) {
+	KeyHandler.keys[_e.key] = false;
+});
+
+const KeyHandler = new _KeyHandler();
+function _KeyHandler() {
+	this.keys = [];
+	let shortCuts = [
+		{
+			keys: ["Escape"], 
+			event: function () {
+				Builder.cancelBuild();
+			},
+			ignoreIfInInputField: false
+		},
+	];
+
+
+  	this.handleKeys = function(_event) {
+		let inInputField = _event.target.type == "text" || _event.target.type == "textarea" ? true : false;
+
+		for (let i = 0; i < shortCuts.length; i++)
+		{
+			let curShortcut = shortCuts[i]; 
+			if (curShortcut.ignoreIfInInputField && inInputField) continue;
+
+			let succes = true;
+			for (let i = 0; i < curShortcut.keys.length; i++)
+			{
+				let curKey = curShortcut.keys[i];
+				if (this.keys[curKey]) continue;
+				succes = false;
+				break;
+			}
+
+			if (!succes) continue;
+
+			_event.target.blur();
+
+			let status = false;
+			try {status = curShortcut.event(_event);}
+			catch (e) {console.warn(e)};
+			KEYS = {};
+			return true;
+		}
+  	}
+
+}
+
+
+
+
+
+
+
+

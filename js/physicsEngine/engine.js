@@ -7,7 +7,7 @@ function _PhysicsEngine() {
 		size: new Vector([20000, 20000])
 	}
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 6 + 1.5);
+		this.G = 6.674 * Math.pow(10, -11 + 6);
 	}
 
 

@@ -12,6 +12,11 @@ function _Builder() {
     this.buildBody = _body;
   }
 
+  this.cancelBuild = function() {
+    this.startPosition = false;
+    this.stopPosition = false;
+    this.building = false;
+  }
 
 
   this.handleClick = function(_position) {
@@ -27,9 +32,7 @@ function _Builder() {
 
     buildBody();
       
-    this.startPosition = false;
-    this.stopPosition = false;
-    this.building = false;
+    this.cancelBuild();
   }
 
 
@@ -37,16 +40,16 @@ function _Builder() {
     let delta = Builder.startPosition.difference(Builder.stopPosition);
 
     let angle = delta.getAngle();
-    let shape = new Vector([delta.getLength(), 2]);
+    let shape = new Vector([delta.getLength(), 5]);
     let offset = Builder.startPosition.add(delta.copy().scale(.5)).rotate(-Builder.buildBody.angle);
 
     let config = {
       position: offset.value,
       shapeFactory: function(_this) {
         return [
-          new Box({
+          new BuildLine({
             offset: [0, 0],
-            shape: shape.scale(.5).value,
+            length: shape.getLength(),
             angle: angle - Builder.buildBody.angle,
           }, _this)
         ]
@@ -71,3 +74,18 @@ function _Builder() {
     this.stopPosition = this.buildBody.position.difference(_position);
   }
 }
+
+
+
+
+
+function BuildLine({offset, length, angle}, _parent) {
+  this.length = length;
+  Box.call(this, {
+    offset: offset, 
+    shape: [length / 2, 5], 
+    angle: angle
+  }, _parent);
+}
+
+

@@ -131,7 +131,7 @@ function _PhysicsEngine_collision() {
 		let squareDistance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
 		if (squareDistance > Math.pow(a.meshRange + b.meshRange, 2)) return;
 
-		return jumpTable[a.constructor.name][b.constructor.name](a, b);
+		return jumpTable[a.type][b.type](a, b);
 	}
 
 
