@@ -32,7 +32,7 @@ let sun = new Sun();
 // PhysicsEngine.addBody(planet3);
 
 
-let bodyG = new BodyGroup({
+let bodyG = new BuilderGroup({
 	position: [7000, 7000],
 	config: {
 		gravitySensitive: true,
@@ -55,7 +55,7 @@ let planet = new Body({
 });
 
 let building = new Body({
-	position: [115 + 20, 0],
+	position: [115, 0],
 	shapeFactory: function(_this) {
 		return [
 			new Box({offset: [15, 0], shape: [15, 30]}, _this),

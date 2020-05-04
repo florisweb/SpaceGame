@@ -1,3 +1,14 @@
+function BuilderGroup({position, config = {}}) {
+	config.buildable = true;
+	BodyGroup.call(this, {position: position, config: config});
+
+
+}
+
+
+
+
+
 function BodyGroup({position, config = {}}) {
 	Body.call(this, {
 		position: position,
@@ -79,7 +90,6 @@ function BodyGroup({position, config = {}}) {
 
 		this.shape.calcShapeRange();
 	}
-
 }
 
 

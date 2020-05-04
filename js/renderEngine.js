@@ -46,6 +46,8 @@ function _RenderEngine() {
 		}
 		
 
+		this.drawBuilderPreview();
+
 		this.drawClientCursors();
 
 
@@ -154,19 +156,14 @@ function _RenderEngine() {
 
 
 		if (_entity.draw) _entity.draw(ctx); else _entity.shape.draw();
-		if (Game.editBody == _entity) 
-		{
+
+		if (_entity.config.buildable && _entity === Builder.buildBody)
+		{		
 			ctx.strokeStyle = "#0f0";
 			ctx.beginPath();
 			ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.shape.shapeRange / this.camera.zoom);
 			ctx.closePath();
 			ctx.stroke();
-
-			if (Game.startPosition)
-			{
-				this.drawVector(_entity.position.copy().add(Game.startPosition), new Vector([10, 10]), "#00f");
-			}
-
 		}
 
 		// if (_entity.buildings) 
@@ -214,6 +211,20 @@ function _RenderEngine() {
 			ctx.closePath();
 			ctx.fill();
 		}
+	}
+
+
+	this.drawBuilderPreview = function() {
+		if (!Builder.building || !Builder.buildBody) return;
+		let start = Builder.buildBody.position.copy().add(Builder.startPosition);
+		let stop = Builder.buildBody.position.copy().add(Builder.stopPosition);
+
+		let delta = start.difference(stop);
+
+
+		this.drawVector(start, delta, "#00f");
+
+
 	}
 
 

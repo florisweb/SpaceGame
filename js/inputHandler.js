@@ -32,8 +32,7 @@ function _InputHandler() {
 		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
 		
-		if (Game.editBody) return Game.handleBuildClick(worldPosition);
-
+		Builder.handleClick(worldPosition);
 		handleClickEntity(worldPosition);
 	});
 
@@ -87,6 +86,7 @@ function _InputHandler() {
 				]);
 	    		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
+	    		Builder.handleMouseMove(worldPosition);
 		    	Server.sendPacket(0, worldPosition.value);
 		    }
 		);
