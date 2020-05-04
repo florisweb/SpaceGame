@@ -13,6 +13,10 @@ function BodyGroup({position, config = {}}) {
 		_body.shape.getPosition = function() {
 			return body.position.copy().add(_body.position.copy().rotate(body.angle));
 		}
+		_body.shape.getAngle = function() {
+			return _body.angle + body.angle;
+		}
+
 		_body.shape.parent = this;
 		_body.shape.bodyParent = _body;
 		_body.shape.onCollision = function(_e, _shapeItem) {
@@ -24,6 +28,7 @@ function BodyGroup({position, config = {}}) {
 			);
 			return true;
 		}
+
 
 
 		this.bodies.push(_body);

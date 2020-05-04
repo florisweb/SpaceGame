@@ -95,7 +95,7 @@ function _Game() {
         ]
       },
       config: {
-        gravitySensitive: false,
+        gravitySensitive: true,
         exerciseGravity: false,
       }
     });
