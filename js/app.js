@@ -45,7 +45,7 @@ let planet = new Body({
 	position: [0, 0],
 	shapeFactory: function(_this) {
 		return [
-			new Circle({offset: [0, 0], radius: 100}, _this),
+			new BuildCircle({offset: [0, 0], radius: 100}, _this),
 		];
 	},
 	config: {

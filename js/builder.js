@@ -158,3 +158,19 @@ function BuildLine({offset, length, angle}, _parent) {
 }
 
 
+function BuildCircle({radius, offset}, _parent) {
+  Circle.call(this, {radius: radius, offset: offset}, _parent);
+
+  this.getBuildPoints = function() {
+    if (!Builder.buildBody) return;
+    let points = [];
+
+    for (let a = -Math.PI; a < Math.PI; a += .1) 
+    {
+      let point = this.getPosition().add(new Vector([0, 1]).setAngle(a, this.radius));
+      points.push(point);
+    }
+    return points;
+  }
+} 
+
