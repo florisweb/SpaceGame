@@ -46,7 +46,9 @@ function _RenderEngine() {
 		}
 		
 
+		this.drawBuildPoints();
 		this.drawBuilderPreview();
+
 
 		this.drawClientCursors();
 
@@ -223,8 +225,14 @@ function _RenderEngine() {
 
 
 		this.drawVector(start, delta, "#00f");
+	}
 
-
+	this.drawBuildPoints = function() {
+		let points = Builder.getBuildPoints();
+		if (!points) return;
+		this.drawPointList(points);
+		if (!Builder.curHoverPoint) return;
+		this.drawVector(Builder.curHoverPoint.copy(), new Vector([10, 10]), "#fa0");
 	}
 
 

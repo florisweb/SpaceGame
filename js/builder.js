@@ -78,13 +78,49 @@ function _Builder() {
   }
 
 
+  this.curHoverPoint;
   this.handleMouseMove = function(_position) {
-    if (!this.buildBody || !this.startPosition) return;
+    if (!this.buildBody) return;
+    this.curHoverPoint = this.getClosestBuildPoint(_position);
+
+    if (!this.startPosition) return;
     let pos = this.buildBody.position.difference(_position);
     let delta = this.startPosition.difference(pos);
     
     if (delta.getLength() > this.settings.maxLineLength) delta.setLength(this.settings.maxLineLength);
     this.stopPosition = this.startPosition.copy().add(delta);
+  }
+
+
+  this.getClosestBuildPoint = function(_position) {
+    let minDistance = Infinity;
+    let points = this.getBuildPoints();
+    let closestPoint = false;
+    if (!points) return false;
+
+    for (let i = 0; i < points.length; i++)
+    {
+      let delta = _position.difference(points[i]);
+      let distance = Math.pow(_position.value[0], 2) + Math.pow(_position.value[1], 2);
+      if (distance > minDistance) continue;
+      distance = minDistance;
+      closestPoint = points[i];
+    }
+    
+    return closestPoint;
+  }
+
+  this.getBuildPoints = function() {
+    if (!this.buildBody) return;
+    let points = [];
+    let items = this.buildBody.shape.getList();
+    for (let i = 0; i < items.length; i++)
+    {
+      if (!items[i].getBuildPoints) continue;
+      let newPoints = items[i].getBuildPoints();
+      points = points.concat(newPoints);
+    }
+    return points;
   }
 }
 
@@ -94,11 +130,26 @@ function _Builder() {
 
 function BuildLine({offset, length, angle}, _parent) {
   this.length = length;
+  this.width = 4;
+ 
   Box.call(this, {
     offset: offset, 
-    shape: [length / 2, 2], 
+    shape: [length / 2, this.width / 2], 
     angle: angle
   }, _parent);
+
+
+  this.draw = function() {
+    RenderEngine.drawBox(this);
+  }
+
+  this.getBuildPoints = function() {
+    let points = this.getPoints();
+    return [
+      points[0],
+      points[2]
+    ];
+  }
 }
 
 

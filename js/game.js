@@ -23,7 +23,7 @@ function _Game() {
     setTimeout(function () {
       RenderEngine.camera.zoomTo(4);
       // RenderEngine.camera.follow(PhysicsEngine.particles[Math.floor(PhysicsEngine.particles.length * Math.random())]);
-      RenderEngine.camera.follow(PhysicsEngine.bodies[0]);
+      RenderEngine.camera.follow(PhysicsEngine.bodies[1]);
     }, 10);
 
     // Server.init();
