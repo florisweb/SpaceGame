@@ -3,6 +3,7 @@
 function _Builder() {
   this.settings = {
     maxLineLength: 100,
+    maxBuildPointHoverDistance: Math.pow(20, 2) // squared
   }
 
 
@@ -28,14 +29,18 @@ function _Builder() {
   this.handleClick = function(_position) {
     if (!this.buildBody) return;
 
+    let closestPoint = this.getClosestBuildPoint(_position);
     if (!this.startPosition)
     {
-      this.startPosition = this.buildBody.position.difference(_position);
+      if (!closestPoint) return;
+
+      this.startPosition = this.buildBody.position.difference(closestPoint);
       this.stopPosition = this.startPosition.copy();
       this.building = true;
       return;
     }
 
+    if (closestPoint) this.stopPosition = this.buildBody.position.difference(closestPoint);
     buildBody();
     
     let stop = Builder.stopPosition.copy();
@@ -68,7 +73,6 @@ function _Builder() {
         exerciseGravity: false,
         buildItem: {
           type: 0,
-
         }
       }
     };
@@ -78,10 +82,11 @@ function _Builder() {
   }
 
 
-  this.curHoverPoint;
+  this.mousePos = new Vector([0, 0]);
+
   this.handleMouseMove = function(_position) {
+    this.mousePos = _position.copy();
     if (!this.buildBody) return;
-    this.curHoverPoint = this.getClosestBuildPoint(_position);
 
     if (!this.startPosition) return;
     let pos = this.buildBody.position.difference(_position);
@@ -93,15 +98,15 @@ function _Builder() {
 
 
   this.getClosestBuildPoint = function(_position) {
-    let minDistance = Infinity;
+    let minDistance = this.settings.maxBuildPointHoverDistance;
     let points = this.getBuildPoints();
-    let closestPoint = false;
+    let closestPoint = 0;
     if (!points) return false;
 
     for (let i = 0; i < points.length; i++)
     {
       let delta = _position.difference(points[i]);
-      let distance = Math.pow(_position.value[0], 2) + Math.pow(_position.value[1], 2);
+      let distance = Math.pow(delta.value[0], 2) + Math.pow(delta.value[1], 2);
       if (distance > minDistance) continue;
       distance = minDistance;
       closestPoint = points[i];

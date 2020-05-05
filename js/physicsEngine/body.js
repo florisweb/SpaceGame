@@ -91,7 +91,7 @@ function BodyGroup({position, config = {}}) {
 
 	
 	this.shape.onCollision = function(_e, _shapeItem) {
-		console.log("bodygroup has been hit", _e, _shapeItem.parent.bodyParent.id);
+		// console.log("bodygroup has been hit", _e, _shapeItem.parent.bodyParent.id);
 		// setTimeout(function () {
 		// 	body.removeBody(_shapeItem.parent.bodyParent);
 		// }, 100);

@@ -231,8 +231,16 @@ function _RenderEngine() {
 		let points = Builder.getBuildPoints();
 		if (!points) return;
 		this.drawPointList(points);
-		if (!Builder.curHoverPoint) return;
-		this.drawVector(Builder.curHoverPoint.copy(), new Vector([10, 10]), "#fa0");
+
+		let hoverPoint = Builder.getClosestBuildPoint(Builder.mousePos);
+		if (!hoverPoint) return;
+
+		let pos = this.camera.worldPosToCanvasPos(hoverPoint);
+		ctx.fillStyle = "#fff";
+		ctx.beginPath();
+		ctx.circle(pos.value[0], pos.value[1], 4);
+		ctx.closePath();
+		ctx.fill();
 	}
 
 
