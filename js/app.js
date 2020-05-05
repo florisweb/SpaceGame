@@ -26,7 +26,7 @@ let sun = new Sun();
 
 
 
-// PhysicsEngine.addBody(sun);
+PhysicsEngine.addBody(sun);
 // PhysicsEngine.addBody(planet1);
 // PhysicsEngine.addBody(planet2);
 // PhysicsEngine.addBody(planet3);

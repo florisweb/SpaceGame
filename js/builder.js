@@ -1,6 +1,12 @@
 
 
 function _Builder() {
+  this.settings = {
+    maxLineLength: 100,
+  }
+
+
+
   this.buildBody = false;
   this.building = false;
 
@@ -74,7 +80,11 @@ function _Builder() {
 
   this.handleMouseMove = function(_position) {
     if (!this.buildBody || !this.startPosition) return;
-    this.stopPosition = this.buildBody.position.difference(_position);
+    let pos = this.buildBody.position.difference(_position);
+    let delta = this.startPosition.difference(pos);
+    
+    if (delta.getLength() > this.settings.maxLineLength) delta.setLength(this.settings.maxLineLength);
+    this.stopPosition = this.startPosition.copy().add(delta);
   }
 }
 
