@@ -3,7 +3,7 @@
 function _Builder() {
   this.settings = {
     maxLineLength: 100,
-    maxBuildPointHoverDistance: Math.pow(20, 2) // squared
+    maxBuildPointHoverDistance: Math.pow(10, 2) // squared
   }
 
 
@@ -167,7 +167,7 @@ function BuildCircle({radius, offset}, _parent) {
 
     for (let a = -Math.PI; a < Math.PI; a += .1) 
     {
-      let point = this.getPosition().add(new Vector([0, 1]).setAngle(a, this.radius));
+      let point = this.getPosition().add(new Vector([0, 1]).setAngle(a + Builder.buildBody.angle, this.radius));
       points.push(point);
     }
     return points;

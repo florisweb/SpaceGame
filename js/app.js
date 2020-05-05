@@ -68,32 +68,9 @@ let building = new Body({
 	}
 });
 
-let config = {
-  position: [100, 100],
-  shapeFactory: function(_this) {
-    return [
-      new BuildLine({
-        offset: [0, 0],
-        length: 100,
-        angle: 0,
-      }, _this)
-    ]
-  },
-  config: {
-    gravitySensitive: false,
-    exerciseGravity: false,
-    buildItem: {
-      type: 0,
-    }
-  }
-};
-
-let lineBody = new Body(config);
-
 
 bodyG.addBody(planet);
 bodyG.addBody(building);
-bodyG.addBody(lineBody);
 
 PhysicsEngine.addBody(bodyG);
 
