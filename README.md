@@ -101,3 +101,8 @@ I = mr^2
 
 F -> torque t
 m -> I
+
+
+
+
+

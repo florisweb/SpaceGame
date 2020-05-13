@@ -89,8 +89,21 @@
 					this.removeBodiesOutsideWorld();
 
 					this.collision.update();
+					
+					this.updateRotationPoints();
 
 					this.applyCalculations();
+				}
+
+				this.updateRotationPoints = function() {
+					for (let i = 0; i < this.bodies.length; i++)
+					{
+						// let self = this.bodies[i];
+						// for (let p = 0; p < self.points.length; i++)
+						// {
+						this.bodies[i].rotationPoint.update();
+						// }
+					}
 				}
 
 
@@ -107,10 +120,14 @@
 
 						cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia;
 						cur.angle 			+= cur.angularVelocity;
+						
+						let rotationOffset = cur.rotationOffset.copy().scale(-1);
+						let angleMovement 	= rotationOffset.difference(rotationOffset.copy().rotate(cur.angularVelocity)).rotate(cur.angle);
+						cur.position.add(angleMovement);
 
 
 						cur.tempValues.positionOffset = new Vector([0, 0]);
-						cur.tempValues.force = new Vector([0, 0]);
+						cur.tempValues.force = new Vector([0, 9.81 * cur.massData.mass * .005 * cur.gravSensitive]);
 						cur.tempValues.torque = 0;
 					}
 				}
@@ -173,8 +190,9 @@
 					let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
 					let normal = collider.normal.copy().setLength(collider.depth);
 
-					self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
-					target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
+					let perc = .5;
+					self.tempValues.positionOffset.add(normal.copy().scale((1 - massPerc) * perc));
+					target.tempValues.positionOffset.add(normal.copy().scale(-massPerc * perc));
 
 
 
@@ -453,6 +471,7 @@
 
 				this.angle 				= 0;
 				this.angularVelocity 	= .0;
+				this.rotationOffset		= new Vector([0, 0]);
 
 				this.position 			= new Vector(position);
 				this.velocity 			= new Vector([0, 0]);
@@ -468,7 +487,7 @@
 				this.shape = new Body_Shape(this, shapeFactory);
 				this.material = {
 					density: .1,
-					restitution: .25,
+					restitution: -.5,
 					staticFriction: .5,
 					dynamicFriction: .25,
 				}
@@ -492,10 +511,94 @@
 				}
 
 
+				this.rotationPoint = new Body_rotationPoint(this);
+
+
 				this.shape.updateCenterOfMass(this.shape.getCenterOfMass());
 				this.shape.calcShapeRange();
 				this.massData.recalcMass();
 				this.massData.recalcInertia();
+			}
+
+
+			function Body_rotationPoint(_parent) {
+				this.parent = _parent;
+
+				
+				this.points = [];
+				this.update = function() {
+					for (let i = 0; i < this.points.length; i++)
+					{
+						this.points[i].update();
+					}
+				}
+
+				this.addRotationPoint = function(_offset, _other) {
+					let position = this.parent.position.copy().add(_offset.copy().rotate(this.parent.angle));
+					let otherOffset = _other.position.copy().difference(position);//.rotate(-_other.angle);
+					
+					let rotPointA = new RotationPoint_point({
+						offset: _offset.copy(),
+						self: this.parent,
+						target: _other,
+					});
+
+					let rotPointB = new RotationPoint_point({
+						offset: otherOffset,
+						self: _other,
+						target: this.parent,
+						other: rotPointA
+					});
+					
+					rotPointA.otherRotationPoint = rotPointB;
+
+					// this.parent.shape.updateCenterOfMass(_offset);
+					this.parent.rotationOffset = _offset.copy();
+
+					// _other.rotationOffset = _offset;
+
+
+					this.points.push(rotPointA);
+				}
+
+				this.draw = function() {
+					for (let i = 0; i < this.points.length; i++)
+					{
+						ctx.drawVector(this.points[i].offset.copy().rotate(this.parent.angle).add(this.parent.position), new Vector([10, 10]), "#fa0");
+					}
+				}
+			}
+
+			function RotationPoint_point({offset, self, target, other}) {
+				this.offset = offset;
+				this.self = self;
+				this.target = target;
+				this.otherRotationPoint = other;
+
+				this.getOffset = function() {
+					return this.offset.copy().rotate(this.self.angle)
+				}
+				
+				this.getPosition = function() {
+					return this.self.position.copy().add(this.getOffset());
+				}
+
+				this.update = function() {
+					let ownPosition = this.getPosition();
+					let targetPosition = this.otherRotationPoint.getPosition();
+
+					let newPosition = ownPosition.copy().add(targetPosition).scale(.5);
+					ctx.drawVector(newPosition, new Vector([10, 10]), "#0fa");
+
+					let delta = ownPosition.difference(newPosition);
+
+					let perp = this.getOffset().getPerpendicular();
+					perp.setLength(1);
+					let torque = perp.dotProduct(delta);
+					let pos = this.getOffset().setLength(1).dotProduct(delta);
+					// this.self.tempValues.positionOffset.add(this.getOffset().setLength(-pos));
+					// this.self.tempValues.torque -= torque * 10;
+				}
 			}
 
 
@@ -506,6 +609,9 @@
 				this.shapeRange = 0;
 
 				let This = this;
+
+
+
 
 
 
@@ -552,7 +658,7 @@
 					// ctx.closePath();
 					// ctx.fill();
 
-					// ctx.circle({
+					// ctx.drawCircle({
 					// 	radius: this.shapeRange,
 					// 	getPosition: function () {return This.getPosition()}
 					// });
@@ -661,7 +767,7 @@
 					];
 				}
 				this.draw = function() {
-					ctx.circle(this);
+					ctx.drawCircle(this);
 				}
 				
 				this.getVolume = function() {
@@ -743,7 +849,7 @@
 
 
 
-
+               
 			gameCanvas.onmousemove = function(_e) {
 				let mousePos = new Vector([_e.layerX, _e.layerY]);
 				// body1.position = mousePos;
@@ -751,68 +857,48 @@
 
 			
 			let body1 = new Body({
-				position: [300, 300], 
+				position: [405, 335], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [10, 60], angle: .1}, _this),
-						new Circle({offset: [35, 0], radius: 40}, _this),
+						new Box({offset: [0, 0], shape: [5, 80], angle: 0}, _this),
 					];
 				}
 			});
 			
 			let body2 = new Body({
-				position: [500, 230], 
+				position: [480, 420], 
 				shapeFactory: function(_this) {
 					return [
-						// new Box({offset: [0, 0], shape: [35, 35], angle: .3}, _this),
-						new Circle({offset: [35, 0], radius: 30}, _this),
-						new Box({offset: [45, 45], shape: [5, 40]}, _this),
-						new Box({offset: [100, 85], shape: [60, 2]}, _this),
+						new Box({offset: [0, 0], shape: [5, 80], angle: 0}, _this),
 					];
 				}
 			});
 
-			let body3 = new Body({
-				position: [10, 300], 
+			let floor = new Body({
+				position: [2500, 900], 
 				shapeFactory: function(_this) {
 					return [
-						new Box({offset: [0, 0], shape: [20, 300]}, _this),
+						new Box({offset: [0, 0], shape: [5000, 400]}, _this),
 					];
 				}
 			});
+
+			body1.angle = -Math.PI * .5;
+			// body1.shape.updateCenterOfMass());
+			// body2.angle = Math.PI * .5;
+
+			body1.rotationPoint.addRotationPoint(new Vector([0, 80]), body2);
+
+			// body2.rotationPoint.addRotationPoint(new Vector([0, 80]), floor);
+			body1.gravSensitive = true;
+			body2.gravSensitive = true;
+			floor.gravSensitive = false;
 		
 
 			PhysicsEngine.addBody(body1);
 			PhysicsEngine.addBody(body2);
-			PhysicsEngine.addBody(body3);
+			PhysicsEngine.addBody(floor);
 			
-			body1.velocity = new Vector([.1, 0]);
-			body2.velocity = new Vector([-1, 0]);
-
-		
-
-			for (let i = 0; i < 50; i++) {
-				let position = [Math.random() * gameCanvas.width, Math.random() * gameCanvas.height];
-
-				let body = new Body({
-					position: position,
-					shapeFactory: function(_this) {
-						return [
-							new Box({offset: [0, 0], shape: [40 * Math.random() + 5, 40 * Math.random() + 5], angle: Math.random() * 2 * Math.PI}, _this)
-						];
-					}
-				});
-				if (Math.random() > .5) body = new Body({
-					position: position,
-					shapeFactory: function(_this) {
-						return [
-							new Circle({offset: [0, 0], radius: 30 * Math.random() + 5}, _this),
-						];
-					}
-				});
-
-				PhysicsEngine.addBody(body);
-			}
 
 
 			let running = true;
@@ -828,6 +914,7 @@
 				for (let s = 0; s < PhysicsEngine.bodies.length; s++)
 				{
 					PhysicsEngine.bodies[s].shape.draw();
+					PhysicsEngine.bodies[s].rotationPoint.draw();
 				}
 				
 				ctx.stroke();

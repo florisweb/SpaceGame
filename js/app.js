@@ -26,7 +26,7 @@ let sun = new Sun();
 
 
 
-PhysicsEngine.addBody(sun);
+// PhysicsEngine.addBody(sun);
 // PhysicsEngine.addBody(planet1);
 // PhysicsEngine.addBody(planet2);
 // PhysicsEngine.addBody(planet3);
@@ -54,8 +54,16 @@ let planet = new Body({
 	}
 });
 
-let building = new Body({
+let buildingGroup = new BodyGroup({
 	position: [115, 0],
+	config: {
+		gravitySensitive: false,
+		exerciseGravity: false,
+	}
+});
+
+let building = new Body({
+	position: [0, 0],
 	shapeFactory: function(_this) {
 		return [
 			new Box({offset: [15, 0], shape: [15, 30]}, _this),
@@ -67,10 +75,11 @@ let building = new Body({
 		exerciseGravity: false,
 	}
 });
+buildingGroup.addBody(building);
 
 
 bodyG.addBody(planet);
-bodyG.addBody(building);
+bodyG.addBody(buildingGroup);
 
 PhysicsEngine.addBody(bodyG);
 

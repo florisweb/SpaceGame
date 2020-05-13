@@ -23,7 +23,7 @@ function _Game() {
     setTimeout(function () {
       RenderEngine.camera.zoomTo(4);
       // RenderEngine.camera.follow(PhysicsEngine.particles[Math.floor(PhysicsEngine.particles.length * Math.random())]);
-      RenderEngine.camera.follow(PhysicsEngine.bodies[1]);
+      RenderEngine.camera.follow(PhysicsEngine.bodies[0]);
     }, 10);
 
     // Server.init();
@@ -47,7 +47,7 @@ function _Game() {
 
     let nextFrame = 1000 / fps - dt;
     window.nextFrame = nextFrame;
-    setTimeout(function () {Game.update()}, nextFrame);
+    // setTimeout(function () {Game.update()}, nextFrame);
     prevFrame = new Date();
   }
 }

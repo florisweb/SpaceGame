@@ -156,7 +156,6 @@ function _RenderEngine() {
 		let canvasPos = this.camera.worldPosToCanvasPos(_entity.position);
 
 
-
 		if (_entity.draw) _entity.draw(ctx); else _entity.shape.draw();
 
 		if (_entity.config.buildable && _entity === Builder.buildBody)
@@ -233,9 +232,9 @@ function _RenderEngine() {
 		this.drawPointList(points);
 
 		let hoverPoint = Builder.getClosestBuildPoint(Builder.mousePos);
-		if (!hoverPoint) return;
+		if (!hoverPoint || !hoverPoint.point) return;
 
-		let pos = this.camera.worldPosToCanvasPos(hoverPoint);
+		let pos = this.camera.worldPosToCanvasPos(hoverPoint.point);
 		ctx.fillStyle = "#fff";
 		ctx.beginPath();
 		ctx.circle(pos.value[0], pos.value[1], 4);

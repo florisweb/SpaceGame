@@ -21,11 +21,11 @@ function BodyGroup({position, config = {}}) {
 
 	this.bodies = [];
 	this.addBody = function(_body) {
-		_body.shape.getPosition = function() {
-			return body.position.copy().add(_body.position.copy().rotate(body.angle));
+		_body.getPosition = function() {
+			return body.getPosition().copy().add(_body.position.copy().rotate(body.angle));
 		}
 		_body.shape.getAngle = function() {
-			return _body.angle + body.angle;
+			return body.getAngle() + _body.angle;
 		}
 
 		_body.shape.parent = this;
@@ -39,7 +39,6 @@ function BodyGroup({position, config = {}}) {
 			);
 			return true;
 		}
-
 
 
 		this.bodies.push(_body);
@@ -66,7 +65,8 @@ function BodyGroup({position, config = {}}) {
 		let list = Object.assign([], this.list);
 		for (let b = 0; b < body.bodies.length; b++)
 		{
-			list = list.concat(body.bodies[b].shape.list);
+			let curList = body.bodies[b].shape.getList();
+			list = list.concat(curList);
 		}
 		return list;
 	}
@@ -75,7 +75,7 @@ function BodyGroup({position, config = {}}) {
 		let list = this.getList();
 		for (let i = 0; i < list.length; i++)
 		{
-			let offset = list[i].parent.bodyParent.position;
+			let offset = this.parent.getPosition().difference(list[i].parent.bodyParent.getPosition());
 			let range = list[i].offset.getLength() + offset.getLength(); 
 			if (list[i].type == "Box") 
 			{
@@ -101,8 +101,14 @@ function BodyGroup({position, config = {}}) {
 
 
 	this.update = function(_dt) {
-		// PhysicsEngine.gravity.update(this.bodies);
-		// PhysicsEngine.collision.update(this.bodies);
+		PhysicsEngine.gravity.update(this.bodies);
+		PhysicsEngine.collision.update(this.bodies);
+
+		for (let i = 0; i < this.bodies.length; i++) 
+		{
+			if (!this.bodies[i].update) continue;
+			this.bodies[i].update(_dt);
+		}
 		
 		PhysicsEngine.applyCalculations(_dt, this.bodies);
 
@@ -129,10 +135,14 @@ function Body({position, shapeFactory, config = {}}) {
 	this.id = newId();
 
 	this.angle 				= 0;
+	this.getAngle			= function() {return this.angle}
 	this.angularVelocity 	= .0;
 
 	this.position 			= new Vector(position);
+	this.getPosition 		= function() {return this.position}
 	this.velocity 			= new Vector([0, 0]);
+
+
 
 	this.positionTrace 		= [];
 
@@ -201,10 +211,10 @@ function Body_Shape(_parent, _shapeFactory) {
 
 
 	this.getPosition = function() {
-		return this.parent.position.copy();
+		return this.parent.getPosition().copy();
 	}
 	this.getAngle = function() {
-		return this.parent.angle;
+		return this.parent.getAngle();
 	}
 
 	
@@ -246,10 +256,10 @@ function Body_Shape(_parent, _shapeFactory) {
 		// ctx.closePath();
 		// ctx.fill();
 
-		// ctx.circle({
-		// 	radius: this.shapeRange,
-		// 	getPosition: function () {return This.getPosition()}
-		// });
+		RenderEngine.drawCircle({
+			radius: this.shapeRange,
+			getPosition: function () {return This.getPosition()}
+		}, "#0f0");
 
 		if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(this.getPosition(), this.parent.velocity.copy().scale(15), "#f00");
 
