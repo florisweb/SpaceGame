@@ -43,7 +43,7 @@ function _PhysicsEngine_gravity() {
 	}
 
 	this.getGravitationVector = function(_bodyA, _bodyB) {
-		let dVector = _bodyA.position.difference(_bodyB.position);
+		let dVector = _bodyA.getPosition().difference(_bodyB.getPosition());
 		let gravitation = this.formulas.gravitation(
 			_bodyA.massData.mass, 
 			_bodyB.massData.mass,
@@ -51,9 +51,6 @@ function _PhysicsEngine_gravity() {
 		);
 
 		return dVector.setLength(gravitation);
-		  // new Vector([0, 0])
-				// .setAngle(dVector.getAngle())
-				// .setLength(gravitation);
 	}
 
 

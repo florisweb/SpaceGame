@@ -49,6 +49,7 @@ function _Builder() {
     let stop = Builder.stopPosition.copy();
     this.cancelBuild();
     this.handleClick(stop.add(this.buildBody.getPosition()));
+    this.handleMouseMove(_position);
   }
 
 
@@ -83,7 +84,7 @@ function _Builder() {
       },
 
       config: {
-        gravitySensitive: true,
+        gravitySensitive: false,
         exerciseGravity: false,
         buildItem: {
           type: 0,
@@ -93,8 +94,6 @@ function _Builder() {
 
     let lineBody = new Body(config);
     lineBody.material.restitution = 0;
-    // setTimeout(function () {lineBody.config.gravitySensitive = true;}, 1000);
-
     
     if (_target)
     {
@@ -111,7 +110,7 @@ function _Builder() {
     let bodyGroup = new BodyGroup({
       position: [0, 0],
       config: {
-        gravitySensitive: true,
+        gravitySensitive: false,
         exerciseGravity: false,
       }
     });
