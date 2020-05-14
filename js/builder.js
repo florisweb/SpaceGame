@@ -12,7 +12,6 @@ function _Builder() {
   this.building = false;
 
   this.startPosition  = false;
-  this.startBody      = false;
   this.stopPosition   = false;
 
   this.setBuildBody = function(_body) {
@@ -27,34 +26,35 @@ function _Builder() {
   }
 
 
-  this.handleClick = function(_position, _body) {
+  this.handleClick = function(_position) { // position = world coords
     if (!this.buildBody) return;
 
     let closest = this.getClosestBuildPoint(_position);
     if (!this.startPosition)
     {
-      if (!closest) return;
+      if (!closest || !closest.point) return;
 
       this.startPosition = this.buildBody.getPosition().difference(closest.point);
       this.stopPosition = this.startPosition.copy();
-      this.startBody = _body;
       this.building = true;
       return;
     }
-    console.log(this.buildBody.getPosition(), closest);
+
+
     if (closest.point) this.stopPosition = this.buildBody.getPosition().difference(closest.point);
     buildBody(closest.target);
     
+
+
     let stop = Builder.stopPosition.copy();
     this.cancelBuild();
-    
     this.handleClick(stop.add(this.buildBody.getPosition()));
   }
 
 
   function buildBody(_target) {
     let delta = Builder.startPosition.difference(Builder.stopPosition);
-    console.log(_target);
+    
     // Max the length
     let length = delta.getLength();
     if (length > Builder.settings.maxLineLength) 
@@ -70,20 +70,20 @@ function _Builder() {
     let offset = Builder.startPosition.add(delta.copy().scale(.5)).rotate(-Builder.buildBody.angle);
 
 
-    let configShape = {
-                        offset: [0, 0],
-                        length: shape.getLength(),
-                        angle: angle - Builder.buildBody.angle,
-                      };
-
-
     let config = {
       position: offset.value,
       shapeFactory: function(_this) {
-        return [new BuildLine(configShape, _this)];
+        return [
+          new BuildLine({
+            offset: [0, 0],
+            length: shape.getLength(),
+            angle: angle - Builder.buildBody.angle, // TODO recursive angles
+          }, _this)
+        ];
       },
+
       config: {
-        gravitySensitive: false,
+        gravitySensitive: true,
         exerciseGravity: false,
         buildItem: {
           type: 0,
@@ -93,18 +93,30 @@ function _Builder() {
 
     let lineBody = new Body(config);
     lineBody.material.restitution = 0;
+    // setTimeout(function () {lineBody.config.gravitySensitive = true;}, 1000);
+
+    
     if (_target)
     {
-      _target.parent.addShape(
-        new BuildLine(configShape, _target.parent)
-      );
-      console.log("Add shape");
+      let targetBodyGroup = _target.parent.parent.parent;
+      console.log("Add shape", targetBodyGroup);
+
+      targetBodyGroup.addBody(lineBody);
       return;
     }
+
     
     console.log("Add bodygroup");
     
-    let bodyGroup = new BodyGroup(config);
+    let bodyGroup = new BodyGroup({
+      position: [0, 0],
+      config: {
+        gravitySensitive: true,
+        exerciseGravity: false,
+      }
+    });
+
+
     bodyGroup.addBody(lineBody);
     Builder.buildBody.addBody(bodyGroup);
   }
@@ -115,8 +127,8 @@ function _Builder() {
   this.handleMouseMove = function(_position) {
     this.mousePos = _position.copy();
     if (!this.buildBody) return;
-
     if (!this.startPosition) return;
+
     let pos = this.buildBody.getPosition().difference(_position);
     let delta = this.startPosition.difference(pos);
     
@@ -142,7 +154,6 @@ function _Builder() {
       target = points[i].target;
     }
 
-    if (!closestPoint) return;
     return {point: closestPoint, target: target};
   }
 

@@ -66,8 +66,8 @@ let building = new Body({
 	position: [0, 0],
 	shapeFactory: function(_this) {
 		return [
-			new Box({offset: [15, 0], shape: [15, 30]}, _this),
-			new Box({offset: [35, 10], shape: [5, 10]}, _this),
+			new BuildLine({offset: [0, 0], length: 50, angle: 0}, _this),
+			new BuildLine({offset: [0, 20], length: 40, angle: 0}, _this),
 		];
 	},
 	config: {

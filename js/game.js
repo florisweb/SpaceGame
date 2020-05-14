@@ -47,7 +47,7 @@ function _Game() {
 
     let nextFrame = 1000 / fps - dt;
     window.nextFrame = nextFrame;
-    // setTimeout(function () {Game.update()}, nextFrame);
+    setTimeout(function () {Game.update()}, nextFrame);
     prevFrame = new Date();
   }
 }

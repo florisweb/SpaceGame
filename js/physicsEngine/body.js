@@ -28,14 +28,13 @@ function BodyGroup({position, config = {}}) {
 			return body.getAngle() + _body.angle;
 		}
 
-		_body.shape.parent = this;
-		_body.shape.bodyParent = _body;
+		_body.parent = this;
 		_body.shape.onCollision = function(_e, _shapeItem) {
 			if (_e.self != _shapeItem) return;
 			PhysicsEngine.collision.resolveCollision(
 				_e, 
-				_e.self.parent.bodyParent,
-				_e.target.parent.bodyParent,
+				_e.self.parent,
+				_e.target.parent,
 			);
 			return true;
 		}
@@ -70,12 +69,13 @@ function BodyGroup({position, config = {}}) {
 		}
 		return list;
 	}
+
 	this.shape.calcShapeRange = function() {
 		this.shapeRange = 0;
 		let list = this.getList();
 		for (let i = 0; i < list.length; i++)
 		{
-			let offset = this.parent.getPosition().difference(list[i].parent.bodyParent.getPosition());
+			let offset = this.parent.getPosition().difference(list[i].parent.getPosition());
 			let range = list[i].offset.getLength() + offset.getLength(); 
 			if (list[i].type == "Box") 
 			{
@@ -91,10 +91,6 @@ function BodyGroup({position, config = {}}) {
 
 	
 	this.shape.onCollision = function(_e, _shapeItem) {
-		// console.log("bodygroup has been hit", _e, _shapeItem.parent.bodyParent.id);
-		// setTimeout(function () {
-		// 	body.removeBody(_shapeItem.parent.bodyParent);
-		// }, 100);
 	};
 
 

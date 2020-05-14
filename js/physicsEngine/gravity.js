@@ -26,18 +26,17 @@ function _PhysicsEngine_gravity() {
 					!(target.config.gravitySensitive && self.config.exerciseGravity)
 				) continue;
 
-
 				let gravVector = this.getGravitationVector(self, target);
 				if (self.config.gravitySensitive && target.config.exerciseGravity) 
 				{
 					self.tempValues.force.add(gravVector);
-					if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(self.position.copy(), gravVector.copy().scale(10), "#00f");
+					if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(self.getPosition().copy(), gravVector.copy().scale(10), "#00f");
 				}
 
 				if (target.config.gravitySensitive && self.config.exerciseGravity) 
 				{
 					target.tempValues.force.add(gravVector.scale(-1));
-					if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(target.position.copy(), gravVector.copy().scale(10), "#00f");
+					if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(target.getPosition().copy(), gravVector.copy().scale(10), "#00f");
 				}
 			}
 		}
