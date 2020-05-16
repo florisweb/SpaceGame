@@ -12,7 +12,10 @@ function _Builder() {
   this.building = false;
 
   this.startPosition  = false;
+  this.startTarget    = false;
   this.stopPosition   = false;
+
+
 
   this.setBuildBody = function(_body) {
     if (!_body.config.buildable) return;
@@ -20,9 +23,10 @@ function _Builder() {
   }
 
   this.cancelBuild = function() {
-    this.startPosition = false;
-    this.stopPosition = false;
-    this.building = false;
+    this.startPosition  = false;
+    this.startTarget    = false;
+    this.stopPosition   = false;
+    this.building       = false;
   }
 
 
@@ -34,9 +38,10 @@ function _Builder() {
     {
       if (!closest || !closest.point) return;
 
-      this.startPosition = this.buildBody.getPosition().difference(closest.point);
-      this.stopPosition = this.startPosition.copy();
-      this.building = true;
+      this.startPosition  = this.buildBody.getPosition().difference(closest.point);
+      this.stopPosition   = this.startPosition.copy();
+      this.startTarget    = closest.target;
+      this.building       = true;
       return;
     }
 
@@ -95,17 +100,25 @@ function _Builder() {
     let lineBody = new Body(config);
     lineBody.material.restitution = 0;
     
-    if (_target)
-    {
-      let targetBodyGroup = _target.parent.parent.parent;
-      console.log("Add shape", targetBodyGroup);
+    let startTarget = Builder.startTarget.parent.parent.parent;
 
-      targetBodyGroup.addBody(lineBody);
-      return;
+
+    if (startTarget)
+    {
+      let targetBodyGroup = startTarget;
+      if (!targetBodyGroup.parent && _target) targetBodyGroup = _target.parent.parent.parent;
+
+      if (targetBodyGroup.parent)
+      {
+        console.log("Add body", targetBodyGroup);
+
+        targetBodyGroup.addBody(lineBody);
+        return;
+      }
     }
 
-    
-    console.log("Add bodygroup");
+
+    console.log("Add bodygroup", startTarget, startTarget.parent);
     
     let bodyGroup = new BodyGroup({
       position: [0, 0],

@@ -1,8 +1,15 @@
 function BuilderGroup({position, config = {}}) {
 	config.buildable = true;
 	BodyGroup.call(this, {position: position, config: config});
+	
 
-
+	const AddBodyExtender = this.addBody;
+	this.addBody = function(_body) {
+		AddBodyExtender.call(this, _body);
+		_body.update = function() {
+			this.shape.calcShapeRange();
+		}
+	}
 }
 
 

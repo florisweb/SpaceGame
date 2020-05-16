@@ -54,32 +54,9 @@ let planet = new Body({
 	}
 });
 
-let buildingGroup = new BodyGroup({
-	position: [115, 0],
-	config: {
-		gravitySensitive: false,
-		exerciseGravity: false,
-	}
-});
-
-let building = new Body({
-	position: [0, 0],
-	shapeFactory: function(_this) {
-		return [
-			new BuildLine({offset: [0, 0], length: 50, angle: 0}, _this),
-			new BuildLine({offset: [0, 20], length: 40, angle: 0}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: false,
-		exerciseGravity: false,
-	}
-});
-buildingGroup.addBody(building);
 
 
 bodyG.addBody(planet);
-bodyG.addBody(buildingGroup);
 
 PhysicsEngine.addBody(bodyG);
 
