@@ -70,7 +70,6 @@ function _Builder() {
     }
 
 
-    let shape = new Vector([length, 5]);
 
     let angle = delta.getAngle();
     let offset = Builder.startPosition.add(delta.copy().scale(.5)).rotate(-Builder.buildBody.angle);
@@ -82,7 +81,7 @@ function _Builder() {
         return [
           new BuildLine({
             offset: [0, 0],
-            length: shape.getLength(),
+            length: length,
             angle: angle - Builder.buildBody.angle, // TODO recursive angles
           }, _this)
         ];
@@ -100,26 +99,18 @@ function _Builder() {
     let lineBody = new Body(config);
     lineBody.material.restitution = 0;
     
-    let startTarget = Builder.startTarget.parent.parent.parent;
 
+
+    let startTarget = Builder.startTarget.parent.parent.parent;
 
     if (startTarget)
     {
       let targetBodyGroup = startTarget;
       if (!targetBodyGroup.parent && _target) targetBodyGroup = _target.parent.parent.parent;
-
-      if (targetBodyGroup.parent)
-      {
-        console.log("Add body", targetBodyGroup);
-
-        targetBodyGroup.addBody(lineBody);
-        return;
-      }
+      if (targetBodyGroup.parent) return targetBodyGroup.addBody(lineBody);
     }
 
 
-    console.log("Add bodygroup", startTarget, startTarget.parent);
-    
     let bodyGroup = new BodyGroup({
       position: [0, 0],
       config: {
@@ -127,6 +118,8 @@ function _Builder() {
         exerciseGravity: false,
       }
     });
+
+    // setTimeout(function() {bodyGroup.config.gravitySensitive = true;}, 1000);
 
 
     bodyGroup.addBody(lineBody);
@@ -190,7 +183,7 @@ function _Builder() {
 
 function BuildLine({offset, length, angle}, _parent) {
   this.length = length;
-  this.width = 2;
+  this.width = 50;
  
   Box.call(this, {
     offset: offset, 

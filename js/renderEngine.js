@@ -254,6 +254,7 @@ function _RenderEngine() {
 		ctx.fillText("Particles: " + PhysicsEngine.bodies.length, 5, 40);
 		ctx.fillText("performance: " + window.performance, 5, 60);
 		ctx.fillText("NextFrame: " + window.nextFrame, 5, 80);
+		ctx.fillText("Acceleration: " + window.a, 5, 100);
 		ctx.closePath();
 		ctx.fill();
 	}

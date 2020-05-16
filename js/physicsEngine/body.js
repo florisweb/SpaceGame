@@ -1,7 +1,6 @@
 function BuilderGroup({position, config = {}}) {
 	config.buildable = true;
 	BodyGroup.call(this, {position: position, config: config});
-	
 
 	const AddBodyExtender = this.addBody;
 	this.addBody = function(_body) {
@@ -48,7 +47,7 @@ function BodyGroup({position, config = {}}) {
 
 
 		this.bodies.push(_body);
-		this.shape.update();
+		this.shape.update(); // TODO Parent shape-update-notifier 
 	}
 
 	this.removeBody = function(_body) {
@@ -95,27 +94,65 @@ function BodyGroup({position, config = {}}) {
 			this.shapeRange = range;
 		}
 	}
-
 	
 	this.shape.onCollision = function(_e, _shapeItem) {
 	};
+
+	this.shape.getCenterOfMass = function() {
+
+	}
+
+	this.shape.updateCenterOfMass = function(_centerOfMass) {
+		let delta = _centerOfMass;
+		this.parent.position.add(delta);
+		let translation = delta.scale(-1);
+		
+		for (let i = 0; i < this.parent.bodies.length; i++) this.parent.bodies[i].position.add(translation);
+	}
+
+	this.shape.getCenterOfMass = function() {
+		let offset = new Vector([0, 0]);
+		let massTillNow = 0;
+
+		for (let i = 0; i < this.parent.bodies.length; i++)
+		{
+			let cMass = this.parent.bodies[i].massData.mass;
+			massTillNow += cMass;
+			let perc = cMass / massTillNow;
+			console.log(this.parent.bodies[i].position);
+
+			let delta = offset.difference(this.parent.bodies[i].position);
+			offset.add(delta.scale(perc));
+		}
+
+		return offset;
+	}
+
+
+
 
 
 
 
 	this.update = function(_dt) {
-		PhysicsEngine.gravity.update(this.bodies);
-		PhysicsEngine.collision.update(this.bodies);
+		// PhysicsEngine.gravity.update(this.bodies);
+		// PhysicsEngine.collision.update(this.bodies);
 
-		for (let i = 0; i < this.bodies.length; i++) 
-		{
-			if (!this.bodies[i].update) continue;
-			this.bodies[i].update(_dt);
-		}
+		// for (let i = 0; i < this.bodies.length; i++) 
+		// {
+		// 	if (!this.bodies[i].update) continue;
+		// 	this.bodies[i].update(_dt);
+		// }
 		
-		PhysicsEngine.applyCalculations(_dt, this.bodies);
+		// PhysicsEngine.applyCalculations(_dt, this.bodies);
 
 		this.shape.calcShapeRange();
+	}
+
+
+	this.draw = function() {
+		for (let i = 0; i < this.bodies.length; i++) this.bodies[i].draw();
+		this.shape.draw();
 	}
 }
 
@@ -177,6 +214,10 @@ function Body({position, shapeFactory, config = {}}) {
 		this.recalcInertia = function() {
 			this.invInertia = 1 / body.shape.calcInertia();
 		}
+	}
+
+	this.draw = function() {
+		this.shape.draw();
 	}
 
 
@@ -251,13 +292,10 @@ function Body_Shape(_parent, _shapeFactory) {
 
 
 	this.draw = function() {
-		// let position = this.getPosition();
-		// let size = 3;
-		// ctx.fillStyle = "#00f";
-		// ctx.beginPath();
-		// ctx.fillRect(position.value[0] - size, position.value[1] - size, size * 2, size * 2);
-		// ctx.closePath();
-		// ctx.fill();
+		RenderEngine.drawCircle({
+			getPosition: function () {return This.getPosition()},
+			radius: 10,
+		}, this.parent.constructor.name == "BuilderGroup" ? "#00f" : "#fa0");
 
 		RenderEngine.drawCircle({
 			radius: this.shapeRange,
@@ -294,10 +332,9 @@ function Body_Shape(_parent, _shapeFactory) {
 	let prevCenterOfMass = new Vector([0, 0]);
 	this.updateCenterOfMass = function(_centerOfMass) {
 		let list = this.getList();
-		for (let i = 0; i < list.length; i++)
-		{
-			list[i].offset.add(prevCenterOfMass.difference(_centerOfMass).scale(-1));
-		}
+		let translation = prevCenterOfMass.difference(_centerOfMass).scale(-1);
+		for (let i = 0; i < list.length; i++) list[i].offset.add(translation);
+
 		prevCenterOfMass = _centerOfMass;
 	}
 
@@ -312,7 +349,10 @@ function Body_Shape(_parent, _shapeFactory) {
 			massTillNow += cMass;
 			let perc = cMass / massTillNow;
 
-			let delta = offset.difference(list[i].offset);
+			let parentOffset = this.parent.getPosition().difference(list[i].parent.getPosition());
+			let curOffset = parentOffset.add(list[i].offset);
+
+			let delta = offset.difference(curOffset);
 			offset.add(delta.scale(perc));
 		}
 
@@ -355,6 +395,7 @@ function Body_Shape_item({offset}, _parent) {
 		return this.parent.getPosition().add(this.offset.copy().rotate(angle));
 	}
 }
+
 
 function Circle({radius, offset}, _parent) {
 	this.type = "Circle";
