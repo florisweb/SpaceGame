@@ -102,12 +102,16 @@ function _Builder() {
 
 
     let startTarget = Builder.startTarget.parent.parent.parent;
-
     if (startTarget)
     {
       let targetBodyGroup = startTarget;
       if (!targetBodyGroup.parent && _target) targetBodyGroup = _target.parent.parent.parent;
-      if (targetBodyGroup.parent) return targetBodyGroup.addBody(lineBody);
+      if (targetBodyGroup.parent) 
+      {
+        lineBody.position.add(targetBodyGroup.position.copy().scale(-1));
+        targetBodyGroup.addBody(lineBody);
+        return;
+      } 
     }
 
 

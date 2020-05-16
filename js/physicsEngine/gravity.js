@@ -27,7 +27,6 @@ function _PhysicsEngine_gravity() {
 				) continue;
 
 				let gravVector = this.getGravitationVector(self, target);
-				if (gravVector.getLength() > 100) console.warn(self.getPosition().difference(target.getPosition()));
 				if (self.config.gravitySensitive && target.config.exerciseGravity) 
 				{
 					self.tempValues.force.add(gravVector);

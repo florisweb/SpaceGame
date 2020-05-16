@@ -47,7 +47,7 @@ function BodyGroup({position, config = {}}) {
 
 
 		this.bodies.push(_body);
-		this.shape.update(); // TODO Parent shape-update-notifier 
+		this.shape.update();
 	}
 
 	this.removeBody = function(_body) {
@@ -119,7 +119,6 @@ function BodyGroup({position, config = {}}) {
 			let cMass = this.parent.bodies[i].massData.mass;
 			massTillNow += cMass;
 			let perc = cMass / massTillNow;
-			console.log(this.parent.bodies[i].position);
 
 			let delta = offset.difference(this.parent.bodies[i].position);
 			offset.add(delta.scale(perc));
@@ -135,16 +134,16 @@ function BodyGroup({position, config = {}}) {
 
 
 	this.update = function(_dt) {
-		// PhysicsEngine.gravity.update(this.bodies);
-		// PhysicsEngine.collision.update(this.bodies);
+		PhysicsEngine.gravity.update(this.bodies);
+		PhysicsEngine.collision.update(this.bodies);
 
-		// for (let i = 0; i < this.bodies.length; i++) 
-		// {
-		// 	if (!this.bodies[i].update) continue;
-		// 	this.bodies[i].update(_dt);
-		// }
+		for (let i = 0; i < this.bodies.length; i++) 
+		{
+			if (!this.bodies[i].update) continue;
+			this.bodies[i].update(_dt);
+		}
 		
-		// PhysicsEngine.applyCalculations(_dt, this.bodies);
+		PhysicsEngine.applyCalculations(_dt, this.bodies);
 
 		this.shape.calcShapeRange();
 	}
@@ -250,6 +249,8 @@ function Body_Shape(_parent, _shapeFactory) {
 		this.calcShapeRange();
 		_parent.massData.recalcMass();
 		_parent.massData.recalcInertia();
+
+		if (this.parent.parent) this.parent.parent.shape.update();
 	}
 
 

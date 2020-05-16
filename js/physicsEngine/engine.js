@@ -40,16 +40,6 @@ function _PhysicsEngine() {
 		{
 			let cur = _list[s];
 			let a = cur.tempValues.force.scale(cur.massData.invMass * _dt);
-			if (this.bodies != _list) 
-			{
-				window.a = a.value;
-				if (a.value[0] != 0)
-				{
-					Game.running = false;
-					console.log(cur, cur.massData.invMass, cur.tempValues.force.value);
-				}
-			}
-
 			if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(cur.position.copy(), a.copy().scale(1000), "#fa0");
 
 			cur.velocity.add(a);
