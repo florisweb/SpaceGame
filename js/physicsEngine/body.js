@@ -28,22 +28,25 @@ function BodyGroup({position, config = {}}) {
 	this.bodies = [];
 	this.addBody = function(_body) {
 		_body.getPosition = function() {
-			return body.getPosition().copy().add(_body.position.copy().rotate(body.angle));
+			return body.getPosition().copy().add(_body.position.copy().rotate(body.getAngle()));
 		}
-		_body.shape.getAngle = function() {
+		_body.getAngle = function() {
 			return body.getAngle() + _body.angle;
 		}
 
 		_body.parent = this;
-		_body.shape.onCollision = function(_e, _shapeItem) {
-			if (_e.self != _shapeItem) return;
-			PhysicsEngine.collision.resolveCollision(
-				_e, 
-				_e.self.parent,
-				_e.target.parent,
-			);
-			return true;
-		}
+		// _body.shape.onCollision = function(_e, _shapeItem) {
+		// 	if (_e.self != _shapeItem) return;
+		// 	console.log(_e, _shapeItem);
+		// 	Game.running = false;
+
+		// 	PhysicsEngine.collision.resolveCollision(
+		// 		_e, 
+		// 		_e.self.parent,
+		// 		_e.target.parent,
+		// 	);
+		// 	return true;
+		// }
 
 
 		this.bodies.push(_body);
@@ -95,12 +98,6 @@ function BodyGroup({position, config = {}}) {
 		}
 	}
 	
-	this.shape.onCollision = function(_e, _shapeItem) {
-	};
-
-	this.shape.getCenterOfMass = function() {
-
-	}
 
 	this.shape.updateCenterOfMass = function(_centerOfMass) {
 		let delta = _centerOfMass;
@@ -129,6 +126,18 @@ function BodyGroup({position, config = {}}) {
 
 
 
+	this.shape.onCollision = function(_e, _shapeItem) {
+		if (_e.self != _shapeItem) return;
+		
+		PhysicsEngine.collision.resolveCollision(
+			_e, 
+			_e.self.parent.parent.getTrunkParent(),
+			_e.target.parent.parent.getTrunkParent(),
+		);
+		return true;
+	}
+
+
 
 
 
@@ -144,8 +153,8 @@ function BodyGroup({position, config = {}}) {
 		}
 		
 		PhysicsEngine.applyCalculations(_dt, this.bodies);
-
-		this.shape.calcShapeRange();
+ 
+		// this.shape.calcShapeRange(); // TODO - dynamic shaperange updater 
 	}
 
 
@@ -181,6 +190,10 @@ function Body({position, shapeFactory, config = {}}) {
 	this.getPosition 		= function() {return this.position}
 	this.velocity 			= new Vector([0, 0]);
 
+	this.getTrunkParent 	= function() {
+		if (!this.parent) return this;
+		return this.parent.getTrunkParent();
+	}
 
 
 	this.positionTrace 		= [];
@@ -390,10 +403,14 @@ function Body_Shape(_parent, _shapeFactory) {
 function Body_Shape_item({offset}, _parent) {
 	this.parent = _parent;
 	this.offset = new Vector(offset);
+	this.angle = 0;
 	
 	this.getPosition = function() {
 		let angle = this.parent.getAngle();
 		return this.parent.getPosition().add(this.offset.copy().rotate(angle));
+	}
+	this.getAngle = function() {
+		return this.parent.getAngle() + this.angle;
 	}
 }
 
@@ -439,10 +456,6 @@ function Box({offset, shape, angle = 0}, _parent) {
 	this.shape = new Vector(shape);
 	this.meshRange = this.shape.getLength();
 	this.angle = angle;
-
-	this.getAngle = function() {
-		return this.parent.getAngle() + this.angle;
-	}
 
 
 	this.getPoints = function() {

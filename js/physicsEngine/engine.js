@@ -39,12 +39,19 @@ function _PhysicsEngine() {
 		for (let s = 0; s < _list.length; s++)
 		{
 			let cur = _list[s];
-			let a = cur.tempValues.force.scale(cur.massData.invMass * _dt);
+
+			let angle = 0;
+			if (cur.parent) angle = cur.parent.getAngle();
+			let force = cur.tempValues.force.rotate(-angle);
+			let positionOffset = cur.tempValues.positionOffset.rotate(-angle);
+
+
+			let a = force.scale(cur.massData.invMass * _dt);
 			if (RenderEngine.settings.renderVectors) RenderEngine.drawVector(cur.position.copy(), a.copy().scale(1000), "#fa0");
 
 			cur.velocity.add(a);
 			cur.position.add(cur.velocity.copy().scale(_dt));
-			cur.position.add(cur.tempValues.positionOffset.scale(-1));
+			cur.position.add(positionOffset.scale(-1));
 
 			cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia * _dt;
 			cur.angle 			+= cur.angularVelocity * _dt;

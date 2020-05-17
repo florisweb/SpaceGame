@@ -187,7 +187,7 @@ function _Builder() {
 
 function BuildLine({offset, length, angle}, _parent) {
   this.length = length;
-  this.width = 50;
+  this.width = 2;
  
   Box.call(this, {
     offset: offset, 
