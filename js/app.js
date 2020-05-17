@@ -63,31 +63,35 @@ PhysicsEngine.addBody(bodyG);
 
 
 
-let bodyA = new BuilderGroup({
-	position: [6000, 7000],
-	config: {
-		gravitySensitive: true,
-		exerciseGravity: true,
-	}
-});
+// let bodyA = new BuilderGroup({
+// 	position: [6000, 7000],
+// 	config: {
+// 		gravitySensitive: true,
+// 		exerciseGravity: true,
+// 	}
+// });
 
-let planet2 = new Body({
-	position: [0, 0],
-	shapeFactory: function(_this) {
-		return [
-			new BuildCircle({offset: [0, 0], radius: 60}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: false,
-		exerciseGravity: true,
-	}
-});
+// let planet2 = new Body({
+// 	position: [0, 0],
+// 	shapeFactory: function(_this) {
+// 		return [
+// 			new BuildCircle({offset: [0, 0], radius: 60}, _this),
+// 		];
+// 	},
+// 	config: {
+// 		gravitySensitive: false,
+// 		exerciseGravity: true,
+// 	}
+// });
 
 
 
-bodyA.addBody(planet2);
-PhysicsEngine.addBody(bodyA);
+// bodyA.addBody(planet2);
+// PhysicsEngine.addBody(bodyA);
+
+
+
+
 
 // for (let i = 0; i < 200; i++) {
 // 	let position = [Math.random() * PhysicsEngine.world.size.value[0], Math.random() * PhysicsEngine.world.size.value[0]];

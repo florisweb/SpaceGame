@@ -118,10 +118,12 @@ function _Builder() {
     let bodyGroup = new BodyGroup({
       position: [0, 0],
       config: {
-        gravitySensitive: false,
+        gravitySensitive: true,
         exerciseGravity: false,
       }
     });
+    bodyGroup.material.restitution = -2;
+    bodyGroup.material.staticFriction = 10;
 
     // setTimeout(function() {bodyGroup.config.gravitySensitive = true;}, 1000);
 

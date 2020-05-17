@@ -16,6 +16,7 @@ function BuilderGroup({position, config = {}}) {
 
 
 function BodyGroup({position, config = {}}) {
+	config.isBodyGroup = true;
 	Body.call(this, {
 		position: position,
 		shapeFactory: function() {return [];}, 
@@ -35,18 +36,18 @@ function BodyGroup({position, config = {}}) {
 		}
 
 		_body.parent = this;
-		// _body.shape.onCollision = function(_e, _shapeItem) {
-		// 	if (_e.self != _shapeItem) return;
-		// 	console.log(_e, _shapeItem);
-		// 	Game.running = false;
+		_body.shape.onCollision = function(_e, _shapeItem) {
+			if (_e.self != _shapeItem) return;
+			// console.log(_e, _e.self.parent.parent, _e.target.parent.parent.parent);
+			// Game.running = false;
 
-		// 	PhysicsEngine.collision.resolveCollision(
-		// 		_e, 
-		// 		_e.self.parent,
-		// 		_e.target.parent,
-		// 	);
-		// 	return true;
-		// }
+			PhysicsEngine.collision.resolveCollision(
+				_e,  
+				_e.self.parent.parent, //TODO correct parent selection (n=1)
+				_e.target.parent.parent.parent,
+			);
+			return true;
+		}
 
 
 		this.bodies.push(_body);
