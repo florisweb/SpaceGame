@@ -178,6 +178,14 @@ function BodyGroup({position, config = {}}) {
 
 
 
+
+
+
+
+
+
+
+
 function Body({position, shapeFactory, config = {}}) {
 	let body = this;
 	this.config = config;
@@ -208,7 +216,7 @@ function Body({position, shapeFactory, config = {}}) {
 
 	this.shape = new Body_Shape(this, shapeFactory);
 	this.material = {
-		density: .1,
+		density: .5,
 		restitution: .25, //.25
 		staticFriction: .4,
 		dynamicFriction: .25,
@@ -307,11 +315,6 @@ function Body_Shape(_parent, _shapeFactory) {
 
 
 	this.draw = function() {
-		RenderEngine.drawCircle({
-			getPosition: function () {return This.getPosition()},
-			radius: 10,
-		}, this.parent.constructor.name == "BuilderGroup" ? "#00f" : "#fa0");
-
 		RenderEngine.drawCircle({
 			radius: this.shapeRange,
 			getPosition: function () {return This.getPosition()}
@@ -442,6 +445,7 @@ function Circle({radius, offset}, _parent) {
 
 	this.getInertia = function(_mass) {
 		let ownInertia = _mass * Math.pow(this.radius, 2);
+		// let ownInertia = Math.PI * Math.pow(this.radius, 4) / 64;
 		return ownInertia + _mass * this.offset.getLength();
 	}
 }
@@ -503,6 +507,7 @@ function Box({offset, shape, angle = 0}, _parent) {
 		let h = this.shape.value[1] * 2;
 		
 		let ownInertia = 1 / 12 * _mass * (w * w + h * h);
+		// let ownInertia = 1 / 3 * w * Math.pow(h, 3);
 		return ownInertia + _mass * Math.pow(this.offset.getLength(), 2);
 	}
 }

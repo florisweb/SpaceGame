@@ -947,6 +947,10 @@
 				https://www.codeproject.com/Articles/1215961/Making-a-D-Physics-Engine-Mass-Inertia-and-Forces
 				https://stackoverflow.com/questions/36784456/calculating-angular-velocity-after-a-collision
 				https://gamedev.stackexchange.com/questions/26501/how-does-a-collision-engine-work
+
+
+				https://www.calcresource.com/moment-of-inertia-rect.html
+				https://www.dummies.com/education/science/physics/how-to-calculate-the-momentum-of-inertia-for-different-shapes-and-solids/
 			*/
 
 

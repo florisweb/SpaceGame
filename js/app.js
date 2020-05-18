@@ -19,10 +19,52 @@ App.setup();
 
 
 
-let sun = new Sun();
-let planet1 = new Planet(1);
+// let sun = new Sun();
+// let planet1 = new Planet(1);
 // let planet2 = new Planet(2);
 // let planet3 = new Planet(3);
+
+
+
+
+
+
+// let planet = new Body({
+// 	position: [5000, 5000],
+// 	shapeFactory: function(_this) {
+// 		return [
+			// new Circle({offset: [0, 0], radius: 100}, _this),
+// 		];
+// 	},
+// 	config: {
+// 		gravitySensitive: true,
+// 		exerciseGravity: true,
+// 	}
+// });
+// planet.velocity.value = [2, 3];
+
+
+let planet2 = new Body({
+	position: [6000, 6000],
+	shapeFactory: function(_this) {
+		return [
+			new Box({offset: [0, 0], shape: [50, 50]}, _this),
+			new Circle({offset: [0, 0], radius: 0}, _this),
+		];
+	},
+	config: {
+		gravitySensitive: true,
+		exerciseGravity: true,
+	}
+});
+
+
+
+
+// PhysicsEngine.addBody(planet);
+PhysicsEngine.addBody(planet2);
+
+
 
 
 
@@ -32,33 +74,50 @@ let planet1 = new Planet(1);
 // PhysicsEngine.addBody(planet3);
 
 
-let bodyG = new BuilderGroup({
-	position: [7000, 7000],
-	config: {
-		gravitySensitive: true,
-		exerciseGravity: true,
-	}
-});
-bodyG.material.restitution = 1;
+// let bodyG = new BuilderGroup({
+// 	position: [7000, 7000],
+// 	config: {
+// 		gravitySensitive: true,
+// 		exerciseGravity: true,
+// 	}
+// });
+// bodyG.material.restitution = 1;
 
-let planet = new Body({
-	position: [0, 0],
-	shapeFactory: function(_this) {
-		return [
-			new BuildCircle({offset: [0, 0], radius: 100}, _this),
-		];
-	},
-	config: {
-		gravitySensitive: false,
-		exerciseGravity: true,
-	}
-});
+// let planet = new Body({
+// 	position: [0, 0],
+// 	shapeFactory: function(_this) {
+// 		return [
+// 			new BuildCircle({offset: [0, 0], radius: 100}, _this),
+// 		];
+// 	},
+// 	config: {
+// 		gravitySensitive: false,
+// 		exerciseGravity: true,
+// 	}
+// });
 
 
 
-bodyG.addBody(planet);
+// bodyG.addBody(planet);
 
-PhysicsEngine.addBody(bodyG);
+// PhysicsEngine.addBody(bodyG);
+
+
+// let newBody = new Body({
+// 	position: [7500, 7000],
+// 	shapeFactory: function(_this) {
+// 		return [
+// 			new Box({offset: [100, 0], shape: [100, 100]}, _this),
+// 		];
+// 	},
+// 	config: {
+// 		gravitySensitive: true,
+// 		exerciseGravity: true,
+// 	},
+// });
+
+
+// PhysicsEngine.addBody(newBody);
 
 
 

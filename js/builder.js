@@ -122,8 +122,6 @@ function _Builder() {
         exerciseGravity: false,
       }
     });
-    bodyGroup.material.restitution = -2;
-    bodyGroup.material.staticFriction = 10;
 
     // setTimeout(function() {bodyGroup.config.gravitySensitive = true;}, 1000);
 
