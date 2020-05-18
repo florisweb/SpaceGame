@@ -200,7 +200,7 @@ function Body_Shape(_parent, _shapeFactory) {
 		for (let i = 0; i < list.length; i++)
 		{
 			let range = list[i].offset.getLength(); 
-			if (list[i].name == "Box") 
+			if (list[i].type == "Box") 
 			{
 				range += list[i].shape.getLength();
 			} else {
