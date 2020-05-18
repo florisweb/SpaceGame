@@ -31,8 +31,6 @@ function _InputHandler() {
 
 		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
-		
-		if (Builder.buildBody) return Builder.handleClick(worldPosition);
 		handleClickEntity(worldPosition);
 	});
 
@@ -41,13 +39,11 @@ function _InputHandler() {
 		{
 			let distance = _worldPosition.difference(PhysicsEngine.bodies[i].position).getLength();
 			if (distance > PhysicsEngine.bodies[i].shape.shapeRange) continue;
-			Builder.setBuildBody(PhysicsEngine.bodies[i]);
 
 			RenderEngine.camera.follow(PhysicsEngine.bodies[i]);
 			return true;
 		}
 
-		Builder.buildBody = false;
 		return false;
 	}
 
@@ -86,7 +82,6 @@ function _InputHandler() {
 				]);
 	    		let worldPosition = RenderEngine.camera.canvasPosToWorldPos(mousePosition);
 
-	    		Builder.handleMouseMove(worldPosition);
 		    	Server.sendPacket(0, worldPosition.value);
 		    }
 		);
@@ -153,7 +148,6 @@ function _KeyHandler() {
 		{
 			keys: ["Escape"], 
 			event: function () {
-				Builder.cancelBuild();
 			},
 			ignoreIfInInputField: false
 		},

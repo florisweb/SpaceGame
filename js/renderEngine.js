@@ -46,9 +46,6 @@ function _RenderEngine() {
 		}
 		
 
-		this.drawBuildPoints();
-		this.drawBuilderPreview();
-
 
 		this.drawClientCursors();
 
@@ -158,15 +155,6 @@ function _RenderEngine() {
 
 		if (_entity.draw) _entity.draw(ctx); else _entity.shape.draw();
 
-		if (_entity.config.buildable && _entity === Builder.buildBody)
-		{		
-			ctx.strokeStyle = "#0f0";
-			ctx.beginPath();
-			ctx.circle(canvasPos.value[0], canvasPos.value[1], _entity.shape.shapeRange / this.camera.zoom);
-			ctx.closePath();
-			ctx.stroke();
-		}
-
 		// if (_entity.buildings) 
 		// 	for (let i = 0; i < _entity.buildings.length; i++)
 		// 	{
@@ -213,36 +201,6 @@ function _RenderEngine() {
 			ctx.fill();
 		}
 	}
-
-
-	this.drawBuilderPreview = function() {
-		if (!Builder.building || !Builder.buildBody) return;
-		let start = Builder.buildBody.position.copy().add(Builder.startPosition);
-		let stop = Builder.buildBody.position.copy().add(Builder.stopPosition);
-
-		let delta = start.difference(stop);
-
-
-		this.drawVector(start, delta, "#00f");
-	}
-
-	this.drawBuildPoints = function() {
-		let points = Builder.getBuildPoints();
-		if (!points) return;
-		this.drawPointList(points);
-
-		let hoverPoint = Builder.getClosestBuildPoint(Builder.mousePos);
-		if (!hoverPoint || !hoverPoint.point) return;
-
-		let pos = this.camera.worldPosToCanvasPos(hoverPoint.point);
-		ctx.fillStyle = "#fff";
-		ctx.beginPath();
-		ctx.circle(pos.value[0], pos.value[1], 4);
-		ctx.closePath();
-		ctx.fill();
-	}
-
-
 
 
 

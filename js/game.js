@@ -3,7 +3,6 @@ let PhysicsEngine;
 let RenderEngine;
 let InputHandler;
 let Animator;
-let Builder;
 
 function _Game() {
   this.updates = 0;
@@ -14,7 +13,6 @@ function _Game() {
     PhysicsEngine = new _PhysicsEngine();
     RenderEngine 	= new _RenderEngine();
     InputHandler 	= new _InputHandler();
-    Builder       = new _Builder();
 
     window.onresize();
     this.update();
