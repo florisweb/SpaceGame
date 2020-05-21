@@ -31,6 +31,8 @@ function _Game() {
   let prevFrame = new Date();
   this.update = function() {
     this.updates++;
+    RenderEngine.update();
+    
 
     let dt = new Date() - prevFrame;
     this.maxFps = Math.round(1000 / dt);
@@ -40,6 +42,7 @@ function _Game() {
     window.performance = performance;
     
     PhysicsEngine.update(performance);
+    
 
     if (!this.running) return;    
 

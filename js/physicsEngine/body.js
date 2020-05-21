@@ -34,7 +34,7 @@ function Body({position, shapeFactory, config = {}}) {
 	this.shape = new Body_Shape(this, shapeFactory);
 	this.material = {
 		density: .5,
-		restitution: .25, //.25
+		restitution: .3, //.25
 		staticFriction: .4,
 		dynamicFriction: .25,
 	}

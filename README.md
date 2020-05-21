@@ -64,6 +64,7 @@ Angle
 			.5 PI
 
 
+Torque and angularVelocity: > 0 = clockwise
 
 
 

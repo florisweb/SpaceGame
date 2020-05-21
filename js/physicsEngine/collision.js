@@ -36,16 +36,58 @@ function _PhysicsEngine_collision() {
 		let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
 		let normal = collider.normal.copy().setLength(collider.depth);
 
-		self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
-		target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
+		// self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
+		// target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
 
 
 
 
 		// Resolve collision - translation
+		let perpNormal = collider.normal.getPerpendicular();
+		let deltaPosSelf = collider.contactPoint.difference(self.getPosition());
+		let contactAboveCOM_self = perpNormal.dotProduct(deltaPosSelf) > 0;
+
+		let ownVelocity = self.velocity.dotProduct(collider.normal);
+		let contactRotVelocity_self = collider.normal.dotProduct(
+				deltaPosSelf.getPerpendicular().setLength(deltaPosSelf.getLength() * self.angularVelocity)
+			);
+		ownVelocity += contactRotVelocity_self * (2 -contactAboveCOM_self);
+
+
+
+
+		let deltaPosTarget = collider.contactPoint.difference(target.getPosition());
+		let contactAboveCOM_target = perpNormal.dotProduct(deltaPosTarget) > 0;
+		let targetVelocity = target.velocity.dotProduct(collider.normal);
+		let contactRotVelocity_target = collider.normal.dotProduct(
+				deltaPosTarget.getPerpendicular().setLength(deltaPosTarget.getLength() * target.angularVelocity)
+			);
+		targetVelocity += contactRotVelocity_self * (2 - contactAboveCOM_target);
+
+
+
+		let relativeVelocity = ownVelocity - targetVelocity;
+
+		// console.log(self.shape.list[0].type, relativeVelocity, [ownVelocity, targetVelocity]);
+
+		
+			RenderEngine.drawVector(collider.contactPoint.copy(), collider.normal.copy().setLength(50), "#0f0");
+			RenderEngine.drawVector(collider.contactPoint.copy(), collider.normal.copy().setLength(ownVelocity * 10), "#f00");
+			RenderEngine.drawVector(collider.contactPoint.copy(), collider.normal.copy().setLength(targetVelocity * 10), "#00f");
+		
+		RenderEngine.drawVector(self.getPosition().copy(), new Vector([5, 5]), "#0fa");
+		RenderEngine.drawVector(target.getPosition().copy(), new Vector([5, 5]), "#0af");
+
+		if (window.useDebugger) debugger;
+		
+
+
+
 		let deltaVelocity = self.velocity.difference(target.velocity);
-		let relativeVelocity = -deltaVelocity.dotProduct(collider.normal);
-		if (relativeVelocity < 0) return;
+		let translationalVelocity = -deltaVelocity.dotProduct(collider.normal);
+		
+
+		
 
 		let contactSelf = self.position.difference(collider.contactPoint);
 		let contactTarget = target.position.difference(collider.contactPoint);
@@ -66,44 +108,48 @@ function _PhysicsEngine_collision() {
 		let Fself = impulse.copy().scale(-1 + massPerc);
 		let Ftarget = impulse.copy().scale(massPerc);
 
-		self.tempValues.force.add(Fself);
-		target.tempValues.force.add(Ftarget);
+		if (translationalVelocity > 0) 
+		{
+			self.tempValues.force.add(Fself);
+			target.tempValues.force.add(Ftarget);
+		}
 
-		self.tempValues.torque += -contactSelf.crossProduct(impulse);
-		target.tempValues.torque += contactTarget.crossProduct(impulse);
+
+		self.tempValues.torque += -contactSelf.crossProduct(impulse);// * (2 - contactAboveCOM_self);
+		target.tempValues.torque += contactTarget.crossProduct(impulse);// * (2 - contactAboveCOM_target);
 
 
 
 
 
 		// Friction
-		let tempSelfVelocity = self.velocity.copy().add(Fself.copy().scale(self.massData.invMass));					
-		let tempTargetVelocity = target.velocity.copy().add(Ftarget.copy().scale(target.massData.invMass));
+		// let tempSelfVelocity = self.velocity.copy().add(Fself.copy().scale(self.massData.invMass));					
+		// let tempTargetVelocity = target.velocity.copy().add(Ftarget.copy().scale(target.massData.invMass));
 
-		let newRV = tempSelfVelocity.difference(tempTargetVelocity);
+		// let newRV = tempSelfVelocity.difference(tempTargetVelocity);
 
-		let perpendicular = collider.normal.getPerpendicular();
-		let tangent = perpendicular.scale(perpendicular.dotProduct(newRV));
-		tangent.setLength(1);
-
-
-		let jt = -newRV.dotProduct(tangent);
-		jt /= self.massData.invMass + target.massData.invMass;
+		// let perpendicular = collider.normal.getPerpendicular();
+		// let tangent = perpendicular.scale(perpendicular.dotProduct(newRV));
+		// tangent.setLength(1);
 
 
-		let mu = (self.material.staticFriction + target.material.staticFriction) * .5;
-		let frictionImpulse;
-		if (Math.abs(jt) < -j * mu)
-		{
-			frictionImpulse = tangent.copy().scale(jt);
-		} else {
-			let dynamicFriction = (self.material.dynamicFriction + target.material.dynamicFriction) * .5;
-			frictionImpulse = tangent.copy().scale(j * dynamicFriction);
-		}
+		// let jt = -newRV.dotProduct(tangent);
+		// jt /= self.massData.invMass + target.massData.invMass;
+
+
+		// let mu = (self.material.staticFriction + target.material.staticFriction) * .5;
+		// let frictionImpulse;
+		// if (Math.abs(jt) < -j * mu)
+		// {
+		// 	frictionImpulse = tangent.copy().scale(jt);
+		// } else {
+		// 	let dynamicFriction = (self.material.dynamicFriction + target.material.dynamicFriction) * .5;
+		// 	frictionImpulse = tangent.copy().scale(j * dynamicFriction);
+		// }
 		
 
-		self.tempValues.force.add(frictionImpulse.copy().scale(-1 + massPerc));
-		target.tempValues.force.add(frictionImpulse.copy().scale(massPerc));
+		// self.tempValues.force.add(frictionImpulse.copy().scale(-1 + massPerc));
+		// target.tempValues.force.add(frictionImpulse.copy().scale(massPerc));
 	}
 
 

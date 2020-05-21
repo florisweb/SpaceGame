@@ -29,40 +29,45 @@ App.setup();
 
 
 
-// let planet = new Body({
-// 	position: [5000, 5000],
-// 	shapeFactory: function(_this) {
-// 		return [
-			// new Circle({offset: [0, 0], radius: 100}, _this),
-// 		];
-// 	},
-// 	config: {
-// 		gravitySensitive: true,
-// 		exerciseGravity: true,
-// 	}
-// });
-// planet.velocity.value = [2, 3];
-
-
-let planet2 = new Body({
-	position: [6000, 6000],
+let planet = new Body({
+	position: [5000, 5000],
 	shapeFactory: function(_this) {
 		return [
-			new Box({offset: [0, 0], shape: [50, 50]}, _this),
-			new Circle({offset: [0, 0], radius: 0}, _this),
+			// new Circle({offset: [0, 0], radius: 100}, _this),
+			new Box({offset: [0, 0], shape: [100, 100], angle: 0}, _this),
 		];
 	},
 	config: {
-		gravitySensitive: true,
-		exerciseGravity: true,
+		gravitySensitive: false,
+		exerciseGravity: false,
 	}
 });
+planet.velocity.value = [1, 1];
+
+
+let planet2 = new Body({
+	position: [5900, 5820 + 180],
+	shapeFactory: function(_this) {
+		return [
+			new Box({offset: [0, 0], shape: [1000, 50], angle: 0}, _this),
+			// new Circle({offset: [0, 0], radius: 100}, _this),
+		];
+	},
+	config: {
+		gravitySensitive: false,
+		exerciseGravity: false,
+	}
+});
+planet2.angle = .1;
+planet2.angularVelocity = -.002;
 
 
 
 
-// PhysicsEngine.addBody(planet);
+
 PhysicsEngine.addBody(planet2);
+PhysicsEngine.addBody(planet);
+
 
 
 

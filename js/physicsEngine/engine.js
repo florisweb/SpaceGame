@@ -7,8 +7,12 @@ function _PhysicsEngine() {
 		size: new Vector([20000, 20000])
 	}
 	this.constants = new function() {
-		this.G = 6.674 * Math.pow(10, -11 + 6);
+		this.G = 6.674 * Math.pow(10, -11 + 7);
 	}
+
+
+	this.debugMomentum = 0;
+	this.debugAngularMomentum = 0;
 
 
 	this.bodies = [];
@@ -36,6 +40,8 @@ function _PhysicsEngine() {
 	}
 
 	this.applyCalculations = function(_dt, _list = this.bodies) {
+		this.debugMomentum = 0;
+		this.debugAngularMomentum = 0;
 		for (let s = 0; s < _list.length; s++)
 		{
 			let cur = _list[s];
@@ -52,6 +58,9 @@ function _PhysicsEngine() {
 			cur.velocity.add(a);
 			cur.position.add(cur.velocity.copy().scale(_dt));
 			cur.position.add(positionOffset.scale(-1));
+
+			this.debugMomentum +=  cur.velocity.getLength() * cur.massData.mass;
+			this.debugAngularMomentum += Math.abs(cur.angularVelocity) / cur.massData.invInertia;
 
 			cur.angularVelocity += cur.tempValues.torque * cur.massData.invInertia * _dt;
 			cur.angle 			+= cur.angularVelocity * _dt;

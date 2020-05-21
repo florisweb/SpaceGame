@@ -58,7 +58,7 @@ function _RenderEngine() {
 		lastUpdate = new Date();
 
 		if (!Game.running) return;
-		requestAnimationFrame(function () {RenderEngine.update()});
+		// requestAnimationFrame(function () {RenderEngine.update()});
 	}
 
 
@@ -212,7 +212,8 @@ function _RenderEngine() {
 		ctx.fillText("Particles: " + PhysicsEngine.bodies.length, 5, 40);
 		ctx.fillText("performance: " + window.performance, 5, 60);
 		ctx.fillText("NextFrame: " + window.nextFrame, 5, 80);
-		ctx.fillText("Acceleration: " + window.a, 5, 100);
+		ctx.fillText("Total linear momentum: " + PhysicsEngine.debugMomentum, 5, 100);
+		ctx.fillText("Total angular momentum: " + PhysicsEngine.debugAngularMomentum, 5, 120);
 		ctx.closePath();
 		ctx.fill();
 	}
