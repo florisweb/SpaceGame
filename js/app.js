@@ -49,7 +49,7 @@ let planet2 = new Body({
 	position: [5900, 5820 + 180],
 	shapeFactory: function(_this) {
 		return [
-			new Box({offset: [0, 0], shape: [1000, 50], angle: 0}, _this),
+			new Box({offset: [0, 0], shape: [1000, 20], angle: 0}, _this),
 			// new Circle({offset: [0, 0], radius: 100}, _this),
 		];
 	},
@@ -58,8 +58,8 @@ let planet2 = new Body({
 		exerciseGravity: false,
 	}
 });
-planet2.angle = .1;
-planet2.angularVelocity = -.002;
+// planet2.angle = .1;
+planet2.angularVelocity = -.005;
 
 
 

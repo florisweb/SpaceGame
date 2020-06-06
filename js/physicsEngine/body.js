@@ -59,6 +59,15 @@ function Body({position, shapeFactory, config = {}}) {
 	}
 
 
+
+	this.applyForce = function(_force, _position) {
+		let delta = this.getPosition().difference(_position);
+	
+		this.tempValues.torque -= _force.crossProduct(delta);
+		this.tempValues.force.add(_force);
+	}
+
+
 	this.shape.update();
 }
 

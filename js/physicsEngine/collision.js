@@ -36,8 +36,8 @@ function _PhysicsEngine_collision() {
 		let massPerc = self.massData.mass / (self.massData.mass + target.massData.mass);
 		let normal = collider.normal.copy().setLength(collider.depth);
 
-		// self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
-		// target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
+		self.tempValues.positionOffset.add(normal.copy().scale(1 - massPerc));
+		target.tempValues.positionOffset.add(normal.copy().scale(-massPerc));
 
 
 
@@ -108,15 +108,18 @@ function _PhysicsEngine_collision() {
 		let Fself = impulse.copy().scale(-1 + massPerc);
 		let Ftarget = impulse.copy().scale(massPerc);
 
-		if (translationalVelocity > 0) 
-		{
-			self.tempValues.force.add(Fself);
-			target.tempValues.force.add(Ftarget);
-		}
+		// if (translationalVelocity > 0) 
+		// {
+			// self.tempValues.force.add(Fself);
+			// target.tempValues.force.add(Ftarget);
+
+			self.applyForce(Fself, collider.contactPoint);
+			target.applyForce(Fself, collider.contactPoint);
+		// }
 
 
-		self.tempValues.torque += -contactSelf.crossProduct(impulse);// * (2 - contactAboveCOM_self);
-		target.tempValues.torque += contactTarget.crossProduct(impulse);// * (2 - contactAboveCOM_target);
+		// self.tempValues.torque += -contactSelf.crossProduct(impulse);// * (2 - contactAboveCOM_self);
+		// target.tempValues.torque += contactTarget.crossProduct(impulse);// * (2 - contactAboveCOM_target);
 
 
 
