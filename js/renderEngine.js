@@ -311,7 +311,7 @@ function _RenderEngine() {
 			let mousePosition = Server.clients[i].mousePosition.copy();
 			let pos = this.camera.worldPosToCanvasPos(mousePosition).value;
 			
-			ctx.strokeStyle = "#f00";
+			ctx.strokeStyle = Server.clients[i].color;
 			ctx.moveTo(pos[0], pos[1] - size / 2);
 			ctx.lineTo(pos[0], pos[1] + size / 2);
 
@@ -319,7 +319,7 @@ function _RenderEngine() {
 			ctx.lineTo(pos[0] + size / 2, pos[1]);
 			ctx.stroke();
 
-			ctx.fillStyle = "#f00";
+			ctx.fillStyle = Server.clients[i].color;
 			ctx.fillText(Server.clients[i].id, pos[0], pos[1] + size);
 			ctx.fill();
 		}
