@@ -16,7 +16,8 @@ const Server = new function() {
 
 
     this.init = function() {
-        this.socket = new WebSocket("ws://tempspacegame.tk:8082", "spaceGame-protocol");
+        // this.socket = new WebSocket("ws://tempspacegame.tk:8082", "spaceGame-protocol");
+        this.socket = new WebSocket("ws://localhost:8082", "spaceGame-protocol");
 
         this.socket.onopen = function(_e) {
             reConnectAttempts = 0;
@@ -62,5 +63,7 @@ const Server = new function() {
 
             Server.clients.push(client);
         }
+
+        UI.clientPanel.setClientList(Server.clients);
     }
 }

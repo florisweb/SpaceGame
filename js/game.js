@@ -4,13 +4,16 @@ let RenderEngine;
 let InputHandler;
 let Animator;
 let Builder;
+let UI;
 
 function _Game() {
   this.updates = 0;
   this.running = true;
 
   this.setup = function() {
-    Animator = new _Animator();
+    UI            = new _UI();
+    
+    Animator      = new _Animator();
     PhysicsEngine = new _PhysicsEngine();
     RenderEngine 	= new _RenderEngine();
     InputHandler 	= new _InputHandler();
@@ -26,8 +29,10 @@ function _Game() {
       RenderEngine.camera.follow(PhysicsEngine.bodies[0]);
     }, 10);
 
-    // Server.init();
+    Server.init();
   }
+
+
 
   this.maxFps = 0;
   let prevFrame = new Date();

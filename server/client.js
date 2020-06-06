@@ -1,3 +1,10 @@
+const ClientColors = [
+    "#f00",
+    "#0f0",
+    "#00f",
+    "#fa0",
+];
+
 
 let Clients = [];
 module.exports.Clients = Clients;
@@ -15,7 +22,7 @@ Clients.removeClient = function(_id) {
 
 Clients.serialize = function() {
     let data = [];
-    for (let i = 0; i < this.length; i++) data.push(this[i].serialize());
+    for (let i = 0; i < this.length; i++) data.push(this[i].serialize(i));
     return data;
 }
 
@@ -90,10 +97,11 @@ function _Client(_connection) {
     }
 
 
-    this.serialize = function() {
+    this.serialize = function(_index) {
         let client = {
             id: this.id,
             mousePosition: this.mousePosition.value,
+            color: ClientColors[_index]
         };
         return client;
     }

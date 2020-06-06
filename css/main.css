@@ -31,3 +31,79 @@ html, body {
   /*background: rgb(41, 41, 41);*/
   background: #1a1a1a;
 }
+
+
+
+
+
+
+
+#clientListHolder {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    
+    /*width: 200px;*/
+    width: auto;
+    height: auto;
+    
+    z-index: 10;
+
+    padding: 3px 10px;
+
+
+    border-radius: 3px;
+    background: rgba(40, 40, 40, .9);
+    box-shadow: 5px 5px 20px 5px rgba(255, 255, 255, .02);
+}
+
+#clientListHolder .text.header {
+    font-size: 11px;
+    padding: 5px;
+
+    color: #555;
+
+    border-bottom: 1px solid #333;
+    margin-bottom: 5px;
+}
+
+#clientListHolder .clientItem {
+    position: relative;
+    height: 20px;
+
+    padding: 5px 0;
+
+}
+
+#clientListHolder .clientItem .clientColor {
+    float: left;
+    width: 6px;
+    height: 6px;
+
+    margin: 7px 5px;
+
+    border-radius: 100%;
+    background: #f00;
+}
+
+#clientListHolder .clientItem .clientName {
+    position: relative;
+    float: left;
+
+    margin-left: 3px;
+
+    width: auto;
+    max-width: 150px;
+    line-height: 20px;
+    font-size: 13px;
+    
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#clientListHolder .clientItem.self .clientName {
+    color: #ccc;
+}
+
+
+

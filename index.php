@@ -7,10 +7,13 @@
 
 
 		<link rel="stylesheet" type="text/css" href="css/component.css?a=1">
-		<link rel="stylesheet" type="text/css" href="css/main.css?a=10">
+		<link rel="stylesheet" type="text/css" href="css/main.css?a=11">
 		<script type="text/javascript" src="js/jQuery.js"></script>
 	</head>	
 	<body>
+		<div id="clientListHolder"></div>
+		
+
 		<canvas id="gameCanvas" width="800" height="600"></canvas>
 		
 
@@ -35,6 +38,7 @@
 
 			$.getScript("js/builder.js?antiCache=" 					+ antiCache, function() {});
 			$.getScript("js/server.js?antiCache=" 					+ antiCache, function() {});
+			$.getScript("js/UI.js?antiCache=" 						+ antiCache, function() {});
 			$.getScript("js/game.js?antiCache="						+ antiCache, function() {});
 			$.getScript("js/app.js?antiCache="						+ antiCache, function() {});
 			
