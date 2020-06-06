@@ -15,6 +15,9 @@ function Vector(_value) {
 	this.crossProduct = function(_vector) {
 		return this.value[0] * _vector.value[1] - this.value[1] * _vector.value[0];
 	}
+	this.scaledCrossProduct = function(_scalar) {
+		return new Vector(-_scalar * this.value[1], _scalar * this.value[0]);
+	}
 
 	
 	this.difference = function(_vector) {
@@ -79,58 +82,5 @@ function Vector(_value) {
 		let dAngle = _projectionVector.getAngle() - this.getAngle();
 		let length = _projectionVector.getLength() * Math.cos(dAngle);
 		return new Vector([0, 0]).setAngle(this.getAngle(), length);
-	}
-
-
-
-
-
-
-
-	// function applyFactor(_entity, _factor) {
-	// 	let fx = Math.cos(_factor.angle) * _factor.power;
-	// 	let fy = -Math.sin(_factor.angle) * _factor.power;
-
-	// 	return {x: _entity.x + fx, y: _entity.y + fy};
-	// }
-
-	// function calcFactor(_entity) {
-	// 	let inRange = getAllEntityFactorsWithinRange(_entity);
-	// 	let sumFactor = {
-	// 		angle: 0,
-	// 		power: 0
-	// 	};
-
-	// 	for (factor of inRange)
-	// 	{
-	// 		sumFactor = addFactors(sumFactor, factor);
-	// 	}
-
-	// 	return sumFactor;
-	// }
-
-	// function addFactors(_factor1, _factor2) {
-	// 	let f1x = Math.cos(_factor1.angle) 	* _factor1.power;
-	// 	let f1y = -Math.sin(_factor1.angle) * _factor1.power;
-	// 	let f2x = Math.cos(_factor2.angle) 	* _factor2.power;
-	// 	let f2y = -Math.sin(_factor2.angle) * _factor2.power;
-
-	// 	let newX = f1x + f2x;
-	// 	let newY = f1y + f2y;
-
-	// 	return {
-	// 		angle: atanWithDX(newX, newY),
-	// 		power: Math.sqrt(newX * newX + newY * newY)
-	// 	}
-	// }
-		
+	}		
 }
-
-
-
-
-	// function apply(_entity) {
-	// 	let coords = applyFactor(_entity, calcFactor(_entity));
-	// 	_entity.x = coords.x;
-	// 	_entity.y = coords.y;
-	// }
